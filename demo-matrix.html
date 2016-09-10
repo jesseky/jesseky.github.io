@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>矩阵点推进过程</title>
+    <style type="text/css" media="screen">
+        html,
+        body,
+        div,
+        p,
+        h1,
+        h2,
+        h3,
+        svg {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            background: #FFF;
+            font-size: 12px;
+            line-height: 1.5;
+            height: 100%;
+        }
+
+        text {
+            text-anchor: middle;
+            fill: #FFF;
+            font-size: 9px;
+        }
+
+        .draws-content test {
+            font-size: 12px;
+        }
+
+        svg {
+            margin: 0 auto;
+            display: block;
+            border: 1px solid #CCC;
+        }
+
+        .txt,
+        .txa {
+            border: 1px solid #AAA;
+            padding: 5px;
+            width: 100%;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+            font: 15px/1.5 Menlo, Consolas, "Lucida Console", monospace, Verdana, "Microsoft Yahei", sans-serif;
+        }
+
+        .txt:focus,
+        .txa:focus {
+            border-color: #66AFE9;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 5px rgba(102, 175, 233, 0.6);
+            outline: 0px none;
+        }
+
+        .txa-min {
+            font-size: 10px;
+        }
+
+        .btn {
+            border-radius: 2px;
+            width: 100%;
+            border: 1px solid #D5D5D5;
+            font-size: 1rem;
+            line-height: 1.5em;
+            padding: 3px 1em;
+            background-color: #eee;
+            background-image: linear-gradient(#FCFCFC, #EEE);
+            -webkit-apparence: none;
+        }
+
+        .btn:hover {
+            border-color: #CCC;
+            background-color: #DDD;
+            background-image: linear-gradient(#EEE, #DDD);
+        }
+
+        .btn:focus,
+        .btn:active {
+            border-color: #51A7E8;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn[disabled],
+        .btn[disabled]:hover,
+        .btn[disabled]:active {
+            color: rgba(102, 102, 102, 0.5);
+            background-image: none;
+            background-color: #EEE;
+            box-shadow: none;
+            border: 1px solid #D5D5D5;
+            cursor: not-allowed;
+        }
+
+        .main {
+            height: 100%;
+            min-width: 1000px;
+            display: flex;
+            flex-flow: row nowrap;
+        }
+
+        .draws {
+            flex: 1;
+            display: flex;
+            flex-flow: column;
+        }
+
+        .side-panel {
+            display: flex;
+            flex-flow: column;
+            padding: 0 20px;
+            width: 400px;
+            height: 100%;
+            background: #F2F2F2;
+        }
+
+        .results-total {
+            padding: 0 20px;
+        }
+
+        .side-panel label {
+            display: block;
+            padding: 5px 2px;
+        }
+
+        .results {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .results-have {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2) inset;
+        }
+
+        .results-total {
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .result-title-wp {
+            height: 30px;
+            width: 100%;
+        }
+
+        .result-content-wp {
+            flex: 1;
+            width: 100%;
+            display: flex;
+            align-items: center;
+        }
+
+        .result-btn-wp {
+            height: 40px;
+            padding-top: 10px;
+            width: 100%;
+        }
+
+        .result-content {
+            height: 95%;
+            width: 100%;
+        }
+
+        .draws-content {
+            padding: 5px;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .draws-console {
+            border-top: 1px solid #CCC;
+            height: 28px;
+            padding: 5px;
+            color: #ea1515;
+        }
+
+        .elements {
+            overflow-x: hidden;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main">
+        <div class="draws">
+            <div class="draws-content">
+                <svg id="drawBackground">
+                  <g id="svg-matrix"></g>
+                  <g id="svg-walks"></g>
+                </svg>
+            </div>
+            <div class="draws-console">
+                <div id="drawConsole">请使用最新版本Chrome/Firefox浏览器</div>
+            </div>
+        </div>
+        <div class="side-panel">
+            <div clas="result-title-wp"><label>结果校验，总点数: <strong id="resultTotal">190</strong></label></div>
+            <div class="result-content-wp"><textarea cols="50" rows="10" class="txa txa-min result-content" id="resultContent">[(1,1),(1,2),(2,1),(1,3),(2,2),(3,1),(1,4),(2,3),(3,2),(4,1),(1,5),(2,4),(3,3),(4,2),(5,1),(1,6),(2,5),(3,4),(4,3),(5,2),(6,1),(1,7),(2,6),(3,5),(4,4),(5,3),(6,2),(7,1),(1,8),(2,7),(3,6),(4,5),(5,4),(6,3),(7,2),(8,1),(1,9),(2,8),(3,7),(4,6),(5,5),(6,4),(7,3),(8,2),(9,1),(1,10),(2,9),(3,8),(4,7),(5,6),(6,5),(7,4),(8,3),(9,2),(10,1),(1,11),(2,10),(3,9),(4,8),(5,7),(6,6),(7,5),(8,4),(9,3),(10,2),(11,1),(1,12),(2,11),(3,10),(4,9),(5,8),(6,7),(7,6),(8,5),(9,4),(10,3),(11,2),(12,1),(1,13),(2,12),(3,11),(4,10),(5,9),(6,8),(7,7),(8,6),(9,5),(10,4),(11,3),(12,2),(13,1),(1,14),(2,13),(3,12),(4,11),(5,10),(6,9),(7,8),(8,7),(9,6),(10,5),(11,4),(12,3),(13,2),(14,1),(1,15),(2,14),(3,13),(4,12),(5,11),(6,10),(7,9),(8,8),(9,7),(10,6),(11,5),(12,4),(13,3),(14,2),(15,1),(1,16),(2,15),(3,14),(4,13),(5,12),(6,11),(7,10),(8,9),(9,8),(10,7),(11,6),(12,5),(13,4),(14,3),(15,2),(16,1),(1,17),(2,16),(3,15),(4,14),(5,13),(6,12),(7,11),(8,10),(9,9),(10,8),(11,7),(12,6),(13,5),(14,4),(15,3),(16,2),(17,1),(1,18),(2,17),(3,16),(4,15),(5,14),(6,13),(7,12),(8,11),(9,10),(10,9),(11,8),(12,7),(13,6),(14,5),(15,4),(16,3),(17,2),(18,1),(1,19),(2,18),(3,17),(4,16),(5,15),(6,14),(7,13),(8,12),(9,11),(10,10),(11,9),(12,8),(13,7),(14,6),(15,5),(16,4),(17,3),(18,2),(19,1)]</textarea></div>
+            <div class="result-btn-wp"><button type="button" class="btn" id="btnValidate">校验</button></div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        /* jshint esversion: 6 */
+        function $id(id) {
+            return document.getElementById(id);
+        }
+
+        function $q(q) {
+            return wrapperDom(document.querySelectorAll(q));
+        }
+
+        function wrapperDom(o) {
+            var ts = Object.prototype.toString.call(o);
+            return ts === "[object Array]" ? o : (ts === "[object NodeList]" ? Array.from(o) : [o]);
+        }
+
+        function toggleClass(obj, style) {
+            wrapperDom(obj).forEach(function(e) {
+                var cls = e.className ? e.className.split(/\s+/) : [];
+                if (cls.indexOf(style) >= 0) {
+                    cls = cls.filter(e => e !== style);
+                } else {
+                    cls.push(style);
+                }
+                e.className = cls.length > 0 ? cls.join(' ') : '';
+            });
+        }
+
+        function removeClass(obj, style) {
+            wrapperDom(obj).forEach(x => x.className = x.className ? x.className.split(/\s+/).filter(y => y !== style).join(' ') : '');
+        }
+
+        function addClass(obj, style) {
+            wrapperDom(obj).forEach(x => x.className = x.className ? x.className.split(/\s+/).filter(y => y !== style).concat([style]).join(' ') : '');
+        }
+
+        function setClass(obj, style, flag) {
+            return flag ? addClass(obj, style) : removeClass(obj, style);
+        }
+
+        function createDom(tag, attrs) {
+            var dom = document.createElement(tag);
+            for (var k in attrs) {
+                dom[k] = attrs[k];
+            }
+            return dom;
+        }
+
+        function drawPaths(svg, walks) {
+            $id('btnValidate').disabled = true;
+            $id('svg-matrix').innerHTML = '';
+            var max = walks.reduce((acc, e) => [Math.max(acc[0], e[0]), Math.max(acc[1], e[1])]);
+            var rows = max[0];
+            var cols = max[1];
+            var pad = 40;
+            var width = pad + pad * cols;
+            var height = pad + pad * rows;
+            svg.style.width = width + 'px';
+            svg.style.height = height + 'px';
+            // 绘制矩阵
+            var cr = 10;
+            var points = '';
+            var lines = '';
+            var drawPoints = function(arr) {
+                if (!arr.length) {
+                    return;
+                }
+                var m = arr.shift();
+                var px = m[1] * pad;
+                var py = m[0] * pad;
+                $id('svg-matrix').innerHTML += `<circle cx="${px}" cy="${py}" r="${cr}" stroke="transparent" fill="#222" /><text dx="${px}" dy="${py+0.4*cr}">${m[0]},${m[1]}</text>`;
+                if (arr.length) {
+                    setTimeout(function() {
+                        drawPoints(arr);
+                    }, 50);
+                } else {
+                    $id('btnValidate').disabled = false;
+                }
+            };
+            drawPoints(walks);
+        }
+
+        function parseWalks() {
+            try {
+                var val = $id('resultContent').value.replace(/(^[\r\n\t\s]+)|([\r\n\t\s]+$)/g, '').replace(/[\(\)]/g, x => ({
+                    '(': '[',
+                    ')': ']'
+                })[x]);
+                return /^\[\[.+\]\]$/.test(val) ? JSON.parse(val) : JSON.parse('[' + val + ']');
+            } catch (e) {
+                alert("Parse json error " + e.toString());
+            }
+            return null;
+        }
+        window.onload = function() {
+            var dsvg = $id('drawBackground');
+            $id('btnValidate').addEventListener('click', function() {
+                var walks = parseWalks();
+                if (walks && walks.length > 0 && walks[0].length > 1) {
+                    drawPaths(dsvg, walks);
+                } else {
+                    alert('没有解析到路径数据');
+                }
+            }, false);
+
+            $id('resultContent').addEventListener('input', function() {
+                var walks = parseWalks();
+                $id('resultTotal').innerHTML = walks ? walks.length : '';
+                $id('btnValidate').disabled = walks && walks.length > 0 && walks[0].length > 1 ? false : true;
+            }, false);
+        };
+    </script>
+</body>
+
+</html>
