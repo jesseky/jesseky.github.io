@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Jesse</title>
+    <style media="screen">
+        html,
+        body,
+        section,
+        article,
+        figure,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6,
+        div,
+        dl,
+        dt,
+        dd,
+        ol,
+        ul,
+        li,
+        form,
+        label,
+        input,
+        textarea {
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            font: 20px/1.75 Menlo, Consolas, "Lucida Console", monospace, Verdana, "Microsoft Yahei", sans-serif;
+            color: #FFF;
+            background: #111;
+            height: 100%;
+        }
+
+        body {
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100%;
+        }
+
+        a,
+        a:link,
+        a:visited {
+            color: #4ADA1C;
+            text-decoration: none;
+        }
+
+        a:hover {
+            text-shadow: 0 0 1px rgba(255, 255, 255, 0.5);
+        }
+
+        .main {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .content {
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .photo {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px 0;
+        }
+
+        .photo img {
+            display: block;
+            max-width: 200px;
+            max-height: 200px;
+            border-radius: 100%;
+            border: 3px solid #FFF;
+            box-shadow: 0 0 10px rgba(26, 207, 231, 0.87);
+        }
+
+        .title {
+            text-align: center;
+            font-size: 3rem;
+            color: #BBB;
+        }
+
+        .pages {
+            margin-top: 1em;
+            padding-left: 1em;
+            color: #3D86F9;
+        }
+
+        .pages li {
+            list-style-type: none;
+        }
+
+        .pages li:not(:last-child) {
+            margin-bottom: 0.5em;
+        }
+
+        @media only screen and (max-device-width: 800px) {
+            .main {
+                width: 96%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main">
+        <div class="content">
+            <figure class="photo">
+                <img src="img/avatar.jpg" alt="avatar" />
+            </figure>
+            <h1 class="title">Jesse</h1>
+            <article class="articles">
+                <ul class="pages">
+                    <li><a href="demo-matrix.html">矩阵点推进过程（演示）</a></li>
+                </ul>
+            </article>
+        </div>
+    </div>
+</body>
+
+</html>
