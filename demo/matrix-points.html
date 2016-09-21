@@ -38,7 +38,7 @@
         svg {
             margin: 0 auto;
             display: block;
-            border: 1px solid #CCC;
+            background: #F8F8F8;
         }
 
         .txt,
@@ -170,22 +170,18 @@
         }
 
         .draws-content {
-            padding: 5px;
             flex: 1;
             display: flex;
             justify-content: center;
             align-items: center;
+            overflow: hidden;
         }
 
         .draws-console {
             border-top: 1px solid #CCC;
-            height: 28px;
+            height: 1.5em;
             padding: 5px;
             color: #ea1515;
-        }
-
-        .elements {
-            overflow-x: hidden;
         }
     </style>
 </head>
@@ -193,8 +189,8 @@
 <body>
     <div class="main">
         <div class="draws">
-            <div class="draws-content">
-                <svg id="drawBackground">
+            <div class="draws-content" id="drawsContent">
+                <svg id="drawBackground" width="300" height="150">
                   <g id="svg-matrix"></g>
                   <g id="svg-walks"></g>
                 </svg>
@@ -224,30 +220,6 @@
             return ts === "[object Array]" ? o : (ts === "[object NodeList]" ? Array.from(o) : [o]);
         }
 
-        function toggleClass(obj, style) {
-            wrapperDom(obj).forEach(function(e) {
-                var cls = e.className ? e.className.split(/\s+/) : [];
-                if (cls.indexOf(style) >= 0) {
-                    cls = cls.filter(e => e !== style);
-                } else {
-                    cls.push(style);
-                }
-                e.className = cls.length > 0 ? cls.join(' ') : '';
-            });
-        }
-
-        function removeClass(obj, style) {
-            wrapperDom(obj).forEach(x => x.className = x.className ? x.className.split(/\s+/).filter(y => y !== style).join(' ') : '');
-        }
-
-        function addClass(obj, style) {
-            wrapperDom(obj).forEach(x => x.className = x.className ? x.className.split(/\s+/).filter(y => y !== style).concat([style]).join(' ') : '');
-        }
-
-        function setClass(obj, style, flag) {
-            return flag ? addClass(obj, style) : removeClass(obj, style);
-        }
-
         function createDom(tag, attrs) {
             var dom = document.createElement(tag);
             for (var k in attrs) {
@@ -265,8 +237,9 @@
             var pad = 40;
             var width = pad + pad * cols;
             var height = pad + pad * rows;
-            svg.style.width = width + 'px';
-            svg.style.height = height + 'px';
+            svg.setAttribute('width', width);
+            svg.setAttribute('height', height);
+            scaleSVG(svg);
             // 绘制矩阵
             var cr = 10;
             var points = '';
@@ -302,8 +275,14 @@
             }
             return null;
         }
+        function scaleSVG(dsvg) {
+          const oh = $id('drawsContent').offsetHeight;
+          const ih = dsvg.height.baseVal.value;
+          const r = ih > oh - 10 ? (oh-10)/ih : 1;
+          dsvg.style.transform = `scale(${r})`;
+        }
         window.onload = function() {
-            var dsvg = $id('drawBackground');
+            const dsvg = $id('drawBackground');
             $id('btnValidate').addEventListener('click', function() {
                 var walks = parseWalks();
                 if (walks && walks.length > 0 && walks[0].length > 1) {
@@ -312,12 +291,15 @@
                     alert('没有解析到路径数据');
                 }
             }, false);
-
             $id('resultContent').addEventListener('input', function() {
                 var walks = parseWalks();
                 $id('resultTotal').innerHTML = walks ? walks.length : '';
                 $id('btnValidate').disabled = walks && walks.length > 0 && walks[0].length > 1 ? false : true;
             }, false);
+            window.addEventListener('resize', function(){
+                scaleSVG(dsvg);
+            }, false);
+            scaleSVG(dsvg);
         };
     </script>
 </body>
