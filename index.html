@@ -59,6 +59,7 @@
         }
 
         .main {
+            width: 320px;
             max-width: 800px;
             margin: 0 auto;
         }
@@ -91,10 +92,46 @@
             color: #BBB;
         }
 
+        .navs {
+            display: flex;
+            flex-flow: row;
+            justify-content: space-between;
+        }
+
+        .navs li {
+            list-style-type: none;
+            border: 1px solid #CCC;
+            padding: 0 0.5em;
+            cursor: pointer;
+        }
+
+        .navs li:not(:last-child) {
+            margin: 0 0.5em 0 0;
+        }
+
+        .navs li.on {
+            color: #f7c837;
+        }
+
+        .navs li:not(.on):hover {
+            box-shadow: 0 0 5px rgba(26, 207, 231, 0.87);
+            border-color: #1ACFE7;
+            color: #1ACFE7;
+        }
+
+        .creations {
+            min-height: 160px;
+        }
+
         .pages {
+            font-size: 0.8rem;
             margin-top: 1em;
-            padding-left: 1em;
             color: #3D86F9;
+            display: none;
+        }
+
+        .pages-on {
+            display: block;
         }
 
         .pages li {
@@ -103,6 +140,10 @@
 
         .pages li:not(:last-child) {
             margin-bottom: 0.5em;
+        }
+
+        .pages li a:hover {
+            text-decoration: underline;
         }
 
         @media only screen and (max-device-width: 800px) {
@@ -121,12 +162,55 @@
             </figure>
             <h1 class="title">Jesse</h1>
             <article class="articles">
-                <ul class="pages">
-                    <li><a href="demo-matrix.html">矩阵点推进过程（演示）</a></li>
+                <ul class="navs">
+                    <li class="on">演示</li>
+                    <li>Chrome插件</li>
+                    <li>代码</li>
                 </ul>
+                <div class="creations">
+                    <section class="pages pages-on">
+                        <ul>
+                            <li><a href="demo/matrix-points.html" target="_blank">矩阵点推进过程（演示）</a></li>
+                            <li><a href="demo/path.html" target="_blank">矩阵从左上到右下路径遍历（演示）</a></li>
+                        </ul>
+                    </section>
+                    <section class="pages">
+                        <ul>
+                            <li><a href="https://github.com/jesseky/kcabout" target="_blank">KC-About 关键词检索，仅豆瓣（插件）</a></li>
+                            <li><a href="https://github.com/jesseky/kczoom" target="_blank">KC-Zoom 知乎、豆瓣头像放大（插件）</a></li>
+                        </ul>
+                    </section>
+                    <section class="pages">
+                        <ul>
+                            <li><a href="https://github.com/jesseky/kcabout" target="_blank">SAE One Page 单页PHP应用，支持SAE</a></li>
+                        </ul>
+                    </section>
+                </div>
             </article>
         </div>
     </div>
+    <script type="text/javascript">
+        /* jshint esversion: 6 */
+        function $q(q) {
+            return wrapperDom(document.querySelectorAll(q));
+        }
+
+        function wrapperDom(o) {
+            var ts = Object.prototype.toString.call(o);
+            return ts === "[object Array]" ? o : (ts === "[object NodeList]" ? Array.from(o) : [o]);
+        }
+        window.onload = function() {
+            $q('.navs li').forEach((e, i) => {
+                e.addEventListener('click', () => {
+                    $q(`.navs li:not(:nth-child(${i+1}))`).forEach(el => el.classList.remove('on'));
+                    e.classList.add('on');
+                    $q('.pages').forEach((p, j) => {
+                        p.classList[i === j ? 'add' : 'remove']('pages-on');
+                    });
+                }, false);
+            });
+        };
+    </script>
 </body>
 
 </html>

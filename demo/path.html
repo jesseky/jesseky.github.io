@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>路径遍历</title>
+    <style type="text/css" media="screen">
+        html,
+        body,
+        div,
+        p,
+        h1,
+        h2,
+        h3,
+        svg {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            background: #FFF;
+            font-size: 12px;
+            line-height: 1.5;
+            height: 100%;
+        }
+
+        text {
+            text-anchor: middle;
+            fill: blue;
+        }
+
+        .draws-content test {
+            font-size: 12px;
+        }
+
+        svg {
+            margin: 0 auto;
+            display: block;
+            border: 1px solid #CCC;
+        }
+
+        .txt,
+        .txa {
+            border: 1px solid #AAA;
+            padding: 5px;
+            width: 100%;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+            font: 15px/1.5 Menlo, Consolas, "Lucida Console", monospace, Verdana, "Microsoft Yahei", sans-serif;
+        }
+
+        .txt:focus,
+        .txa:focus {
+            border-color: #66AFE9;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 5px rgba(102, 175, 233, 0.6);
+            outline: 0px none;
+        }
+
+        .txa-min {
+            font-size: 10px;
+        }
+
+        .btn {
+            margin-top: 5px;
+            border-radius: 2px;
+            width: 100%;
+            border: 1px solid #D5D5D5;
+            font-size: 1rem;
+            line-height: 1.5em;
+            padding: 3px 1em;
+            background-color: #eee;
+            background-image: linear-gradient(#FCFCFC, #EEE);
+            -webkit-apparence: none;
+        }
+
+        .btn:hover {
+            border-color: #CCC;
+            background-color: #DDD;
+            background-image: linear-gradient(#EEE, #DDD);
+        }
+
+        .btn:focus,
+        .btn:active {
+            border-color: #51A7E8;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn[disabled],
+        .btn[disabled]:hover,
+        .btn[disabled]:active {
+            color: rgba(102, 102, 102, 0.5);
+            background-image: none;
+            background-color: #EEE;
+            box-shadow: none;
+            border: 1px solid #D5D5D5;
+            cursor: not-allowed;
+        }
+
+        .main {
+            height: 100%;
+            min-width: 1000px;
+            display: flex;
+            flex-flow: row nowrap;
+        }
+
+        .draws {
+            flex: 1;
+            display: flex;
+            flex-flow: column;
+        }
+
+        .side-panel {
+            display: flex;
+            flex-flow: column;
+            width: 420px;
+            height: 100%;
+            min-height: 600px;
+            background: #F2F2F2;
+        }
+
+        .side-controls,
+        .results-total {
+            padding: 0 20px;
+        }
+
+        .side-controls label {
+            display: block;
+            padding: 5px 2px;
+        }
+
+        .results {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            margin: 0;
+        }
+
+        .results-have {
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2) inset;
+        }
+
+        .result-validate {
+            margin-top: 20px;
+            border-top: 1px solid #CCC;
+            padding-top: 10px;
+        }
+
+        .results-total {
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .draws-content {
+            padding: 20px;
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .draws-console {
+            border-top: 1px solid #CCC;
+            height: 3em;
+            padding: 0.5em;
+            display: flex;
+            align-items: center;
+            color: #ea1515;
+        }
+
+        .elements {
+            overflow-x: hidden;
+        }
+
+        .item {
+            margin-bottom: 20px;
+            background: #FFF;
+            padding: 10px;
+            border: 1px solid #CCC;
+            display: flex;
+            flex-flow: row nowrap;
+        }
+
+        .item:hover {
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .item-on {
+            box-shadow: 0 0 5px rgba(42, 218, 249, 0.50);
+            border-color: #2ADAF9;
+        }
+
+        .item .els {
+            flex: 1;
+            padding: 0 10px;
+        }
+
+        .item svg {
+            height: 80px;
+        }
+
+        .item svg g {
+            transform: scale(0.2);
+        }
+
+        .item h3 {}
+    </style>
+</head>
+
+<body>
+    <div class="main">
+        <div class="draws">
+            <div class="draws-content">
+                <svg id="drawBackground">
+          <g id="svg-matrix"></g>
+          <g id="svg-walks"></g>
+        </svg>
+            </div>
+            <div class="draws-console">
+                <div id="drawConsole">请使用最新版本Chrome/Firefox浏览器</div>
+            </div>
+        </div>
+        <div class="side-panel">
+            <div class="side-controls">
+                <label>原始矩阵</label>
+                <textarea cols="50" rows="5" class="txa" id="matrixContent"></textarea>
+                <button type="button" class="btn" id="btnCalculate" disabled="disabled">计算</button>
+                <div class="result-validate">
+                    <label>结果校验，最大值: <strong id="resultMaxValue"></strong></label>
+                    <textarea cols="50" rows="3" class="txa txa-min" id="resultContent"></textarea>
+                    <button type="button" class="btn" id="btnValidate" disabled="disabled">校验</button>
+                </div>
+            </div>
+            <div class="results-total" id="resultsTotal">总路径: <strong id="resultsTotalValue"></strong></div>
+            <div class="results" id="resultsElements">
+                <div class="elements" id="drawElements">
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+        /* jshint esversion: 6 */
+        function $id(id) {
+            return document.getElementById(id);
+        }
+
+        function $q(q) {
+            return wrapperDom(document.querySelectorAll(q));
+        }
+
+        function wrapperDom(o) {
+            var ts = Object.prototype.toString.call(o);
+            return ts === "[object Array]" ? o : (ts === "[object NodeList]" ? Array.from(o) : [o]);
+        }
+
+        function toggleClass(obj, style) {
+            wrapperDom(obj).forEach(function(e) {
+                e.classList.toggle(style);
+            });
+        }
+
+        function removeClass(obj, style) {
+            wrapperDom(obj).forEach(x => x.classList.remove(style));
+        }
+
+        function addClass(obj, style) {
+            wrapperDom(obj).forEach(x => x.classList.add(style));
+        }
+
+        function setClass(obj, style, flag) {
+            return flag ? addClass(obj, style) : removeClass(obj, style);
+        }
+
+        function createDom(tag, attrs) {
+            var dom = document.createElement(tag);
+            for (var k in attrs) {
+                dom[k] = attrs[k];
+            }
+            return dom;
+        }
+
+        function getAllWalks(matrix) {
+            var paths = {};
+            var rows = matrix.length;
+            var cols = matrix[0].length;
+            for (var i = 0; i < rows; i++) {
+                for (var j = 0; j < cols; j++) {
+                    var forward = []; // 一个空数组
+                    if (i + 1 < rows) {
+                        forward.push([i + 1, j]);
+                    }
+                    if (j + 1 < cols) {
+                        forward.push([i, j + 1]);
+                    }
+                    paths[`${i}-${j}`] = forward;
+                }
+            }
+            var first = [0, 0];
+            var walks = [
+                [first]
+            ];
+            var step = 1;
+            var steps = rows + cols - 1;
+            while (step < steps) {
+                var appends = [];
+                walks.forEach(function(e, i) {
+                    var last = e[e.length - 1];
+                    var forward = last && last.length > 0 ? paths[`${last[0]}-${last[1]}`] : null; // 下一步路径
+                    if (forward && forward.length > 0) {
+                        forward.slice(1).forEach((fv, fk) => appends.push(e.concat([fv])));
+                        walks[i].push(forward[0]);
+                    }
+                });
+                walks.push(...appends);
+                step++;
+            }
+            return walks;
+        }
+
+        function drawPaths(svg, matrix, walks) {
+            $id('svg-matrix').innerHTML = '';
+            $id('svg-walks').innerHTML = '';
+            if (!matrix) {
+                return;
+            }
+            var rows = matrix.length;
+            var cols = matrix[0].length;
+            var pad = 60;
+            var width = pad + pad * cols;
+            var height = pad + pad * rows;
+            svg.style.width = width + 'px';
+            svg.style.height = height + 'px';
+            // 绘制矩阵
+            var cr = 12;
+            var points = '';
+            var lines = '';
+            for (var i = 0; i < rows; i++) {
+                for (var j = 0; j < cols; j++) {
+                    var px = pad + j * pad;
+                    var py = pad + i * pad;
+                    points += `<circle cx="${px}" cy="${py}" r="${cr}" stroke="transparent" fill="#ccc" /><text dx="${px}" dy="${py+0.4*cr}">${matrix[i][j]}</text>`;
+                }
+            }
+            var dResult = $id('resultsElements');
+            $id('svg-matrix').innerHTML = points;
+            setClass(dResult, 'results-have', walks && walks.length > 0);
+            if (!walks || walks.length <= 0) {
+                return;
+            }
+            $id('btnValidate').disabled = true;
+            var gWalks = $id('svg-walks');
+            var dConsole = $id('drawConsole');
+            var dElement = $id('drawElements');
+            gWalks.innerHTML = '';
+            dElement.innerHTML = '';
+            dConsole.innerHTML = '';
+            $id('resultsTotalValue').innerHTML = walks.length;
+
+            function drawLines(element, callback) {
+                var p = element.shift();
+                var e = element[0];
+                if (e) {
+                    dConsole.innerHTML += '[' + e.join(', ') + '] ';
+                    gWalks.innerHTML += `<line x1="${pad+p[1]*pad}" y1="${pad+p[0]*pad}" x2="${pad+e[1]*pad}" y2="${pad+e[0]*pad}" stroke="red" stroke-width="2" />`;
+                    setTimeout(function() {
+                        drawLines(element, callback);
+                    }, 100);
+                } else {
+                    callback();
+                }
+            }
+
+            function bindElementsEvent() {
+                var els = wrapperDom(drawElements.querySelectorAll('.item'));
+                els.forEach(function(e) {
+                    e.addEventListener('click', function() {
+                        removeClass(els.filter(x => x !== this), 'item-on');
+                        toggleClass(this, 'item-on');
+                        gWalks.innerHTML = /item-on/.test(this.className) ? this.querySelectorAll('g').item(1).innerHTML : '';
+                    }, false);
+                });
+            }
+
+            function drawWalks(index) {
+                var element = walks[index];
+                if (element) {
+                    var els = element.map(e => `[${e.join(', ')}]`).join(' ');
+                    var sum = element.map(e => matrix[e[0]][e[1]]).reduce((s, e) => s + e);
+                    dConsole.innerHTML += '[' + element[0].join(', ') + '] ';
+                    drawLines(element, function() {
+                        dElement.appendChild(createDom('div', {
+                            className: 'item animated fadeInRight',
+                            innerHTML: '<svg style="width: ' + (width * 0.2) + 'px; height:  ' + (height * 0.2) + 'px;"><g>' + points + '</g><g>' + gWalks.innerHTML +
+                                '</g></svg><div class="els"><h3>' + index + '</h3><p>' +
+                                els + '</p><p>sum = ' + sum +
+                                '</p></div>'
+                        }));
+                        setTimeout(function() {
+                            dResult.scrollTop = dResult.scrollHeight;
+                        }, 0);
+                        setTimeout(function() {
+                            gWalks.innerHTML = '';
+                            dConsole.innerHTML = '';
+                            if (index < walks.length - 1) {
+                                drawWalks(index + 1);
+                            } else { // 全部绘制完成
+                                $id('btnValidate').disabled = false;
+                                bindElementsEvent();
+                            }
+                        }, 500);
+                    });
+                }
+            }
+            drawWalks(0);
+        }
+
+        function parseMatrixAlert() {
+            var matrix = parseMatrix();
+            if (matrix.length < 2 || matrix[0].length < 2 || !matrix.slice(1).every(x => x.length === matrix[0].length)) {
+                alert('请输入至少2X2、所有元素必须为整数的合法矩阵');
+                return null;
+            }
+            return matrix;
+        }
+
+        function parseMatrix() {
+            return $id('matrixContent').value.replace(/(^[\r\n\t\s]+)|([\r\n\t\s]+$)/g, '').split(/\r?\n/).map(r => r.split(/,\s*/).filter(x => /^[0-9][1-9]*$/.test(x)).map(x => parseInt(x)));
+        }
+
+        function parseWalks() {
+            try {
+                var val = $id('resultContent').value.replace(/(^[\r\n\t\s]+)|([\r\n\t\s]+$)/g, '').replace(/[\(\)]/g, x => ({
+                    '(': '[',
+                    ')': ']'
+                })[x]);
+                return /^\[\[.+\]\]$/.test(val) ? JSON.parse(val) : val.split(/\r?\n/).map(r => JSON.parse('[' + r + ']'));
+            } catch (e) {
+
+            }
+            return null;
+        }
+        window.onload = function() {
+            if (!Array.from) {
+                alert('浏览器不支持ES6特性无法正常运行！');
+                return;
+            }
+            var initMatrix = [
+                [0, 0, 8, 0, 0],
+                [0, 0, 0, 9, 0],
+                [0, 7, 0, 0, 0],
+                [0, 0, 6, 0, 0]
+            ];
+            var dsvg = $id('drawBackground');
+            $id('btnCalculate').disabled = false;
+            $id('matrixContent').value = initMatrix.map(r => r.join(', ')).join("\r\n");
+            $id('btnCalculate').addEventListener('click', function() {
+                $id('resultMaxValue').innerHTML = '';
+                $id('resultContent').value = '';
+                var matrix = parseMatrixAlert();
+                if (matrix) {
+                    var walks = getAllWalks(matrix); // 获取所有路径
+                    var sums = walks.map(r => r.map(e => matrix[e[0]][e[1]]).reduce((s, e) => s + e));
+                    var max = Math.max(...sums);
+                    var maxWalks = sums.map((e, i) => e === max ? i : null).filter(e => e !== null);
+                    $id('resultMaxValue').innerHTML = `${max} (${maxWalks.length}): [${maxWalks.join(', ')}]`;
+                    $id('resultContent').value = walks.map(r => r.map(e => JSON.stringify(e)).join(', ')).join("\r\n");
+                    $id('btnValidate').disabled = walks && walks.length > 0 && walks[0].length > 0 && walks[0][0].length == 2 ? false : true;
+                }
+            }, false);
+            $id('btnValidate').addEventListener('click', function() {
+                var matrix = parseMatrixAlert();
+                var walks = parseWalks();
+                if (matrix) {
+                    if (walks && walks.length > 0 && walks[0].length > 0 && walks[0][0].length == 2) {
+                        drawPaths(dsvg, matrix, walks);
+                    } else {
+                        alert('没有解析到路径数据');
+                    }
+                }
+            }, false);
+            $id('resultContent').addEventListener('input', function() {
+                var walks = parseWalks();
+                $id('resultsTotalValue').innerHTML = '';
+                $id('btnValidate').disabled = walks && walks.length > 0 && walks[0].length > 0 && walks[0][0].length == 2 ? false : true;
+            }, false);
+            $id('matrixContent').addEventListener('input', function() {
+                var matrix = parseMatrix();
+                $id('resultMaxValue').innerHTML = '';
+                $id('btnCalculate').disabled = matrix.length > 1 && matrix[0].length > 1 && matrix.slice(1).every(x => x.length === matrix[0].length) ? false : true;
+                drawPaths(dsvg, $id('btnCalculate').disabled ? null : matrix, null);
+            }, false);
+            drawPaths(dsvg, initMatrix, null);
+        };
+    </script>
+</body>
+
+</html>
