@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>日历天数计算</title>
+    <style type="text/css" media="screen">
+        html,
+        body,
+        div,
+        p,
+        h1,
+        h2,
+        h3,
+        svg {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            background: #E2E2E2;
+            font-size: 12px;
+            line-height: 1.5;
+            height: 100%;
+        }
+
+        .txt,
+        .txa {
+            border: 1px solid #AAA;
+            padding: 5px;
+            width: 100%;
+            border-radius: 3px;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+            font: 15px/1.5 Menlo, Consolas, "Lucida Console", monospace, Verdana, "Microsoft Yahei", sans-serif;
+        }
+
+        .txt:focus,
+        .txa:focus {
+            border-color: #66AFE9;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 5px rgba(102, 175, 233, 0.6);
+            outline: 0px none;
+        }
+
+        .txa-min {
+            font-size: 10px;
+        }
+
+        .btn {
+            margin-top: 5px;
+            border-radius: 2px;
+            width: 100%;
+            border: 1px solid #D5D5D5;
+            font-size: 1rem;
+            line-height: 1.5em;
+            padding: 3px 1em;
+            background-color: #eee;
+            background-image: linear-gradient(#FCFCFC, #EEE);
+            -webkit-apparence: none;
+        }
+
+        .btn:hover {
+            border-color: #CCC;
+            background-color: #DDD;
+            background-image: linear-gradient(#EEE, #DDD);
+        }
+
+        .btn:focus,
+        .btn:active {
+            border-color: #51A7E8;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn[disabled],
+        .btn[disabled]:hover,
+        .btn[disabled]:active {
+            color: rgba(102, 102, 102, 0.5);
+            background-image: none;
+            background-color: #EEE;
+            box-shadow: none;
+            border: 1px solid #D5D5D5;
+            cursor: not-allowed;
+        }
+
+        .main {
+            height: 100%;
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: center;
+            justify-content: center;
+        }
+        h1{text-align: center; font-size: 2em; line-height: 2.0;}
+
+        .container{
+            background: #FFF;
+            width: 290px; padding: 15px;
+            box-shadow:  0 0 10px rgba(0,0,0, 0.1);
+            border-radius: 2px;
+        }
+        .container label{padding-bottom: 3px; display: block; color: #555;}
+        .container p{margin-bottom: 15px;}
+    </style>
+    <script src="vue.js"></script>
+</head>
+
+<body>
+    <div class="main">
+      <div class="container" id="container">
+        <h1>日历天数计算</h1>
+        <p><label>起始日期：</label><input type="date" class="txt" v-model="start" v-on:input="start_ch" /></p>
+        <p><label>相隔天数：</label><input type="number" step="1" class="txt" v-model="days" v-on:input="days_ch" /></p>
+        <p><label>终止日期：</label><input type="date" class="txt" v-model="end" v-on:input="end_ch" /></p>
+        <h2>计算从某天起的第100天，相隔99天</h2>
+      </div>
+    </div>
+    <script type="text/javascript">
+      function str_date(date){
+        var d = [date.getFullYear(), date.getMonth()+1, date.getDate()];
+        for(var k in d) if(d[k].toString().length<2) d[k] = '0'+d[k];
+        return d.join('-');
+      }
+      function to_date(date, days, minus) {
+        var ds = date.split('-');
+        if(ds.length <3){
+          return '';
+        }
+        var tm = new Date(new Date(ds[0], parseInt(ds[1])-1, ds[2]).getTime() + (typeof minus !== 'undefined' ? minus : 1) * days * 24 * 3600 * 1000);
+        return str_date(tm);
+      }
+      function to_days(d1, d2){
+        var ds1 = d1.split('-');
+        var ds2 = d2.split('-');
+        if(ds1.length<3 || ds2.length <3){
+          return '';
+        }
+        var gap = new Date(ds1[0], parseInt(ds1[1])-1, ds1[2]).getTime() - new Date(ds2[0], parseInt(ds2[1])-1, ds2[2]).getTime() ;
+        return !isNaN(gap) ? gap/1000/86400 : '';
+      }
+      var start = str_date(new Date());
+      var app = new Vue({
+        el: '#container',
+        data: {
+          days: 99,
+          start: start,
+          end: to_date(start, 99)
+        },
+        methods: {
+          start_ch: function() {
+            this.end = to_date(this.start, this.days);
+          },
+          days_ch: function () {
+            this.end = to_date(this.start, this.days);
+          },
+          end_ch: function(){
+            this.days = to_days(this.end, this.start);
+          }
+        }
+      });
+    </script>
+  </body>
+</html>

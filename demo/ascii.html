@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+    <title>ASCII</title>
+    <style type="text/css">
+      #main{max-width: 1300px;}
+      div, b, p, i{margin:0; padding:0; font-weight: normal; font-style: normal;}
+      b{font-size: 12px; line-height: 1em; border: 1px solid #CCC; padding: 2px; float: left; text-align: center; width: 100px; height: 90px; }
+      i{font-size: 30px; line-height: 1em; height: 1em; margin-bottom: 10px;width: 100%; display: block; color: #CC00DD;}
+    </style>
+</head>
+
+<body>
+  <div id="main">
+
+  </div>
+</body>
+<script type="text/javascript">
+  document.addEventListener('DOMContentLoaded', function(){
+    var s = '';
+    for(var i=0; i<5000; i++){
+      s += '<b><i>'+String.fromCharCode(i)+'</i><p>\\u'+(i).toString(16)+'</p><div>'+i+'</div></b>';
+    }
+    document.getElementById('main').innerHTML = s;
+  });
+</script>
+</html>
