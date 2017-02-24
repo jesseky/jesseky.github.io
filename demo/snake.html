@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+    <title>Snake矩阵</title>
+    <style type="text/css" media="screen">
+        html,
+        body,
+        div,
+        p,
+        h1,
+        h2,
+        h3,
+        svg {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            background: #E2E2E2;
+            font-size: 12px;
+            line-height: 1.5;
+            height: 100%;
+        }
+        .main {
+            height: 100%;
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: center;
+            justify-content: center;
+        }
+        h1{text-align: center; font-size: 2em; line-height: 2.0;}
+        h2{font-size: 1em;}
+        .container{}
+        table, tbody, tr, td {margin: 0; padding:0; }
+        table, td{ border: 1px solid #000; border-collapse: collapse;}
+        td{width: 2.5em; text-align: center; height: 2.5em; background: #FFF;}
+        #values{margin-top: 1em; padding:3px 5px; }
+    </style>
+    <script src="vue.js"></script>
+</head>
+
+<body>
+    <div class="main">
+      <div class="container" id="container">
+
+      </div>
+      <div id="values"></div>
+    </div>
+    <script type="text/javascript">
+      function snake(m, n) {
+        return (m-1+n) * (m-1+n-1)/2+m;
+      }
+      function snake_get(val) {
+        var m = 100;
+        var n = 100;
+        for(var i=1; i<m; i++){
+          for(var j=1; j<n; j++) {
+            if(snake(i,j) == val){
+              return [i, j, val];
+            }
+          }
+        }
+        return null;
+      }
+      var table = '<table><tbody>';
+      for(var i=1 ; i< 10; i++){
+        table += '<tr>';
+        for(var j=i; j<10; j++) {
+          table += '<td>'+(j*(j-1)/2+i)+'</td>';
+        }
+        table += '</tr>';
+      }
+      table += '</tbody></table>';
+      document.getElementById('container').innerHTML = table;
+      document.getElementById('values').innerHTML = '第9行4列：'+ snake(9,4) + '。1995所在行列：'+snake_get(1995);
+    </script>
+  </body>
+</html>
