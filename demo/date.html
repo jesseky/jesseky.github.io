@@ -20,10 +20,12 @@
 
         html,
         body {
+            color: #1f2f3d;
             background: #E2E2E2;
-            font-size: 12px;
+            font-size: 14px;
             line-height: 1.5;
             height: 100%;
+            font: 16px/1.5 Menlo, Consolas, "Lucida Console", monospace, Verdana, "Microsoft Yahei", sans-serif;
         }
 
         .txt,
@@ -36,11 +38,12 @@
             -webkit-box-sizing: border-box;
             -moz-box-sizing: border-box;
             transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
-            font: 15px/1.5 Menlo, Consolas, "Lucida Console", monospace, Verdana, "Microsoft Yahei", sans-serif;
+            font: inherit;
         }
 
         .txt:focus,
         .txa:focus {
+            color: #20a0ff;
             border-color: #66AFE9;
             box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 5px rgba(102, 175, 233, 0.6);
             outline: 0px none;
@@ -51,13 +54,12 @@
         }
 
         .btn {
-            margin-top: 5px;
             border-radius: 2px;
             width: 100%;
             border: 1px solid #D5D5D5;
-            font-size: 1rem;
+            font-size: 14px;
             line-height: 1.5em;
-            padding: 3px 1em;
+            padding: 0px 0.5em;
             background-color: #eee;
             background-image: linear-gradient(#FCFCFC, #EEE);
             -webkit-apparence: none;
@@ -71,6 +73,7 @@
 
         .btn:focus,
         .btn:active {
+            outline: 0;
             border-color: #51A7E8;
             box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
         }
@@ -93,73 +96,155 @@
             align-items: center;
             justify-content: center;
         }
-        h1{text-align: center; font-size: 2em; line-height: 2.0;}
-        h2{font-size: 1em;}
-        .container{
+
+        h1 {
+            text-align: center;
+            font-size: 2em;
+            line-height: 2.0;
+            margin-bottom: 0.5em;
+            text-shadow: 0 0 2px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            font-size: 12px;
+            font-weight: normal;
+            color: #999;
+        }
+
+        .container {
             background: #FFF;
-            width: 282px; padding: 12px;
-            box-shadow:  0 0 10px rgba(0,0,0, 0.1);
+            width: 282px;
+            padding: 12px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 2px;
         }
-        .container label{padding-bottom: 3px; display: block; color: #555;}
-        .container p{margin-bottom: 15px;}
+
+        .container label.lbl {
+            padding-bottom: 3px;
+            display: block;
+            color: #5e6d82;
+        }
+
+        .block,
+        .radios {
+            margin-bottom: 15px;
+        }
+
+        .container .btn {
+            float: right;
+            width: auto;
+        }
+
+        .radios {
+            display: flex;
+        }
+
+        .radios label {
+            width: 50%;
+        }
+
+        .radios input:checked~span {
+            color: #20a0ff;
+        }
+
+        strong {
+            color: #FF4949;
+            font-weight: bold;
+        }
     </style>
     <script src="vue.js"></script>
 </head>
 
 <body>
     <div class="main">
-      <div class="container" id="container">
-        <h1>日历天数计算</h1>
-        <p><label>起始日期：</label><input type="date" class="txt" v-model="start" v-on:input="start_ch" /></p>
-        <p><label>相隔天数：</label><input type="number" step="1" class="txt" v-model="days" v-on:input="days_ch" /></p>
-        <p><label>终止日期：</label><input type="date" class="txt" v-model="end" v-on:input="end_ch" /></p>
-        <h2>备注：计算从某天起的第100天，实际应相隔99天</h2>
-      </div>
+        <div class="container" id="container">
+            <h1>日历天数计算</h1>
+            <div class="block">
+                <p><button type="button" class="btn" v-on:click="set_start_today()">今天</button><label class="lbl">起始日期：</label></p>
+                <input type="date" class="txt" v-model="start" v-on:input="start_ch" />
+            </div>
+            <p class="radios">
+                <label><input type="radio" name="type" v-model="show_type" v-bind:value="tp_date"> <span>计算间隔天数</span></label>
+                <label><input type="radio" name="type" v-model="show_type" v-bind:value="tp_days"> <span>计算终止日期</span></label>
+            </p>
+            <div class="block">
+                <div v-show="show_type==tp_date">
+                    <div class="block">
+                        <p><button type="button" class="btn" v-on:click="set_end_today()">今天</button><label class="lbl">终止日期：</label></p>
+                        <input type="date" class="txt" v-model="end" v-on:input="end_ch" />
+                    </div>
+                    <p>间隔天数：<strong>{{ days }}</strong></p>
+                </div>
+                <div v-show="show_type==tp_days">
+                    <p class="block"><label class="lbl">相隔天数：</label><input type="number" step="1" class="txt" v-model="days" v-on:input="days_ch" /></p>
+                    <p>终止日期：<strong>{{ end }}</strong></p>
+                </div>
+            </div>
+            <h2>备注：计算从某天起的第100天，实际应相隔99天</h2>
+        </div>
     </div>
     <script type="text/javascript">
-      function str_date(date){
-        var d = [date.getFullYear(), date.getMonth()+1, date.getDate()];
-        for(var k in d) if(d[k].toString().length<2) d[k] = '0'+d[k];
-        return d.join('-');
-      }
-      function to_date(date, days, minus) {
-        var ds = date.split('-');
-        if(ds.length <3){
-          return '';
+        function str_date(date) {
+            var d = [date.getFullYear(), date.getMonth() + 1, date.getDate()];
+            for (var k in d)
+                if (d[k].toString().length < 2) d[k] = '0' + d[k];
+            return d.join('-');
         }
-        var tm = new Date(new Date(ds[0], parseInt(ds[1])-1, ds[2]).getTime() + (typeof minus !== 'undefined' ? minus : 1) * days * 24 * 3600 * 1000);
-        return str_date(tm);
-      }
-      function to_days(d1, d2){
-        var ds1 = d1.split('-');
-        var ds2 = d2.split('-');
-        if(ds1.length<3 || ds2.length <3){
-          return '';
+
+        function to_date(date, days, minus) {
+            var ds = date.split('-');
+            if (ds.length < 3) {
+                return '';
+            }
+            var tm = new Date(new Date(ds[0], parseInt(ds[1]) - 1, ds[2]).getTime() + (typeof minus !== 'undefined' ? minus : 1) * days * 24 * 3600 * 1000);
+            return str_date(tm);
         }
-        var gap = new Date(ds1[0], parseInt(ds1[1])-1, ds1[2]).getTime() - new Date(ds2[0], parseInt(ds2[1])-1, ds2[2]).getTime() ;
-        return !isNaN(gap) ? gap/1000/86400 : '';
-      }
-      var start = str_date(new Date());
-      var app = new Vue({
-        el: '#container',
-        data: {
-          days: 99,
-          start: start,
-          end: to_date(start, 99)
-        },
-        methods: {
-          start_ch: function() {
-            this.end = to_date(this.start, this.days);
-          },
-          days_ch: function () {
-            this.end = to_date(this.start, this.days);
-          },
-          end_ch: function(){
-            this.days = to_days(this.end, this.start);
-          }
+
+        function to_days(d1, d2) {
+            var ds1 = d1.split('-');
+            var ds2 = d2.split('-');
+            if (ds1.length < 3 || ds2.length < 3) {
+                return '';
+            }
+            var gap = new Date(ds1[0], parseInt(ds1[1]) - 1, ds1[2]).getTime() - new Date(ds2[0], parseInt(ds2[1]) - 1, ds2[2]).getTime();
+            return !isNaN(gap) ? gap / 1000 / 86400 : '';
         }
-      });
+        var start = str_date(new Date());
+        var app = new Vue({
+            el: '#container',
+            data: {
+                days: 99,
+                start: start,
+                show_type: 'tp_date',
+                tp_date: 'tp_date',
+                tp_days: 'tp_days',
+                end: to_date(start, 99)
+            },
+            methods: {
+                start_ch: function() {
+                    if (this.tp_days == this.show_type) {
+                        this.end = to_date(this.start, this.days);
+                    } else {
+                        this.days = to_days(this.end, this.start);
+                    }
+                },
+                days_ch: function() {
+                    this.end = to_date(this.start, this.days);
+                },
+                end_ch: function() {
+                    this.days = to_days(this.end, this.start);
+                },
+                set_start_today: function() {
+                    this.start = str_date(new Date());
+                    this.start_ch();
+                },
+                set_end_today: function() {
+                    this.end = str_date(new Date());
+                    this.end_ch();
+                }
+            }
+        });
     </script>
-  </body>
+</body>
+
 </html>
