@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+    <title>JS-LED字符时钟</title>
+    <style type="text/css" media="screen">
+        html,
+        body,
+        div,
+        p,
+        h1,
+        h2,
+        h3,
+        header,
+        footer,
+        section,
+        pre,
+        article,
+        input,
+        label {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            color: #1f2f3d;
+            background: #E2E2E2;
+            font-size: 14px;
+            line-height: 1.5;
+            height: 100%;
+            font: 16px/1.5 Menlo, Consolas, "Lucida Console", monospace, Verdana, "Microsoft Yahei", sans-serif;
+        }
+
+        .txt,
+        .txa {
+            border: 1px solid #AAA;
+            padding: 5px;
+            width: 100%;
+            border-radius: 3px;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+            font: inherit;
+        }
+
+        .txt:focus,
+        .txa:focus {
+            color: #20a0ff;
+            border-color: #66AFE9;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 5px rgba(102, 175, 233, 0.6);
+            outline: 0px none;
+        }
+
+        .lbl {
+            text-align: right;
+            padding: 0.5em;
+            display: block;
+            color: #5e6d82;
+        }
+
+        .main {
+            height: 100%;
+            display: flex;
+            flex-flow: column nowrap;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .container {
+            width: 98%;
+            flex: 1;
+        }
+
+        header {
+            height: 5em;
+        }
+
+        h1 {
+            line-height: 2em;
+        }
+
+        footer {
+            height: 4em;
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+
+        footer .txt,
+        footer .lbl {
+            width: 25%;
+        }
+
+        footer {
+            height: 4em;
+        }
+
+        pre {
+            background: #000;
+            padding: 1em 2px 1.65em 2px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+            color: #FFF;
+            text-shadow: 2px 2px 2px rgba(255, 255, 255, 0.1);
+            overflow: auto;
+            text-align: center;
+            line-height: 1.25em;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main">
+        <header>
+            <h1>JS-LED字符时钟</h1>
+        </header>
+        <section class="container">
+            <pre id="preText"></pre>
+        </section>
+
+        <footer>
+            <label class="lbl">大小</label><input type="number" class="txt" step="1" min="1" max="100" id="size" value="1">
+            <label class="lbl">间距</label><input type="number" class="txt" step="1" min="0" max="100" id="pad" value="1">
+        </footer>
+    </div>
+    <script type="text/javascript">
+        Array.prototype.transpose = function () {
+            return this[0].map((val, col) => this.map(row => row[col]));
+        };
+
+        function led(p_size, p_pad, txt) {
+            let size = isNaN(p_size) || p_size <= 0 ? 1 : p_size;
+            let pad = isNaN(p_pad) || p_pad < 0 ? 0 : p_pad;
+            const fonts = {
+                '0': [" _ ", "| |", "|_|"],
+                '1': ["   ", "  |", "  |"],
+                '2': [" _ ", " _|", "|_ "],
+                '3': [" _ ", " _|", " _|"],
+                '4': ["   ", "|_|", "  |"],
+                '5': [" _ ", "|_ ", " _|"],
+                '6': [" _ ", "|_ ", "|_|"],
+                '7': [" _ ", "  |", "  |"],
+                '8': [" _ ", "|_|", "|_|"],
+                '9': [" _ ", "|_|", " _|"]
+            };
+
+            function zoom(font) { // 放大字体
+                let zoomW = fo => fo[0] + fo[1].repeat(size) + fo[2];
+                let zoomH = fo => Array.from({
+                    length: size - 1
+                }, () => fo.replace(/[^|]/g, ' ')).concat(fo);
+                return [zoomW(font[0])].concat(zoomH(zoomW(font[1]))).concat(zoomH(zoomW(font[2])));
+            }
+
+            return [...String(txt)]
+                .map(x => /^\d$/.test(x) ? fonts[x] : [' ' + (size > 1 ? x : ' ') + ' ', ' ' + x + ' ', ' ' + x + ' ']) // 第一步映射字体
+                .map(zoom) // 放大，可以并入上一步，为了清晰，独立出来一步
+                .transpose() // 矩阵变换，行列交换。
+                .map(x => x.join(" ".repeat(pad))) // 每一行连接
+                .join("\n");
+        }
+
+        function time() {
+            let date = new Date();
+            let padZero = (d) => d > 9 ? d : '0' + d;
+            return [date.getHours(), date.getMinutes(), date.getSeconds()].map(padZero).join('.');
+        }
+
+        window.onload = function () {
+            let size = document.getElementById('size');
+            let pad = document.getElementById('pad');
+
+            let setTimeNow = () => document.getElementById('preText').innerHTML = led(size.value, pad.value, time());
+            size.addEventListener('input', setTimeNow);
+            pad.addEventListener('input', setTimeNow);
+
+            (function () {
+                setTimeNow();
+                setTimeout(arguments.callee, 1000);
+            })();
+        };
+    </script>
+</body>
+
+</html>
