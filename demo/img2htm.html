@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width">
+    <title>JS图片转HTML</title>
+    <style type="text/css" media="screen">
+        html,
+        body,
+        div,
+        p,
+        h1,
+        h2,
+        h3,
+        header,
+        footer,
+        section,
+        pre,
+        article,
+        input,
+        label {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            color: #1f2f3d;
+            background: #E2E2E2;
+            line-height: 1.5;
+            height: 100%;
+            font: 16px/1.5 Menlo, Consolas, "Lucida Console", monospace, Verdana, "Microsoft Yahei", sans-serif;
+        }
+
+        .txt,
+        .txa {
+            border: 1px solid #AAA;
+            padding: 5px;
+            border-radius: 3px;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+            font: inherit;
+        }
+
+        .txt:focus,
+        .txa:focus {
+            color: #20a0ff;
+            border-color: #66AFE9;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 5px rgba(102, 175, 233, 0.6);
+            outline: 0px none;
+        }
+
+        .txt {
+            width: 4em;
+        }
+
+        .txa {
+            width: 100%;
+        }
+
+        .btn {
+            font: inherit;
+            border-radius: 3px;
+            border: 1px solid #B1B1B1;
+            box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.05);
+            line-height: 1.5em;
+            margin: 0;
+            padding: 5px 10px;
+            background-color: #eee;
+            background-image: linear-gradient(#FCFCFC, #EEE);
+            -webkit-apparence: none;
+        }
+
+        .btn:hover {
+            border-color: #CCC;
+            background-color: #DDD;
+            background-image: linear-gradient(#EEE, #DDD);
+        }
+
+        .btn:focus,
+        .btn:active {
+            outline: 0;
+            border-color: #51A7E8;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn[disabled],
+        .btn[disabled]:hover,
+        .btn[disabled]:active {
+            color: rgba(102, 102, 102, 0.5);
+            background-image: none;
+            background-color: #EEE;
+            box-shadow: none;
+            border: 1px solid #D5D5D5;
+            cursor: not-allowed;
+        }
+
+        .lbl {
+            text-align: right;
+            padding: 0.5em;
+            display: block;
+            color: #5e6d82;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 1em;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            padding: 0.5em 0;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+        }
+
+        h3 {
+            font-size: 12px;
+            font-weight: normal;
+        }
+
+        header p {
+            font-size: 12px;
+        }
+
+        code {
+            background: #000;
+            color: #FFF;
+            display: block;
+            font-size: 10px;
+            padding: 1em;
+        }
+
+        pre {
+            text-align: left;
+            background: #000;
+            padding: 1em 2px 1.65em 2px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
+            color: #FFF;
+            text-shadow: 2px 2px 2px rgba(255, 255, 255, 0.1);
+            overflow: auto;
+            line-height: 1.25em;
+        }
+
+
+        .main {
+            margin: 0 1%;
+        }
+
+        .sect {
+            margin-bottom: 1em;
+        }
+
+        .sect-file {
+            border: 2px solid #AFAFAF;
+            padding: 0.5em;
+        }
+
+        .sect-file span {
+            white-space: nowrap;
+            display: inline-block;
+        }
+
+        .drop-in {
+            background: #fffce5;
+        }
+
+        .canvas-p {
+            margin-top: 10px;
+        }
+
+        canvas {
+            background: #CCC;
+        }
+
+        .info {
+            height: 1.5em;
+        }
+
+        .info a {
+            color: #27a227;
+        }
+
+        .result {
+            text-align: center;
+            background: #000;
+            font: 10px/1em monospace;
+            white-space: nowrap;
+            overflow-x: auto;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="main">
+        <header>
+            <h1>JS图片转HTML</h1>
+            <p>源创意来源于 https://zhuanlan.zhihu.com/p/26149301</p>
+        </header>
+        <section class="sect">
+            <h3>ImageMagick命令+Ruby(2.3+)实现，原理是获取图像像素颜色列表，经过ruby转成font和color，为了简化不引入html、head标签，并且body标签未闭合。（符合html5规范，浏览器能正常解析。font也可不必闭合，但当不闭合时，Safari会解析失败。)
+                这个命令已经是我能写到最简单的实现了！</h3>
+            <code>convert image.png -resize 120x160 -depth 8 txt:|ruby -e &#39;puts %Q(&lt;meta charset=utf8&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width&quot;&gt;&lt;body style=&quot;min-width:1200px;font:10px/1em monospace;background:#000;text-align:center;white-space:nowrap;&quot;&gt;) + ARGF.readlines.drop(1).slice_when{|*a| a.map{|x| x[/\\d+,(\\d+):/, 1] }.uniq.size != 1 }.map{|a| a.map{|b| %Q(&lt;font color=&quot;\#{b.split[2]}&quot;&gt;爱&lt;/font&gt;) }.join} * &quot;&lt;br&gt;&quot;&#39; &gt; image.html</code>
+        </section>
+        <h3>没命令行工具的，就用下面的js生成把，生成后，主流浏览器可以直接下载保存。</h3>
+        <section class="sect sect-file" id="dropIn">
+            <input type="file" name="file" id="file" accept="image/*">
+            <span>
+            <input type="number" id="maxWidth" class="txt" value="120" min="12" max="240" step="1"> X
+            <input type="number" id="maxHeight" class="txt" value="160" min="16" max="320" step="1">
+            <input type="text" id="text" value="爱" class="txt" maxlength="1">
+            <input type="button" class="btn" id="createBtn" value="生成">
+            </span>
+            <div class="canvas-p">
+                <canvas id="canvas" width="120" height="160"></canvas>
+            </div>
+            <div class="info" id="info"><span id="infoSize">长宽限制最大240x320，太大会搞卡浏览器</span>
+                <a id="infoDone" href="#"></a>
+            </div>
+        </section>
+        <section id="result" class="result"></section>
+    </div>
+    <script type="text/javascript">
+        function $id(id) {
+            return document.getElementById(id);
+        }
+
+        function $q(q) {
+            return toDoms(document.querySelectorAll(q));
+        }
+
+        function toDoms(o) {
+            var ts = Object.prototype.toString.call(o);
+            return ts === "[object Array]" ? o : (ts === "[object NodeList]" ? Array.from(o) : [o]);
+        }
+
+        function addEvent(obj, evt, callback) {
+            if (obj.addEventListener) {
+                obj.addEventListener(evt, callback);
+            } else if (obj.attachEvent) {
+                obj.attachEvent('on' + evt, function (e) {
+                    e = e || event;
+                    callback.call(e.target || e.srcElement, e);
+                });
+            } else {
+                obj['on' + evt] = callback;
+            }
+        }
+
+        function addEvents(els, evt, func) {
+            for (var i = 0; i < els.length; i++) addEvent(els[i], evt, func);
+        }
+
+        function hasClass(obj, style) {
+            return obj.className.split(/\s+/).indexOf(style) > -1;
+        }
+
+        function removeClass(obj, style) {
+            obj.className = obj.className.split(/\s+/).filter(function (s) {
+                return s !== style;
+            }).join(' ');
+        }
+
+        function toggleClass(obj, style, isAdd) {
+            toDoms(obj).forEach(function (el) {
+                if (el.classList) {
+                    if (typeof isAdd !== 'undefined') {
+                        el.classList[isAdd ? 'add' : 'remove'](style);
+                    } else {
+                        el.classList.toggle(style);
+                    }
+                } else {
+                    if (typeof isAdd !== 'undefined') {
+                        removeClass(el, style);
+                        if (isAdd) {
+                            el.className += (el.className ? ' ' : '') + style;
+                        }
+                    } else {
+                        if (el.className.includes(style)) {
+                            removeClass(el, style);
+                        } else {
+                            el.className += (el.className ? ' ' : '') + style;
+                        }
+                    }
+                }
+            });
+        }
+
+        function readFile(files, context) {
+            if (!files.length || ['image/png', 'image/gif', 'image/jpeg', 'image/jpg'].indexOf(files[0].type) < 0) { // [].includes()
+                alert("please select one validate image");
+                return;
+            }
+            $id('createBtn').disabled = true;
+            var reader = new FileReader();
+            reader.onload = function (evt) {
+                var image = new Image();
+                image.src = evt.target.result;
+                image.onload = function () {
+                    context.image = image;
+                    preview(context);
+                    $id('createBtn').disabled = false;
+                };
+            };
+            reader.readAsDataURL(files[0]);
+        }
+
+        function dropEvent(dropObj, callback) {
+            var drop = {
+                onThereDo: function (evt) {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    if (evt.dataTransfer.types && evt.dataTransfer.types.indexOf("Files") > -1) {
+                        toggleClass(dropObj, 'drop-in', true);
+                        evt.dataTransfer.dropEffect = 'copy';
+                    }
+                },
+                onLevelDo: function (evt) {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    removeClass(dropObj, 'drop-in');
+                },
+                dragenter: function (evt) {
+                    drop.onThereDo(evt);
+                },
+                dragover: function (evt) {
+                    drop.onThereDo(evt);
+                },
+                dragleave: function (evt) {
+                    drop.onLevelDo(evt);
+                },
+                droped: function (evt) {
+                    drop.onLevelDo(evt);
+                    if (evt.dataTransfer.files && evt.dataTransfer.files.length) {
+                        callback(evt.dataTransfer.files);
+                    }
+                }
+            };
+            addEvent(dropObj, 'dragenter', function (e) {
+                drop.dragenter(e);
+            });
+            addEvent(dropObj, 'dragleave', function (e) {
+                drop.dragleave(e);
+            });
+            addEvent(dropObj, 'dragover', function (e) {
+                drop.dragover(e);
+            });
+            addEvent(dropObj, 'drop', function (e) {
+                drop.droped(e);
+            });
+        }
+
+        function preview(context) {
+            var maxWidth = parseInt($id('maxWidth').value);
+            var maxHeight = parseInt($id('maxHeight').value);
+            if (isNaN(maxWidth) || maxWidth > 240 || maxWidth < 12) {
+                maxWidth = 120;
+            }
+            if (isNaN(maxHeight) || maxHeight > 320 || maxHeight < 16) {
+                maxHeight = 160;
+            }
+            if (context.image) {
+                var width = context.image.naturalWidth;
+                var height = context.image.naturalHeight;
+                var scale = Math.min(maxWidth / width, maxHeight / height);
+                context.canvas.width = width * scale;
+                context.canvas.height = height * scale;
+                context.scale(scale, scale);
+                context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+                context.drawImage(context.image, 0, 0);
+                $id('infoSize').innerHTML = context.canvas.width + 'x' + context.canvas.height + ',scale=' + (scale.toFixed(
+                    4));
+                $id('infoDone').innerHTML = '';
+            } else {
+                context.canvas.width = maxWidth;
+                context.canvas.height = maxHeight;
+            }
+        }
+
+        function resetCtx(context, obj, type) {
+            var val = parseInt(obj.value);
+            if (isNaN(val) ||
+                'width' === type && (val > 240 || val < 12) ||
+                'height' === type && (val > 320 || val < 16)) {
+                //return;
+            }
+            preview(context);
+        }
+
+        function rgb2Hex(r, g, b) {
+            return '#' + [r, g, b].map(function (x) {
+                return (x > 15 ? '' : '0') + x.toString(16);
+            }).join('');
+        }
+
+        function create(context, result) {
+            if (!context.image) {
+                alert('please select a image first');
+                return;
+            }
+            var text = $id('text').value;
+            var cWidth = context.canvas.width;
+            var cHeight = context.canvas.height;
+            var colors = context.getImageData(0, 0, cWidth, cHeight).data;
+            var lines = [];
+            for (var y = 0; y < cHeight; y++) {
+                var line = [];
+                for (var x = y * cWidth * 4; x < (y + 1) * cWidth * 4; x += 4) {
+                    line.push('<font color="' + rgb2Hex(colors[x], colors[x + 1], colors[x + 2]) + '">' + text +
+                        '</font>');
+                }
+                lines.push(line.join(''));
+            }
+            result.innerHTML = lines.join('<br>');
+            $id('infoDone').innerHTML = '√点我下载';
+        }
+
+        function loadJs(file, callback) {
+            var script = document.createElement('script');
+            script.src = file;
+            script.onload = callback;
+            document.head.appendChild(script);
+        }
+
+        window.onload = function () {
+            var context = $id('canvas').getContext('2d');
+            var result = $id('result');
+            addEvent($id('file'), 'change', function (event) {
+                readFile(event.target.files, context);
+            });
+            addEvent($id('createBtn'), 'click', function () {
+                $id('createBtn').disabled = true;
+                create(context, result);
+                setTimeout(function () {
+                    $id('createBtn').disabled = false;
+                }, 100);
+            });
+            addEvent($id('maxWidth'), 'input', function () {
+                resetCtx(context, $id('maxWidth'), 'width');
+            });
+            addEvent($id('maxHeight'), 'input', function () {
+                resetCtx(context, $id('maxHeight'), 'height');
+            });
+
+            addEvent($id('infoDone'), 'click', function (evt) {
+                evt.stopPropagation();
+                evt.preventDefault();
+                if (this.innerHTML !== '') {
+                    if (!'Blob' in window) {
+                        alert("Your browser doesn't support download");
+                        return;
+                    }
+                    var width = context.canvas.width * 10;
+                    var txt =
+                        '<html><head><meta charset="utf-8"><title>JS图片转HTML</title><meta name="viewport" content="width=device-width"></head><body style="min-width:'+width+'px;font:10px/1em monospace;background:#000;text-align:center;white-space:nowrap;">' +
+                        result.innerHTML + '</body></html>';
+                    var blob = new Blob([txt], {
+                        type: "text/html;charset=utf-8"
+                    });
+                    if (!window.saveAs) {
+                        loadJs('FileSaver.min.js', function () {
+                            saveAs(blob, 'jsimg2html.html');
+                        });
+                    } else {
+                        saveAs(blob, 'jsimg2html.html');
+                    }
+                }
+            });
+            dropEvent($id('dropIn'), function (files) {
+                readFile(files, context);
+            });
+        };
+    </script>
+</body>
+
+</html>
