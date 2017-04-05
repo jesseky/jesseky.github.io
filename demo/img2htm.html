@@ -206,7 +206,7 @@
         <section class="sect">
             <h3>ImageMagick命令+Ruby(2.3+)实现，原理是获取图像像素颜色列表，经过ruby转成font和color，为了简化不引入html、head标签，并且body标签未闭合。（符合html5规范，浏览器能正常解析。font也可不必闭合，但当不闭合时，Safari会解析失败。)
                 这个命令已经是我能写到最简单的实现了！</h3>
-            <code>convert image.png -resize 120x160 -depth 8 txt:|ruby -e &#39;puts %Q(&lt;meta charset=utf8&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width&quot;&gt;&lt;body style=&quot;min-width:1200px;font:10px/1em monospace;background:#000;text-align:center;white-space:nowrap;&quot;&gt;) + ARGF.readlines.drop(1).slice_when{|*a| a.map{|x| x[/\\d+,(\\d+):/, 1] }.uniq.size != 1 }.map{|a| a.map{|b| %Q(&lt;font color=&quot;\#{b.split[2]}&quot;&gt;爱&lt;/font&gt;) }.join} * &quot;&lt;br&gt;&quot;&#39; &gt; image.html</code>
+            <code>convert image.png -resize 120x160 -depth 8 txt:|ruby -e &#39;puts %Q(&lt;meta charset=utf8&gt;&lt;meta name=&quot;viewport&quot; content=&quot;width=device-width&quot;&gt;&lt;body style=&quot;min-width:1200px;font:10px/1em monospace;background:#000;text-align:center;white-space:nowrap;&quot;&gt;) + ARGF.readlines.drop(1).slice_when{|*a| a.map{|x| x[/\d+,(\d+):/, 1] }.uniq.size != 1 }.map{|a| a.map{|b| %Q(&lt;font color=&quot;#{b.split[2]}&quot;&gt;爱&lt;/font&gt;) }.join} * &quot;&lt;br&gt;&quot;&#39; &gt; image.html</code>
         </section>
         <h3>没命令行工具的，就用下面的js生成把，生成后，主流浏览器可以直接下载保存。</h3>
         <section class="sect sect-file" id="dropIn">
@@ -220,7 +220,7 @@
             <div class="canvas-p">
                 <canvas id="canvas" width="120" height="160"></canvas>
             </div>
-            <div class="info" id="info"><span id="infoSize">限制最大尺寸240x320，太大会搞卡浏览器</span>
+            <div class="info" id="info"><span id="infoSize">限制最大240x320，太大会搞卡浏览器</span>
                 <a id="infoDone" href="#"></a>
             </div>
         </section>
