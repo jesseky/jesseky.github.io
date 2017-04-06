@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html>
+<!-- 
+    大猩猩可以在半秒中内准确记住20个数字的位置，
+    你可以挑战一下，看能记住几个。
+-->
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+    <title>记忆训练</title>
+    <style type="text/css" media="screen">
+        html,
+        body,
+        div,
+        p,
+        h1,
+        h2,
+        h3,
+        header,
+        footer,
+        section,
+        pre,
+        article,
+        input,
+        label {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body {
+            color: #AAA;
+            background: #222;
+            line-height: 1.5;
+            height: 100%;
+            font: 16px/1.5 Menlo, Consolas, "Lucida Console", monospace, Verdana, "Microsoft Yahei", sans-serif;
+        }
+
+        .txt,
+        .txa {
+            border: 1px solid #AAA;
+            padding: 5px;
+            border-radius: 3px;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+            font: inherit;
+        }
+
+        .txt:focus,
+        .txa:focus {
+            color: #20a0ff;
+            border-color: #66AFE9;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 5px rgba(102, 175, 233, 0.6);
+            outline: 0px none;
+        }
+
+        .txt {
+            width: 4em;
+        }
+
+        .txa {
+            width: 100%;
+        }
+
+        .btn {
+            font: inherit;
+            border-radius: 3px;
+            border: 1px solid #B1B1B1;
+            box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.05);
+            line-height: 1.5em;
+            margin: 0;
+            padding: 5px 10px;
+            background-color: #eee;
+            background-image: linear-gradient(#FCFCFC, #EEE);
+            -webkit-apparence: none;
+        }
+
+        .btn:hover {
+            border-color: #CCC;
+            background-color: #DDD;
+            background-image: linear-gradient(#EEE, #DDD);
+        }
+
+        .btn:focus,
+        .btn:active {
+            outline: 0;
+            border-color: #51A7E8;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn[disabled],
+        .btn[disabled]:hover,
+        .btn[disabled]:active {
+            color: rgba(102, 102, 102, 0.5);
+            background-image: none;
+            background-color: #EEE;
+            box-shadow: none;
+            border: 1px solid #D5D5D5;
+            cursor: not-allowed;
+        }
+
+        .lbl {
+            text-align: right;
+            padding: 0.5em;
+            display: block;
+            color: #5e6d82;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 1em;
+        }
+
+        h1 {
+            font-size: 1.5rem;
+            padding: 0.5em 0;
+        }
+
+        h2 {
+            font-size: 1.25rem;
+        }
+
+        h3 {
+            font-size: 12px;
+            font-weight: normal;
+        }
+
+        header p {
+            font-size: 12px;
+        }
+
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .draws {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            width: 100%;
+            max-width: 100vh;
+            margin: 0 auto;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .draws span {
+            /* background: #000; */
+            display: block;
+            position: relative;
+            border: 0px none;
+            width: 12%;
+            padding-top: 12%;
+            margin-bottom: 0.5%;
+        }
+
+        .draws span b {
+            color: #FFF;
+            font-weight: bold;
+            font-size: 20px;
+            font-size: 7.5vh;
+            font-style: normal;
+            position: absolute;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .draws-started span.on,
+        .draws-started span.on:active {
+            background: #FFF;
+        }
+
+        .draws-started span b {
+            visibility: hidden;
+        }
+
+        .draws span.rl {
+            margin-bottom: 0;
+        }
+
+        .ctrls {
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            padding: 5px;
+        }
+
+        .status strong,
+        .status b {
+            display: none;
+        }
+
+        .success {
+            color: green;
+        }
+
+        .failed {
+            color: red;
+        }
+
+        .success b {
+            display: inline;
+        }
+
+        .failed strong {
+            display: inline;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="draws" class="draws"></div>
+    <div class="ctrls">
+        <var id="status" class="status"><strong>失败</strong><b>成功</b></var>
+        <var id="timesCost"></var> 数量：
+        <input id="maxSize" class="txt" type="number" min="1" step="1" max="20" value="8">
+        <button class="btn" type="button" id="start">开始</button>
+    </div>
+    <script type="text/javascript">
+        function $id(id) {
+            return document.getElementById(id);
+        }
+
+        function $q(q) {
+            return toDoms(document.querySelectorAll(q));
+        }
+
+        function toDoms(o) {
+            var ts = Object.prototype.toString.call(o);
+            return ts === "[object Array]" ? o : (ts === "[object NodeList]" ? Array.from(o) : [o]);
+        }
+
+        function hasClass(obj, style) {
+            return obj.className.split(/\s+/).indexOf(style) > -1;
+        }
+
+        function removeClass(obj, style) {
+            if (obj.classList) {
+                return style.split(',').forEach(function (s) {
+                    obj.classList.remove(s);
+                });
+            }
+            var ss = style.split(',');
+            obj.className = obj.className.split(/\s+/).filter(function (s) {
+                return ss.indexOf(s) < 0;
+            }).join(' ');
+        }
+
+        function addClass(obj, style) {
+            if (obj.classList) {
+                return obj.classList.add(style);
+            }
+            var ss = obj.className.split(/\s+/);
+            if (ss.indexOf(style) < 0) {
+                obj.className = ss.concat(style).join(' ');
+            }
+        }
+
+        function addEvent(obj, evt, callback) {
+            if (obj.addEventListener) {
+                obj.addEventListener(evt, callback);
+            } else if (obj.attachEvent) {
+                obj.attachEvent('on' + evt, function (e) {
+                    e = e || event;
+                    callback.call(e.target || e.srcElement, e);
+                });
+            } else {
+                obj['on' + evt] = callback;
+            }
+        }
+
+        function addEvents(els, evt, func) {
+            for (var i = 0; i < els.length; i++) addEvent(els[i], evt, func);
+        }
+
+        function random(min, max) { // [min, max) 包含min，不包含max（左闭，右开区间）
+            return parseInt(Math.random() * (max - min)) + min;
+        }
+
+        function checkAnswer(obj, numbers) {
+            var rc = obj.getAttribute('rc').split(':').map(function (v) {
+                return parseInt(v);
+            });
+            var inum = numbers.shift();
+            return rc[0] === inum[2] && rc[1] === inum[3];
+        }
+
+        function createNumbers(list, timeRember, rows, cols, size, callback) {
+            var numbers = []; // (value, position, rows, cols);
+            var exists = [];
+            var limits = 20;
+            for (var i = 0; i < size; i++) {
+                var r = 0;
+                var c = 0;
+                var p = 0;
+                var times = 0;
+                do {
+                    r = random(0, rows); // 或者可以使用 random(0, rows*cols); 每一个数字代表一个坐标。
+                    c = random(0, cols);
+                    p = r * rows + c;
+                } while (exists.indexOf(p) > -1 && times++ < limits);
+                if (times >= limits) {
+                    alert("生成失败，请重试");
+                    return;
+                }
+                exists.push(p);
+                numbers.push([i, p, r, c]);
+            }
+            numbers.map(function (n) {
+                var dom = list[n[1]];
+                addClass(dom, 'on');
+                dom.innerHTML = '<b>' + n[0] + '</b>';
+            });
+            setTimeout(function () {
+                callback(numbers);
+            }, timeRember);
+        }
+
+        function initDraws() {
+            var rows = 8;
+            var cols = 8;
+            var html = '';
+            var timeRember = 500; // 半秒记忆时间
+
+            for (var i = 0; i < rows; i++) {
+                for (var j = 0; j < cols; j++) {
+                    html += '<span rc="' + i + ':' + j + '"' + (i == rows - 1 ? ' class="rl"' : '') + '></span>';
+                }
+            }
+            var dr = $id('draws');
+            dr.innerHTML = html;
+            var list = toDoms(dr.querySelectorAll('span'));
+            var timeCs = $id('timesCost');
+            var status = $id('status');
+            var timer = 0;
+            var startTime = 0;
+            var numbers = [];
+            var maxSize = $id('maxSize');
+            addEvent($id('start'), 'click', function () {
+                timeCs.innerHTML = '';
+                removeClass(dr, 'draws-started');
+                if (timer) {
+                    clearInterval(timer);
+                }
+                list.map(function (el) {
+                    if (hasClass(el, 'on')) {
+                        removeClass(el, 'on');
+                        el.innerHTML = '';
+                    }
+                });
+                var size = parseInt(maxSize.value);
+                if (isNaN(size) || size < 1 || size > 20) {
+                    size = 8;
+                }
+                createNumbers(list, timeRember, rows, cols, size, function (nbs) {
+                    numbers = nbs;
+                    removeClass(status, 'success,failed');
+                    addClass(dr, 'draws-started');
+                    startTime = Date.now();
+                    timer = setInterval(function () {
+                        timeCs.innerHTML = ((Date.now() - startTime) / 1000).toFixed(1);
+                    }, 100);
+                });
+            });
+            addEvent(dr, 'click', function (evt) {
+                evt.stopPropagation();
+                evt.preventDefault();
+                if (timer && evt.target.nodeName.toLowerCase() === 'span' && hasClass(evt.target, 'on')) {
+                    var ok = checkAnswer(evt.target, numbers);
+                    if (ok) {
+                        removeClass(evt.target, 'on');
+                        evt.target.innerHTML = '';
+                    } else {
+                        addClass(status, 'failed');
+                        removeClass(dr, 'draws-started');
+                    }
+                    if (!ok || !numbers.length) {
+                        clearInterval(timer);
+                    }
+                    if (ok && !numbers.length) {
+                        addClass(status, 'success');
+                    }
+                }
+            });
+        }
+        (function () {
+            initDraws();
+        })();
+    </script>
+</body>
+
+</html>

@@ -65,7 +65,7 @@
         }
 
         .content {
-            padding: 10px;
+            padding: 10px 5px;
             display: flex;
             flex-direction: column;
         }
@@ -74,7 +74,6 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px 0;
         }
 
         .photo img {
@@ -90,6 +89,8 @@
             text-align: center;
             font-size: 3rem;
             color: #BBB;
+            line-height: 1.5;
+            margin-bottom: 10px;
         }
 
         .navs {
@@ -170,12 +171,13 @@
                 <div class="creations">
                     <section class="pages pages-on">
                         <ul>
-                            <li><a href="demo/matrix-points.html" target="_blank">矩阵点推进过程（演示）</a></li>
                             <li><a href="demo/path.html" target="_blank">矩阵从左上到右下路径遍历（演示）</a></li>
-                            <li><a href="demo/date.html" target="_blank">日历天数计算</a></li>
-                            <li><a href="demo/snake.html" target="_blank">Snake矩阵排列求值</a></li>
-                            <li><a href="demo/led.html" target="_blank">JS-LED字符时钟演示</a></li>
-                            <li><a href="demo/img2htm.html" target="_blank">JS图片转HTML</a></li>
+                            <li><a href="demo/matrix-points.html" target="_blank">矩阵点推进过程（演示）</a></li>
+                            <li><a href="demo/snake.html" target="_blank">Snake矩阵排列求值（演示）</a></li>
+                            <li><a href="demo/date.html" target="_blank">日历天数计算（APP）</a></li>
+                            <li><a href="demo/led.html" target="_blank">JS-LED字符时钟（APP）</a></li>
+                            <li><a href="demo/img2htm.html" target="_blank">JS图片转HTML（APP）</a></li>
+                            <li><a href="demo/memory.html" target="_blank">记忆训练 - 和大猩猩比赛（APP）</a></li>
                         </ul>
                     </section>
                     <section class="pages">
@@ -204,11 +206,11 @@
             return ts === "[object Array]" ? o : (ts === "[object NodeList]" ? Array.from(o) : [o]);
         }
         window.onload = function() {
-            $q('.navs li').forEach((e, i) => {
-                e.addEventListener('click', () => {
-                    $q(`.navs li:not(:nth-child(${i+1}))`).forEach(el => el.classList.remove('on'));
+            $q('.navs li').forEach(function(e, i){
+                e.addEventListener('click', function(){
+                    $q('.navs li:not(:nth-child('+i+1+'))').forEach(function(el) { el.classList.remove('on'); });
                     e.classList.add('on');
-                    $q('.pages').forEach((p, j) => {
+                    $q('.pages').forEach(function(p, j) {
                         p.classList[i === j ? 'add' : 'remove']('pages-on');
                     });
                 }, false);

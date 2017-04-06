@@ -128,14 +128,17 @@
         </footer>
     </div>
     <script type="text/javascript">
+        // 因为我的手机还停留在IOS9.3.5，为了在手机上也能运行，只能舍弃es6的一些特性啦！
         Array.prototype.transpose = function () {
-            return this[0].map((val, col) => this.map(row => row[col]));
+            //return this[0].map((val, col) => this.map(row => row[col]));
+            var _this = this;
+            return this[0].map(function(val, col){ return _this.map(function(row){ return row[col]; }); }); 
         };
 
         function led(p_size, p_pad, txt) {
-            let size = isNaN(p_size) || p_size <= 0 ? 1 : p_size;
-            let pad = isNaN(p_pad) || p_pad < 0 ? 0 : p_pad;
-            const fonts = {
+            var size = isNaN(p_size) || p_size <= 0 ? 1 : p_size;
+            var pad = isNaN(p_pad) || p_pad < 0 ? 0 : p_pad;
+            var fonts = { // const fonts
                 '0': [" _ ", "| |", "|_|"],
                 '1': ["   ", "  |", "  |"],
                 '2': [" _ ", " _|", "|_ "],
@@ -149,32 +152,36 @@
             };
 
             function zoom(font) { // 放大字体
-                let zoomW = fo => fo[0] + fo[1].repeat(size) + fo[2];
-                let zoomH = fo => Array.from({
-                    length: size - 1
-                }, () => fo.replace(/[^|]/g, ' ')).concat(fo);
+                //let zoomW = fo => fo[0] + fo[1].repeat(size) + fo[2];
+                //let zoomH = fo => Array.from({ length: size - 1 }, () => fo.replace(/[^|]/g, ' ')).concat(fo);
+                var zoomW = function(fo){ return fo[0] + fo[1].repeat(size) + fo[2]; };
+                var zoomH = function(fo){ return Array.from({ length: size - 1 }, function(){ return fo.replace(/[^|]/g, ' '); }).concat(fo); };
                 return [zoomW(font[0])].concat(zoomH(zoomW(font[1]))).concat(zoomH(zoomW(font[2])));
             }
-
+            // 还好ios9.3.5支持三个点展开。
             return [...String(txt)]
-                .map(x => /^\d$/.test(x) ? fonts[x] : [' ' + (size > 1 ? x : ' ') + ' ', ' ' + x + ' ', ' ' + x + ' ']) // 第一步映射字体
+                //.map(x => /^\d$/.test(x) ? fonts[x] : [' ' + (size > 1 ? x : ' ') + ' ', ' ' + x + ' ', ' ' + x + ' ']) // 第一步映射字体
+                .map(function(x){ return /^\d$/.test(x) ? fonts[x] : [' ' + (size > 1 ? x : ' ') + ' ', ' ' + x + ' ', ' ' + x + ' ']; }) // 第一步映射字体
                 .map(zoom) // 放大，可以并入上一步，为了清晰，独立出来一步
                 .transpose() // 矩阵变换，行列交换。
-                .map(x => x.join(" ".repeat(pad))) // 每一行连接
+                //.map(x => x.join(" ".repeat(pad))) // 每一行连接
+                .map(function(x){ return x.join(" ".repeat(pad)); })
                 .join("\n");
         }
 
         function time() {
-            let date = new Date();
-            let padZero = (d) => d > 9 ? d : '0' + d;
+            var date = new Date();
+            //let padZero = (d) => d > 9 ? d : '0' + d;
+            var padZero = function(d){ return d > 9 ? d : '0' + d; }
             return [date.getHours(), date.getMinutes(), date.getSeconds()].map(padZero).join('.');
         }
 
         window.onload = function () {
-            let size = document.getElementById('size');
-            let pad = document.getElementById('pad');
+            var size = document.getElementById('size');
+            var pad = document.getElementById('pad');
 
-            let setTimeNow = () => document.getElementById('preText').innerHTML = led(size.value, pad.value, time());
+            //let setTimeNow = () => document.getElementById('preText').innerHTML = led(size.value, pad.value, time());
+            var setTimeNow = function(){ return document.getElementById('preText').innerHTML = led(size.value, pad.value, time()); };
             size.addEventListener('input', setTimeNow);
             pad.addEventListener('input', setTimeNow);
 
