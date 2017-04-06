@@ -402,26 +402,83 @@
             }).join('');
         }
 
-        function create(context, result) {
+        function webWorker(no) {
+            var process =
+                'onmessage = function(evt){ postMessage({no: evt.data.no, evaluated: eval(evt.data.code)});\ };' +
+                rgb2Hex.toString();
+            var blobURL = URL.createObjectURL(new Blob([process], {
+                type: 'text/javascript'
+            }))
+            return new Worker(blobURL);
+        }
+
+        function create(context, result, callback) {
             if (!context.image) {
                 alert('please select a image first');
                 return;
             }
+            $id('infoDone').innerHTML = '';
+            result.innerHTML = '';
             var text = $id('text').value;
             var cWidth = context.canvas.width;
             var cHeight = context.canvas.height;
             var colors = context.getImageData(0, 0, cWidth, cHeight).data;
             var lines = [];
-            for (var y = 0; y < cHeight; y++) {
-                var line = [];
-                for (var x = y * cWidth * 4; x < (y + 1) * cWidth * 4; x += 4) {
-                    line.push('<font color="' + rgb2Hex(colors[x], colors[x + 1], colors[x + 2]) + '">' + text +
-                        '</font>');
-                }
-                lines.push(line.join(''));
+
+            function afterDone(isWorked) {
+                result.innerHTML = lines.join('<br>');
+                $id('infoDone').innerHTML = '√点我下载' + (isWorked ? '.' : '');
+                callback();
             }
-            result.innerHTML = lines.join('<br>');
-            $id('infoDone').innerHTML = '√点我下载';
+
+            function color2tag() {
+                for (var y = 0; y < cHeight; y++) {
+                    var line = [];
+                    for (var x = y * cWidth * 4; x < (y + 1) * cWidth * 4; x += 4) {
+                        line.push('<font color="' + rgb2Hex(colors[x], colors[x + 1], colors[x + 2]) + '">' + text +
+                            '</font>');
+                    }
+                    lines.push(line.join(''));
+                }
+                return lines;
+            }
+            if ('Worker' in window && (cWidth > 90 || cHeight > 90)) {
+                lines = new Array(wnum);
+                var wnum = 4;
+                var imod = cHeight % wnum;
+                var carr = Array.prototype.slice.call(colors);
+                var ibat = (cHeight - imod) / 4;
+                var dones = [];
+                var sCode =
+                    '(function() { var lines = [], text=evt.data.text; cHeight=evt.data.cHeight, cWidth=evt.data.cWidth, colors=evt.data.colors; ' +
+                    color2tag.toString() + ' return color2tag().join("<br>"); })()';
+                for (var i = 0; i < wnum; i++) {
+                    (function (i) {
+                        var wok = webWorker(i);
+                        wok.onmessage = function (evt) {
+                            lines[evt.data.no] = evt.data.evaluated;
+                            dones.push(evt.data.no);
+                            wok.terminate();
+                            if (dones.length === wnum) {
+                                afterDone(true);
+                            }
+                        };
+                        var iod = {
+                            no: i,
+                            code: sCode,
+                            text: text,
+                            cWidth: cWidth,
+                            cHeight: i == wnum - 1 ? ibat + imod : ibat,
+                            colors: new Uint8Array(carr.slice(i * ibat * cWidth * 4, i == wnum - 1 ? void(0) :
+                                (i + 1) * ibat * cWidth * 4))
+                        };
+                        wok.postMessage(iod, [iod.colors.buffer]);
+                    })(i);
+                }
+                return;
+            }
+            color2tag();
+            afterDone();
         }
 
         function loadJs(file, callback) {
@@ -439,10 +496,11 @@
             });
             addEvent($id('createBtn'), 'click', function () {
                 $id('createBtn').disabled = true;
-                create(context, result);
-                setTimeout(function () {
-                    $id('createBtn').disabled = false;
-                }, 100);
+                create(context, result, function () { // done;
+                    setTimeout(function () {
+                        $id('createBtn').disabled = false;
+                    }, 100);
+                });
             });
             addEvent($id('maxWidth'), 'input', function () {
                 resetCtx(context, $id('maxWidth'), 'width');
@@ -461,7 +519,9 @@
                     }
                     var width = context.canvas.width * 10;
                     var txt =
-                        '<html><head><meta charset="utf-8"><title>JS图片转HTML</title><meta name="viewport" content="width=device-width"></head><body style="min-width:'+width+'px;font:10px/1em monospace;background:#000;text-align:center;white-space:nowrap;">' +
+                        '<html><head><meta charset="utf-8"><title>JS图片转HTML</title><meta name="viewport" content="width=device-width"></head><body style="min-width:' +
+                        width +
+                        'px;font:10px/1em monospace;background:#000;text-align:center;white-space:nowrap;">' +
                         result.innerHTML + '</body></html>';
                     var blob = new Blob([txt], {
                         type: "text/html;charset=utf-8"
