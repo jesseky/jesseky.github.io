@@ -4,6 +4,7 @@
     大猩猩可以在半秒中内准确记住20个数字的位置，
     你可以挑战一下，看能记住几个。
 -->
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
@@ -161,6 +162,20 @@
             margin-bottom: 0.5%;
         }
 
+        .draws-unflex {
+            overflow: hidden;
+            max-width: 92.5vh;
+        }
+
+        .draws-unflex span {
+            float: left;
+            margin-right: 0.5%;
+        }
+
+        .draws-unflex span:nth-child(8n) {
+            margin-right: 0;
+        }
+
         .draws span b {
             color: #FFF;
             font-weight: bold;
@@ -169,6 +184,7 @@
             font-style: normal;
             position: absolute;
             display: flex;
+            text-align: center;
             justify-content: center;
             align-items: center;
             left: 0;
@@ -229,6 +245,16 @@
         <button class="btn" type="button" id="start">开始</button>
     </div>
     <script type="text/javascript">
+        if (!Array.from) {
+            Array.from = function (xs) {
+                var ys = [];
+                for (var i = 0; i < xs.length; i++) {
+                    ys.push(xs[i]);
+                }
+                return ys;
+            };
+        }
+
         function $id(id) {
             return document.getElementById(id);
         }
@@ -350,6 +376,7 @@
             var maxSize = $id('maxSize');
             addEvent($id('start'), 'click', function () {
                 timeCs.innerHTML = '';
+                removeClass(status, 'success,failed');
                 removeClass(dr, 'draws-started');
                 if (timer) {
                     clearInterval(timer);
@@ -366,7 +393,6 @@
                 }
                 createNumbers(list, timeRember, rows, cols, size, function (nbs) {
                     numbers = nbs;
-                    removeClass(status, 'success,failed');
                     addClass(dr, 'draws-started');
                     startTime = Date.now();
                     timer = setInterval(function () {
@@ -379,15 +405,15 @@
                 evt.preventDefault();
                 if (timer && evt.target.nodeName.toLowerCase() === 'span' && hasClass(evt.target, 'on')) {
                     var ok = checkAnswer(evt.target, numbers);
+                    if (!ok || !numbers.length) {
+                        clearInterval(timer);
+                    }
                     if (ok) {
                         removeClass(evt.target, 'on');
                         evt.target.innerHTML = '';
                     } else {
                         addClass(status, 'failed');
                         removeClass(dr, 'draws-started');
-                    }
-                    if (!ok || !numbers.length) {
-                        clearInterval(timer);
                     }
                     if (ok && !numbers.length) {
                         addClass(status, 'success');
@@ -396,9 +422,13 @@
             });
         }
         (function () {
-            document.addEventListener('DOMContentLoaded', function() {
-		        FastClick.attach(document.body);
-	        }, false);
+            document.addEventListener('DOMContentLoaded', function () {
+                FastClick.attach(document.body);
+            }, false);
+            var unFlex = void(0) === document.createElement("p").style.flex;
+            if (unFlex) {
+                addClass($id('draws'), 'draws-unflex');
+            }
             initDraws();
         })();
     </script>

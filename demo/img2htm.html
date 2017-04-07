@@ -448,7 +448,7 @@
                 var ibat = (cHeight - imod) / wnum;
                 var dones = [];
                 var code = 'function process(data) { ' +
-                    'var lines = [], text = data.text; cHeight = data.cHeight, cWidth = data.cWidth, colors = data.colors; ' +
+                    'var text = data.text; cHeight = data.cHeight, cWidth = data.cWidth, colors = data.colors; ' +
                     rgb2Hex.toString() + color2tag.toString() +
                     ' return color2tag().join("<br>"); }';
                 var lines = new Array(wnum);
@@ -459,10 +459,10 @@
                         wok.onmessage = function (evt) {
                             lines[evt.data.no] = evt.data.evaluated;
                             dones.push(evt.data.no);
-                            wok.terminate();
                             if (dones.length === wnum) {
                                 afterDone(lines, true);
                             }
+                            wok.terminate();
                         };
                         var iod = {
                             no: i,
