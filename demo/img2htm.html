@@ -402,11 +402,10 @@
             }).join('');
         }
 
-        function webWorker(no) {
-            var process =
-                'onmessage = function(evt){ postMessage({no: evt.data.no, evaluated: eval(evt.data.code)});\ };' +
-                rgb2Hex.toString();
-            var blobURL = URL.createObjectURL(new Blob([process], {
+        function webWorker(no, code) {
+            var js = 'onmessage = function(evt){ postMessage({ no: evt.data.no, evaluated: process(evt.data) }); };' +
+                code;
+            var blobURL = URL.createObjectURL(new Blob([js], {
                 type: 'text/javascript'
             }))
             return new Worker(blobURL);
@@ -423,15 +422,15 @@
             var cWidth = context.canvas.width;
             var cHeight = context.canvas.height;
             var colors = context.getImageData(0, 0, cWidth, cHeight).data;
-            var lines = [];
 
-            function afterDone(isWorked) {
+            function afterDone(lines, isWorked) {
                 result.innerHTML = lines.join('<br>');
                 $id('infoDone').innerHTML = '√点我下载' + (isWorked ? '.' : '');
                 callback();
             }
 
             function color2tag() {
+                var lines = [];
                 for (var y = 0; y < cHeight; y++) {
                     var line = [];
                     for (var x = y * cWidth * 4; x < (y + 1) * cWidth * 4; x += 4) {
@@ -443,42 +442,42 @@
                 return lines;
             }
             if ('Worker' in window && (cWidth > 90 || cHeight > 90)) {
-                lines = new Array(wnum);
-                var wnum = 4;
+                var wnum = 4; // 开启线程数量
                 var imod = cHeight % wnum;
                 var carr = Array.prototype.slice.call(colors);
-                var ibat = (cHeight - imod) / 4;
+                var ibat = (cHeight - imod) / wnum;
                 var dones = [];
-                var sCode =
-                    '(function() { var lines = [], text=evt.data.text; cHeight=evt.data.cHeight, cWidth=evt.data.cWidth, colors=evt.data.colors; ' +
-                    color2tag.toString() + ' return color2tag().join("<br>"); })()';
+                var code = 'function process(data) { ' +
+                    'var lines = [], text = data.text; cHeight = data.cHeight, cWidth = data.cWidth, colors = data.colors; ' +
+                    rgb2Hex.toString() + color2tag.toString() +
+                    ' return color2tag().join("<br>"); }';
+                var lines = new Array(wnum);
+                var pixel = ibat * cWidth * 4;
                 for (var i = 0; i < wnum; i++) {
                     (function (i) {
-                        var wok = webWorker(i);
+                        var wok = webWorker(i, code);
                         wok.onmessage = function (evt) {
                             lines[evt.data.no] = evt.data.evaluated;
                             dones.push(evt.data.no);
                             wok.terminate();
                             if (dones.length === wnum) {
-                                afterDone(true);
+                                afterDone(lines, true);
                             }
                         };
                         var iod = {
                             no: i,
-                            code: sCode,
                             text: text,
                             cWidth: cWidth,
                             cHeight: i == wnum - 1 ? ibat + imod : ibat,
-                            colors: new Uint8Array(carr.slice(i * ibat * cWidth * 4, i == wnum - 1 ? void(0) :
-                                (i + 1) * ibat * cWidth * 4))
+                            colors: new Uint8Array(carr.slice(i * pixel, i == wnum - 1 ? void(0) : (i + 1) *
+                                pixel))
                         };
                         wok.postMessage(iod, [iod.colors.buffer]);
                     })(i);
                 }
                 return;
             }
-            color2tag();
-            afterDone();
+            afterDone(color2tag());
         }
 
         function loadJs(file, callback) {

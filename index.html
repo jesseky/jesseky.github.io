@@ -78,6 +78,7 @@
 
         .photo img {
             display: block;
+            margin: 0 auto;
             max-width: 200px;
             max-height: 200px;
             border-radius: 100%;
@@ -94,16 +95,20 @@
         }
 
         .navs {
+            text-align: center;
             display: flex;
             flex-flow: row;
             justify-content: space-between;
         }
 
         .navs li {
+            display: inline-block;
             list-style-type: none;
             border: 1px solid #CCC;
             padding: 0 0.5em;
             cursor: pointer;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
         }
 
         .navs li:not(:last-child) {
@@ -121,6 +126,9 @@
         }
 
         .creations {
+            display: table;
+            display: flex;
+            margin: 0 auto;
             min-height: 160px;
         }
 
@@ -203,14 +211,26 @@
 
         function wrapperDom(o) {
             var ts = Object.prototype.toString.call(o);
-            return ts === "[object Array]" ? o : (ts === "[object NodeList]" ? Array.from(o) : [o]);
+            if (ts === "[object NodeList]") {
+                if (Array.from) {
+                    return Array.from(o);
+                }
+                var ls = [];
+                for (var i = 0; i < o.length; i++) {
+                    ls.push(o[i]);
+                }
+                return ls;
+            }
+            return ts === "[object Array]" ? o : [o];
         }
-        window.onload = function() {
-            $q('.navs li').forEach(function(e, i){
-                e.addEventListener('click', function(){
-                    $q('.navs li:not(:nth-child('+i+1+'))').forEach(function(el) { el.classList.remove('on'); });
+        window.onload = function () {
+            $q('.navs li').forEach(function (e, i) {
+                e.addEventListener('click', function () {
+                    $q('.navs li:not(:nth-child(' + i + 1 + '))').forEach(function (el) {
+                        el.classList.remove('on');
+                    });
                     e.classList.add('on');
-                    $q('.pages').forEach(function(p, j) {
+                    $q('.pages').forEach(function (p, j) {
                         p.classList[i === j ? 'add' : 'remove']('pages-on');
                     });
                 }, false);
