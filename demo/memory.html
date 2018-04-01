@@ -202,6 +202,30 @@
             visibility: hidden;
         }
 
+        .draws-trans span b {
+            color: transparent;
+            animation: blured 0.5s linear forwards;
+            -webkit-animation: blured 0.5s linear forwards;
+        }
+
+        @keyframes blured {
+            0% {
+                text-shadow: 0 0 0vh white;
+            }
+            100% {
+                text-shadow: 0 0 7.5vh white;
+            }
+        }
+
+        @-webkit-keyframes blured {
+            0% {
+                text-shadow: 0 0 0vh white;
+            }
+            100% {
+                text-shadow: 0 0 7.5vh white;
+            }
+        }
+
         .draws span.rl {
             margin-bottom: 0;
         }
@@ -239,7 +263,10 @@
 <body>
     <div id="draws" class="draws"></div>
     <div class="ctrls">
-        <var id="status" class="status"><strong>失败</strong><b>成功</b></var>
+        <var id="status" class="status">
+            <strong>失败</strong>
+            <b>成功</b>
+        </var>
         <var id="timesCost"></var> 数量：
         <input id="maxSize" class="txt" type="number" min="1" step="1" max="20" value="8">
         <button class="btn" type="button" id="start">开始</button>
@@ -327,7 +354,7 @@
             var numbers = []; // (value, position, rows, cols);
             var exists = [];
             var limits = 20;
-            for (var i = 0; i < size; i++) {
+            for (var i = 1; i <= size; i++) {
                 var r = 0;
                 var c = 0;
                 var p = 0;
@@ -393,11 +420,16 @@
                 }
                 createNumbers(list, timeRember, rows, cols, size, function (nbs) {
                     numbers = nbs;
-                    addClass(dr, 'draws-started');
-                    startTime = Date.now();
-                    timer = setInterval(function () {
-                        timeCs.innerHTML = ((Date.now() - startTime) / 1000).toFixed(1);
-                    }, 100);
+                    addClass(dr, 'draws-trans');
+                    setTimeout(function () {
+                        removeClass(dr, 'draws-trans');
+                        addClass(dr, 'draws-started');
+                        startTime = Date.now();
+                        timer = setInterval(function () {
+                            timeCs.innerHTML = ((Date.now() - startTime) / 1000).toFixed(
+                                1);
+                        }, 100);
+                    }, 500);
                 });
             });
             addEvent(dr, 'click', function (evt) {
