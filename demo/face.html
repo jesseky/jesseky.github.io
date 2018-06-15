@@ -1,0 +1,155 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <script src="js/tracking.js"></script>
+  <script src="js/data/face.js"></script>
+  <style type="text/css">
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      background: #adadad;
+    }
+
+    body {
+      display: flex;
+      justify-content: center;
+    }
+
+    .demo-frame {
+      width: 320px;
+    }
+
+    .demo-container {
+      position: relative;
+      margin-top: 20px;
+      width: 320px;
+      height: 240px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    }
+
+    .demo-container video,
+    .demo-container canvas {
+      position: absolute;
+      z-index: 9;
+    }
+
+    .demo-container video {
+      background: #FFF;
+    }
+
+    .demo-container canvas {
+      z-index: 10;
+    }
+
+    .demo-button {
+      margin-top: 20px;
+    }
+
+    button {
+      padding: .5em 1em;
+      display: block;
+      width: 100%;
+      border: 0px none;
+      user-select: none;
+      outline: none;
+      border-radius: 2px;
+      background: #E6E6E6;
+      -webkit-appearance: none;
+    }
+
+    .running {
+      background: #34a853;
+      color: #FFF;
+    }
+
+    .result {
+      margin-top: 20px;
+    }
+
+    .result canvas {
+      margin-right: 5px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+    }
+  </style>
+</head>
+
+<body>
+  <div class="demo-frame">
+    <div class="demo-container">
+      <video id="video" width="320" height="240" preload autoplay loop muted></video>
+      <canvas id="canvas" width="320" height="240"></canvas>
+    </div>
+    <div class="demo-button">
+      <button id="start" class="running">Stop</button>
+    </div>
+    <div id="result" class="result"></div>
+  </div>
+  <script>
+    window.onload = function () {
+      var video = document.getElementById('video');
+      var canvas = document.getElementById('canvas');
+      var result = document.getElementById('result');
+      var context = canvas.getContext('2d');
+      var tracker = new tracking.ObjectTracker('face');
+      //var tracker = new tracking.ObjectTracker(['face', 'eye', 'mouth']);
+      tracker.setInitialScale(4);
+      tracker.setStepSize(2);
+      tracker.setEdgesDensity(0.1);
+      var task = tracking.track('#video', tracker, {
+        camera: true
+      });
+      tracker.on('track', function (event) {
+        context.clearRect(0, 0, canvas.width, canvas.height);
+        if (!event.data.length) {
+          return;
+        }
+        result.innerHTML = '';
+        event.data.sort((a, b) => a.x - b.x);
+        event.data.forEach(function (rect) {
+          console.log(rect);
+          context.strokeStyle = '#3eec6d';
+          context.lineWidth = 2;
+          context.strokeRect(rect.x, rect.y, rect.width, rect.height);
+          context.font = '12px Helvetica';
+          context.fillStyle = "#fff";
+          context.fillText('x: ' + rect.x + 'px', rect.x + rect.width + 5, rect.y + 11);
+          context.fillText('y: ' + rect.y + 'px', rect.x + rect.width + 5, rect.y + 22);
+          var can = document.createElement('canvas');
+          var scale = video.videoWidth / 320;
+          can.width = rect.width;
+          can.height = rect.height;
+          //can.style.width = rect.width + 'px';
+          //can.style.height = rect.height + 'px';
+          ctx = can.getContext('2d');
+          //ctx.scale(1/scale, 1/scale);
+          ctx.drawImage(video, scale * rect.x, scale * rect.y, scale * rect.width, scale * rect.height, 0, 0,
+            rect.width, rect.height);
+          result.appendChild(can);
+        });
+      });
+      var started = true;
+      document.getElementById('start').addEventListener('click', function () {
+        this.innerText = started ? 'Start' : 'Stop';
+        this.classList[started ? 'remove' : 'add']('running');
+        task[started ? 'stop' : 'run']();
+        // video.srcObject.getTracks().forEach( t => t.enabled = !started );
+        if (started) {
+          video.srcObject.getTracks().forEach(t => t.stop());
+          video.srcObject = null;
+        } else {
+          task = tracking.track('#video', tracker, {
+            camera: true
+          });
+        }
+        started = !started;
+      }, false);
+    };
+  </script>
+
+</body>
+
+</html>
