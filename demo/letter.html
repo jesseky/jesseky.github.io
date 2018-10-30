@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Letter On Picture</title>
+    <style type="text/css">
+        html,
+        body,
+        section,
+        article,
+        section,
+        div,
+        aside,
+        picture,
+        input,
+        textarea,
+        h1,
+        h2,
+        h3,
+        h4,
+        h5,
+        h6 {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
+        body,
+        .main,
+        .article,
+        .aside {
+            height: 100%;
+        }
+
+        html {
+            background: #F2F2F2;
+        }
+
+        .main {
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: center;
+        }
+
+        .article {
+            flex: 1;
+        }
+
+        .aside {
+            width: 320px;
+            border-left: 1px solid #CCC;
+            padding: 0 5px;
+        }
+
+        .txt,
+        .txa {
+            line-height: 24px;
+            font-size: 16px;
+            display: block;
+            box-sizing: border-box;
+            -webkit-appearance: none;
+            outline: none;
+            border: 1px solid #CCC;
+            padding: 0 3px;
+        }
+
+        .txt {
+            width: 30%;
+        }
+
+        textarea {
+            height: 240px;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
+        .txt:focus,
+        .txa:focus {
+            color: #20a0ff;
+            border-color: #66AFE9;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 5px rgba(102, 175, 233, 0.6);
+            outline: 0px none;
+        }
+
+        .file {
+            width: 100%;
+            margin: 20px 0;
+        }
+
+        .controls {
+            display: flex;
+            flex-flow: row nowrap;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        label {
+            width: 20%;
+        }
+
+        .controls label:not(:first-child) {
+            text-align: right;
+        }
+
+        h1 {
+            font-size: 20px;
+            line-height: 2em;
+            text-align: center;
+            border-bottom: 1px solid #CCC;
+        }
+
+        article {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .picture {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: #FFF;
+            width: 75vh;
+            height: 100vh;
+        }
+
+        .drop-in {
+            background: #66AFE9;
+        }
+
+        .btn {
+            font: inherit;
+            width: 100%;
+            border-radius: 3px;
+            border: 1px solid #B1B1B1;
+            box-shadow: 1px 1px 1px rgba(0, 0, 0, 0.05);
+            line-height: 1.5em;
+            margin: 0;
+            padding: 5px 10px;
+            background-color: #eee;
+            background-image: linear-gradient(#FCFCFC, #EEE);
+            -webkit-apparence: none;
+        }
+
+        .btn:hover {
+            border-color: #CCC;
+            background-color: #DDD;
+            background-image: linear-gradient(#EEE, #DDD);
+        }
+
+        .btn:focus,
+        .btn:active {
+            outline: 0;
+            border-color: #51A7E8;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn[disabled],
+        .btn[disabled]:hover,
+        .btn[disabled]:active {
+            color: rgba(102, 102, 102, 0.5);
+            background-image: none;
+            background-color: #EEE;
+            box-shadow: none;
+            border: 1px solid #D5D5D5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+
+<body>
+    <section id="main" class="main">
+        <article class="article">
+            <picture class="picture" id="dropIn">
+                <canvas id="canvas"></canvas>
+            </picture>
+        </article>
+        <aside class="aside">
+            <h1>选择文件，输入文字</h1>
+            <input type="file" id="file" class="file" accept="image/*">
+            <div class="controls"><label class="lbl">字体：</label><input class="txt" type="text" id="font" value="sans-serif"></div>
+            <div class="controls"><label class="lbl">大小：</label><input class="txt" type="number" id="size" min="10" step="1" value="40"><label class="lbl">水平：</label><input class="txt" type="number" id="offsetx" step="1" min="0" value="1"></div>
+            <div class="controls"><label class="lbl">颜色：</label><input class="txt" type="text" id="color" value="black"><label class="lbl">垂直：</label><input class="txt" type="text" id="offsety" value="50%"></div>
+            <textarea class="txa" cols="50" row="10" id="letters"></textarea>
+            <button class="btn" id="download">下载</button>
+        </aside>
+    </section>
+</body>
+<script type="text/javascript">
+    function $id(id) {
+        return document.getElementById(id);
+    }
+
+    function $q(q) {
+        return toDoms(document.querySelectorAll(q));
+    }
+
+    function toDoms(o) {
+        var ts = Object.prototype.toString.call(o);
+        return ts === "[object Array]" ? o : (ts === "[object NodeList]" ? Array.from(o) : [o]);
+    }
+
+    function addEvent(obj, evt, callback) {
+        if (obj.addEventListener) {
+            obj.addEventListener(evt, callback);
+        } else if (obj.attachEvent) {
+            obj.attachEvent('on' + evt, function (e) {
+                e = e || event;
+                callback.call(e.target || e.srcElement, e);
+            });
+        } else {
+            obj['on' + evt] = callback;
+        }
+    }
+
+    function addEvents(els, evt, func) {
+        for (var i = 0; i < els.length; i++) addEvent(els[i], evt, func);
+    }
+
+    function hasClass(obj, style) {
+        return obj.className.split(/\s+/).indexOf(style) > -1;
+    }
+
+    function removeClass(obj, style) {
+        obj.className = obj.className.split(/\s+/).filter(function (s) {
+            return s !== style;
+        }).join(' ');
+    }
+
+    function toggleClass(obj, style, isAdd) {
+        toDoms(obj).forEach(function (el) {
+            if (el.classList) {
+                if (typeof isAdd !== 'undefined') {
+                    el.classList[isAdd ? 'add' : 'remove'](style);
+                } else {
+                    el.classList.toggle(style);
+                }
+            } else {
+                if (typeof isAdd !== 'undefined') {
+                    removeClass(el, style);
+                    if (isAdd) {
+                        el.className += (el.className ? ' ' : '') + style;
+                    }
+                } else {
+                    if (el.className.includes(style)) {
+                        removeClass(el, style);
+                    } else {
+                        el.className += (el.className ? ' ' : '') + style;
+                    }
+                }
+            }
+        });
+    }
+
+    function readFile(files, context) {
+        if (!files.length || ['image/png', 'image/gif', 'image/jpeg', 'image/jpg'].indexOf(files[0].type) < 0) { // [].includes()
+            alert("please select one validate image");
+            return;
+        }
+        var reader = new FileReader();
+        reader.onload = function (evt) {
+            var image = new Image();
+            image.src = evt.target.result;
+            image.onload = function () {
+                context.image = image;
+                preview(context);
+            };
+        };
+        reader.readAsDataURL(files[0]);
+    }
+
+    function dropEvent(dropObj, callback) {
+        var drop = {
+            onThereDo: function (evt) {
+                evt.stopPropagation();
+                evt.preventDefault();
+                if (evt.dataTransfer.types && evt.dataTransfer.types.indexOf("Files") > -1) {
+                    toggleClass(dropObj, 'drop-in', true);
+                    evt.dataTransfer.dropEffect = 'copy';
+                }
+            },
+            onLevelDo: function (evt) {
+                evt.stopPropagation();
+                evt.preventDefault();
+                removeClass(dropObj, 'drop-in');
+            },
+            dragenter: function (evt) {
+                drop.onThereDo(evt);
+            },
+            dragover: function (evt) {
+                drop.onThereDo(evt);
+            },
+            dragleave: function (evt) {
+                drop.onLevelDo(evt);
+            },
+            droped: function (evt) {
+                drop.onLevelDo(evt);
+                if (evt.dataTransfer.files && evt.dataTransfer.files.length) {
+                    callback(evt.dataTransfer.files);
+                }
+            }
+        };
+        addEvent(dropObj, 'dragenter', function (e) {
+            drop.dragenter(e);
+        });
+        addEvent(dropObj, 'dragleave', function (e) {
+            drop.dragleave(e);
+        });
+        addEvent(dropObj, 'dragover', function (e) {
+            drop.dragover(e);
+        });
+        addEvent(dropObj, 'drop', function (e) {
+            drop.droped(e);
+        });
+    }
+
+    function preview(context) {
+        var maxWidth = $id('dropIn').clientWidth;
+        var maxHeight = $id('dropIn').clientHeight;
+        context.ratio = 1;
+        if (context.image) {
+            var width = context.image.naturalWidth;
+            var height = context.image.naturalHeight;
+            var scale = Math.min(maxWidth / width, maxHeight / height);
+            context.canvas.width = width * scale;
+            context.canvas.height = height * scale;
+            context.scale(scale, scale);
+            context.ratio = 1 / scale;
+            context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+            context.drawImage(context.image, 0, 0);
+        } else {
+            context.canvas.width = maxWidth;
+            context.canvas.height = maxHeight;
+        }
+        drawText(context);
+    }
+
+    function drawText(context) {
+        var color = $id('color').value;
+        var offsety = parseFloat($id('offsety').value.replace(/[^\.\d]/, ''));
+        var isPercent = $id('offsety').value.indexOf('%') > 0;
+        var text = $id('letters').value.trim();
+        var font = $id('font').value || 'monospace';
+        var json = {};
+        var size = parseInt($id('size').value);
+        var ox = size * parseInt($id('offsetx').value);
+        var x = ox;
+        var y = context.canvas.height * context.ratio * (!isNaN(offsety) ? (isPercent ? 0.01 : 1) * offsety : 0.5);
+        try {
+            json = eval(text);
+            json.forEach(function (j) {
+                if (typeof j === 'string') {
+                    if (/^[\s\n]+$/.test(j)) {
+                        x = ox + (j.match(/[ ]/g) || []).length * size;
+                        y += (j.match(/\n/g) || []).length * size;
+                        return;
+                    }
+                    j = {
+                        t: j
+                    };
+                }
+                var ifont = j.f ? j.f : font;
+                context.font = j.font ? j.font : (j.s ? (typeof j.s === 'number' ? j.s * size + 'px' : j.s) + ' ' + ifont : (size + 'px ' + ifont));
+                context.textBaseline = j.tbl || '';
+                context.textAlign = j.ta || '';
+                context.fillStyle = j.c || color;
+                context.strokeStyle = j.c || color;
+                context[j.st ? "strokeText" : "fillText"](j.t, typeof j.x !== 'undefined' ? parseInt(j.x) : x, typeof j.y !== 'undefined' ? y + parseInt(j.y) : y);
+                if (typeof j.x === 'undefined') {
+                    x += j.t.length * context.font.match(/\d+/)[0];
+                }
+                if (typeof j.y !== 'undefined') {
+                    y += parseInt(j.y);
+                }
+                console.log(context.font);
+            });
+        } catch (e) {
+            console.log(e);
+        }
+    }
+
+    function loadJs(file, callback) {
+        var script = document.createElement('script');
+        script.src = file;
+        script.onload = callback;
+        document.head.appendChild(script);
+    }
+    window.onload = function () {
+        var context = $id('canvas').getContext('2d');
+        addEvent($id('file'), 'change', function (event) {
+            readFile(event.target.files, context);
+        });
+        dropEvent($id('dropIn'), function (files) {
+            readFile(files, context);
+        });
+        addEvent($id('letters'), 'input', function (event) {
+            preview(context);
+        });
+        addEvents($q('.txt'), 'input', function (event) {
+            preview(context);
+        });
+        addEvent($id('download'), 'click', function (event) {
+            event.stopPropagation();
+            event.preventDefault();
+            if (this.innerHTML !== '') {
+                if (!'Blob' in window) {
+                    alert("Your browser doesn't support download");
+                    return;
+                }
+                if (!window.saveAs) {
+                    loadJs('FileSaver.min.js', function () {
+                        $id('canvas').toBlob(function (blob) {
+                            saveAs(blob, 'letter.png');
+                        });
+                    });
+                } else {
+                    $id('canvas').toBlob(function (blob) {
+                        saveAs(blob, 'letter.png');
+                    });
+                }
+            }
+        });
+    };
+</script>
+
+</html>
