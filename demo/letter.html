@@ -43,6 +43,8 @@
             display: flex;
             flex-flow: row nowrap;
             justify-content: center;
+            width: 100%;
+            overflow: hidden;
         }
 
         .article {
@@ -69,6 +71,10 @@
 
         .txt {
             width: 30%;
+        }
+
+        .txl {
+            width: 80%;
         }
 
         textarea {
@@ -125,6 +131,7 @@
             background: #FFF;
             width: 75vh;
             height: 100vh;
+            max-width: 98vw;
         }
 
         .drop-in {
@@ -168,20 +175,68 @@
             border: 1px solid #D5D5D5;
             cursor: not-allowed;
         }
+
+        .menu {
+            display: none;
+            position: absolute;
+            left: 0;
+            top: 0;
+            z-index: 9;
+            font-size: 40px;
+            line-height: 40px;
+            height: 40px;
+        }
+
+        .menu-on {
+            color: #20a0ff;
+        }
+
+        select {
+            border: 1px solid #CCC;
+            height: 24px;
+            border-radius: 0px;
+            padding: 0 5px;
+        }
+
+        @media screen and (max-width: 1024px) {
+            .menu {
+                display: block;
+            }
+
+            .aside {
+                background: rgba(255, 255, 255, 0.8);
+                position: absolute;
+                right: -100%;
+                top: 0;
+                width: 90vw;
+                max-width: 320px;
+                z-index: 5;
+                transition: all 0.5s ease-out;
+            }
+
+            .aside-hide {
+                display: none;
+            }
+        }
     </style>
 </head>
 
 <body>
+    <div id="menu" class="menu">☷</div>
     <section id="main" class="main">
         <article class="article">
             <picture class="picture" id="dropIn">
                 <canvas id="canvas"></canvas>
             </picture>
         </article>
-        <aside class="aside">
+        <aside class="aside aside-hide" id="aside">
             <h1>选择文件，输入文字</h1>
             <input type="file" id="file" class="file" accept="image/*">
-            <div class="controls"><label class="lbl">字体：</label><input class="txt" type="text" id="font" value="sans-serif"></div>
+            <div class="controls"><label class="lbl">字体：</label><select id="font" class="txl">
+                    <option>sans-serif</option>
+                    <option>serif</option>
+                    <option>monospace</option>
+                </select></div>
             <div class="controls"><label class="lbl">大小：</label><input class="txt" type="number" id="size" min="10" step="1" value="40"><label class="lbl">水平：</label><input class="txt" type="number" id="offsetx" step="1" min="0" value="1"></div>
             <div class="controls"><label class="lbl">颜色：</label><input class="txt" type="text" id="color" value="black"><label class="lbl">垂直：</label><input class="txt" type="text" id="offsety" value="50%"></div>
             <textarea class="txa" cols="50" row="10" id="letters"></textarea>
@@ -338,12 +393,41 @@
         drawText(context);
     }
 
+    var fonts = {
+        "楷体": "Kaiti",
+        "行楷": "Xingkai SC",
+        "魏碑": "Weibei SC",
+        "雅痞": "Yuppy SC",
+        "圆体": "Yuanti SC",
+        "黑体": "SimHei",
+        "宋体": "Songti SC",
+        "仿宋": "FangSong",
+        "苹方": "PingFang SC",
+        "凌慧体": "LingWai SC",
+        "翩翩体": "HanziPen SC",
+        "手札体": "Hannotate SC",
+        "娃娃体": "Wawati SC",
+        "兰亭黑": "Lantinghei SC",
+        "思源黑体": "Source Han Sans SC",
+        "微软雅黑": "Microsoft YaHei",
+        "华文黑体": "STXihei",
+        "华文隶书": "STLiti",
+        "华文楷体": "STKaiti",
+        "华文新魏": "STXinwei",
+        "华文琥珀": "STHupo",
+        "华文行楷": "STXingkai",
+        "华文宋体": "STSong",
+        "华文中宋": "STZhongsong",
+        "华文仿宋": "STFangsong",
+        "冬青黑体": "Hiragino Sans"
+    };
+
     function drawText(context) {
         var color = $id('color').value;
         var offsety = parseFloat($id('offsety').value.replace(/[^\.\d]/, ''));
         var isPercent = $id('offsety').value.indexOf('%') > 0;
         var text = $id('letters').value.trim();
-        var font = $id('font').value || 'monospace';
+        var font = selectValue($id('font')) || 'monospace';
         var json = {};
         var size = parseInt($id('size').value);
         var ox = size * parseInt($id('offsetx').value);
@@ -362,24 +446,35 @@
                         t: j
                     };
                 }
-                var ifont = j.f ? j.f : font;
-                context.font = j.font ? j.font : (j.s ? (typeof j.s === 'number' ? j.s * size + 'px' : j.s) + ' ' + ifont : (size + 'px ' + ifont));
+                var ifont = j.f || font;
+                if (fonts[ifont]) {
+                    ifont = fonts[ifont];
+                }
+                ifont = `"${ifont}"`;
+                context.font = j.font ? j.font : (j.fs ? j.fs + ' ' : '') + (j.s ? (typeof j.s === 'number' ? j.s * size + 'px' : j.s) + ' ' + ifont : (size + 'px ' + ifont));
                 context.textBaseline = j.tbl || '';
                 context.textAlign = j.ta || '';
                 context.fillStyle = j.c || color;
                 context.strokeStyle = j.c || color;
                 context[j.st ? "strokeText" : "fillText"](j.t, typeof j.x !== 'undefined' ? parseInt(j.x) : x, typeof j.y !== 'undefined' ? y + parseInt(j.y) : y);
                 if (typeof j.x === 'undefined') {
-                    x += j.t.length * context.font.match(/\d+/)[0];
+                    x += Array.from(j.t).length * context.font.match(/\d+/)[0];
                 }
                 if (typeof j.y !== 'undefined') {
                     y += parseInt(j.y);
                 }
-                console.log(context.font);
             });
         } catch (e) {
             console.log(e);
         }
+    }
+
+    function setCache(k, v) {
+        localStorage.setItem(k, v);
+    }
+
+    function selectValue(s) {
+        return s.options[s.selectedIndex].value;
     }
 
     function loadJs(file, callback) {
@@ -390,6 +485,8 @@
     }
     window.onload = function () {
         var context = $id('canvas').getContext('2d');
+        $id('letters').value = localStorage.getItem('letters') || '';
+        preview(context);
         addEvent($id('file'), 'change', function (event) {
             readFile(event.target.files, context);
         });
@@ -397,9 +494,13 @@
             readFile(files, context);
         });
         addEvent($id('letters'), 'input', function (event) {
+            setCache('letters', this.value);
             preview(context);
         });
         addEvents($q('.txt'), 'input', function (event) {
+            preview(context);
+        });
+        addEvents($q('select'), 'change', function (event) {
             preview(context);
         });
         addEvent($id('download'), 'click', function (event) {
@@ -423,6 +524,35 @@
                 }
             }
         });
+        addEvent($id('menu'), 'click', function (event) {
+            if ($id('menu').running) {
+                return;
+            }
+            $id('menu').running = true;
+            $id('menu').classList.toggle('menu-on');
+            var isHide = $id('aside').classList.contains('aside-hide');
+            if (isHide) {
+                $id('aside').classList.remove('aside-hide');
+                setTimeout(function () {
+                    $id('aside').style.right = 0;
+                    setTimeout(function () {
+                        $id('menu').running = false;
+                    }, 500);
+                }, 0);
+            } else {
+                $id('aside').style.right = -($id('aside').clientWidth + 100) + 'px';
+                setTimeout(function () {
+                    $id('aside').classList.add('aside-hide');
+                    $id('menu').running = false;
+                }, 500);
+            }
+        });
+        for (var k in fonts) {
+            var option = document.createElement('option');
+            option.value = k;
+            option.innerHTML = k;
+            $id('font').appendChild(option);
+        }
     };
 </script>
 
