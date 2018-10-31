@@ -237,7 +237,7 @@
                     <option>serif</option>
                     <option>monospace</option>
                 </select></div>
-            <div class="controls"><label class="lbl">大小：</label><input class="txt" type="number" id="size" min="10" step="1" value="40"><label class="lbl">水平：</label><input class="txt" type="number" id="offsetx" step="1" min="0" value="1"></div>
+            <div class="controls"><label class="lbl">大小：</label><input class="txt" type="number" id="size" min="10" step="1" value="40"><label class="lbl">水平：</label><input class="txt" type="number" id="offsetx" step="0.1" min="0" value="1"></div>
             <div class="controls"><label class="lbl">颜色：</label><input class="txt" type="text" id="color" value="black"><label class="lbl">垂直：</label><input class="txt" type="text" id="offsety" value="50%"></div>
             <textarea class="txa" cols="50" row="10" id="letters"></textarea>
             <button class="btn" id="download">下载</button>
@@ -430,7 +430,7 @@
         var font = selectValue($id('font')) || 'monospace';
         var json = {};
         var size = parseInt($id('size').value);
-        var ox = size * parseInt($id('offsetx').value);
+        var ox = size * parseFloat($id('offsetx').value);
         var x = ox;
         var y = context.canvas.height * context.ratio * (!isNaN(offsety) ? (isPercent ? 0.01 : 1) * offsety : 0.5);
         try {
@@ -456,12 +456,12 @@
                 context.textAlign = j.ta || '';
                 context.fillStyle = j.c || color;
                 context.strokeStyle = j.c || color;
-                context[j.st ? "strokeText" : "fillText"](j.t, typeof j.x !== 'undefined' ? parseInt(j.x) : x, typeof j.y !== 'undefined' ? y + parseInt(j.y) : y);
+                context[j.st ? "strokeText" : "fillText"](j.t, typeof j.x !== 'undefined' ? x + parseInt(j.x) : x, typeof j.y !== 'undefined' ? y + parseInt(j.y) : y);
                 if (typeof j.x === 'undefined') {
                     x += Array.from(j.t).length * context.font.match(/\d+/)[0];
                 }
                 if (typeof j.y !== 'undefined') {
-                    y += parseInt(j.y);
+                    //y += parseInt(j.y);
                 }
             });
         } catch (e) {
@@ -469,8 +469,18 @@
         }
     }
 
-    function setCache(k, v) {
-        localStorage.setItem(k, v);
+    function setCaches() {
+        $q('.txt,.txa,select').forEach(function (e) {
+            localStorage.setItem(e.id, /select/i.test(e.tagName) ? e.selectedIndex : e.value);
+        });
+    }
+
+    function getCaches() {
+        $q('.txt,.txa,select').forEach(function (e) {
+            var isSelect = /select/i.test(e.tagName);
+            var value = localStorage.getItem(e.id) || (e.value || '');
+            e[isSelect ? 'selectedIndex' : 'value'] = isSelect ? parseInt(value) : value;
+        });
     }
 
     function selectValue(s) {
@@ -485,7 +495,13 @@
     }
     window.onload = function () {
         var context = $id('canvas').getContext('2d');
-        $id('letters').value = localStorage.getItem('letters') || '';
+        for (var k in fonts) {
+            var option = document.createElement('option');
+            option.value = k;
+            option.innerHTML = k;
+            $id('font').appendChild(option);
+        }
+        getCaches();
         preview(context);
         addEvent($id('file'), 'change', function (event) {
             readFile(event.target.files, context);
@@ -494,13 +510,15 @@
             readFile(files, context);
         });
         addEvent($id('letters'), 'input', function (event) {
-            setCache('letters', this.value);
+            setCaches();
             preview(context);
         });
         addEvents($q('.txt'), 'input', function (event) {
+            setCaches();
             preview(context);
         });
         addEvents($q('select'), 'change', function (event) {
+            setCaches();
             preview(context);
         });
         addEvent($id('download'), 'click', function (event) {
@@ -547,12 +565,6 @@
                 }, 500);
             }
         });
-        for (var k in fonts) {
-            var option = document.createElement('option');
-            option.value = k;
-            option.innerHTML = k;
-            $id('font').appendChild(option);
-        }
     };
 </script>
 
