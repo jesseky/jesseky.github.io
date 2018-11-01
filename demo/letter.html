@@ -269,8 +269,11 @@
                     s: 表示尺寸(size，为数值，即全局字体大小的倍数)，<br>
                     f: 表示字体 (font)，<br>
                     fs: 表示字体样式（fontStyle，可以是：bold、itlatic、light等值)，<br>
-                    l: 表示换行行高(line-height，仅在文本都是\n和空格时候，生效，一个空格默认缩进一个字符),<br>
-                    st: (值为1时候，使用stroke方式绘制文本，即镂空模式)
+                    st: (值为1时候，使用stroke方式绘制文本，即镂空模式)，<br>
+                    换行：<br>
+                    l: 表示换行行高(line-height，仅在文本都是\n和空格时候，生效，一个空格默认缩进一个字符)，<br>
+                    nc: 表示\n的数量(n-count)，<br>
+                    sc: 表示空格的数量(space-count)
                 </p>
             </div>
         </div>
@@ -497,8 +500,8 @@
                     return;
                 }
                 if (/^[\s\n]+$/.test(j.t)) {
-                    x = ox + (j.t.match(/[ ]/g) || []).length * size * (j.s || 1);
-                    y += (j.t.match(/\n/g) || []).length * size * (j.l || 1);
+                    x = ox + Math.max((j.t.match(/[ ]/g) || []).length, j.sc || 0) * size * (j.s || 1);
+                    y += Math.max((j.t.match(/\n/g) || []).length, j.nc || 0) * size * (j.l || 1);
                     return;
                 }
                 var ifont = j.f || font;
