@@ -78,9 +78,10 @@
         }
 
         textarea {
-            height: 240px;
+            min-height: 240px;
             width: 100%;
-            margin-bottom: 20px;
+            margin: 20px 0;
+            height: calc(100vh - 320px);
         }
 
         .txt:focus,
@@ -93,14 +94,14 @@
 
         .file {
             width: 100%;
-            margin: 20px 0;
+            margin: 20px 0 0 0;
         }
 
         .controls {
             display: flex;
             flex-flow: row nowrap;
             justify-content: space-between;
-            margin-bottom: 20px;
+            margin-top: 20px;
         }
 
         label {
@@ -198,6 +199,37 @@
             padding: 0 5px;
         }
 
+        .note {
+            position: absolute;
+            left: 0;
+            top: 0;
+            background: #000;
+            background: rgba(0, 0, 0, 0.5);
+            color: #09f909;
+            width: 100%;
+            z-index: 2;
+            transition: all 0.3s ease-in-out;
+        }
+
+        .note-btn {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            display: flex;
+            flex-flow: row-reverse;
+            align-items: center;
+            z-index: 3;
+        }
+
+        .note-text {
+            padding: 10px;
+        }
+
+        .note-hide {
+            top: -500px;
+        }
+
         @media screen and (max-width: 1024px) {
             .menu {
                 display: block;
@@ -224,21 +256,41 @@
 <body>
     <div id="menu" class="menu">☷</div>
     <section id="main" class="main">
+        <div class="note-btn"><button id="notebtn">︾</button></div>
+        <div id="note" class="note note-hide">
+            <div class="note-text">
+                <p>说明：</p>
+                <p>
+                    必须是合法的js数组格式，数组中可以为纯字符、或对象，对象格式如下：
+                </p>
+                <p>
+                    t: 表示文本（text)，<br>
+                    c: 表示颜色(color)，<br>
+                    s: 表示尺寸(size，为数值，即全局字体大小的倍数)，<br>
+                    f: 表示字体 (font)，<br>
+                    fs: 表示字体样式（fontStyle，可以是：bold、itlatic、light等值)，<br>
+                    l: 表示换行行高(line-height，仅在文本都是\n和空格时候，生效，一个空格默认缩进一个字符),<br>
+                    st: (值为1时候，使用stroke方式绘制文本，即镂空模式)
+                </p>
+            </div>
+        </div>
         <article class="article">
             <picture class="picture" id="dropIn">
                 <canvas id="canvas"></canvas>
             </picture>
         </article>
         <aside class="aside aside-hide" id="aside">
-            <h1>选择文件，输入文字</h1>
-            <input type="file" id="file" class="file" accept="image/*">
-            <div class="controls"><label class="lbl">字体：</label><select id="font" class="txl">
-                    <option>sans-serif</option>
-                    <option>serif</option>
-                    <option>monospace</option>
-                </select></div>
-            <div class="controls"><label class="lbl">大小：</label><input class="txt" type="number" id="size" min="10" step="1" value="40"><label class="lbl">水平：</label><input class="txt" type="number" id="offsetx" step="0.1" min="0" value="1"></div>
-            <div class="controls"><label class="lbl">颜色：</label><input class="txt" type="text" id="color" value="black"><label class="lbl">垂直：</label><input class="txt" type="text" id="offsety" value="50%"></div>
+            <div class="block1">
+                <h1>选择文件，输入文字</h1>
+                <input type="file" id="file" class="file" accept="image/*">
+                <div class="controls"><label class="lbl">字体：</label><select id="font" class="txl">
+                        <option>sans-serif</option>
+                        <option>serif</option>
+                        <option>monospace</option>
+                    </select></div>
+                <div class="controls"><label class="lbl">大小：</label><input class="txt" type="number" id="size" min="10" step="1" value="40"><label class="lbl">水平：</label><input class="txt" type="number" id="offsetx" step="0.1" min="0" value="1"></div>
+                <div class="controls"><label class="lbl">颜色：</label><input class="txt" type="text" id="color" value="black"><label class="lbl">垂直：</label><input class="txt" type="text" id="offsety" value="50%"></div>
+            </div>
             <textarea class="txa" cols="50" row="10" id="letters"></textarea>
             <button class="btn" id="download">下载</button>
         </aside>
@@ -437,14 +489,17 @@
             json = eval(text);
             json.forEach(function (j) {
                 if (typeof j === 'string') {
-                    if (/^[\s\n]+$/.test(j)) {
-                        x = ox + (j.match(/[ ]/g) || []).length * size;
-                        y += (j.match(/\n/g) || []).length * size;
-                        return;
-                    }
                     j = {
                         t: j
                     };
+                }
+                if (!j.t) {
+                    return;
+                }
+                if (/^[\s\n]+$/.test(j.t)) {
+                    x = ox + (j.t.match(/[ ]/g) || []).length * size * (j.s || 1);
+                    y += (j.t.match(/\n/g) || []).length * size * (j.l || 1);
+                    return;
                 }
                 var ifont = j.f || font;
                 if (fonts[ifont]) {
@@ -565,6 +620,17 @@
                 }, 500);
             }
         });
+        addEvent($id('notebtn'), 'click', function (event) {
+            $id('note').classList.toggle('note-hide');
+        });
+        if (!localStorage.getItem('visited')) {
+            localStorage.setItem('visited', 'yes');
+            $id('note').classList.remove('note-hide');
+            setTimeout(function () {
+                $id('note').classList.add('note-hide');
+            }, 3000);
+        }
+
     };
 </script>
 
