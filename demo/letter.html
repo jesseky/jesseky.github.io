@@ -99,6 +99,7 @@
 
         .controls {
             display: flex;
+            position: relative;
             flex-flow: row nowrap;
             justify-content: space-between;
             margin-top: 20px;
@@ -110,6 +111,12 @@
 
         .controls label:not(:first-child) {
             text-align: right;
+        }
+
+        .controls b {
+            position: absolute;
+            top: 2px;
+            right: 2em;
         }
 
         h1 {
@@ -306,7 +313,7 @@
                         <option>monospace</option>
                     </select></div>
                 <div class="controls"><label class="lbl">大小：</label><input class="txt" type="number" id="size" min="10" step="1" value="40"><label class="lbl">水平：</label><input class="txt" type="number" id="offsetx" step="0.1" min="0" value="1"></div>
-                <div class="controls"><label class="lbl">颜色：</label><input class="txt" type="text" id="color" value="black"><label class="lbl">垂直：</label><input class="txt" type="text" id="offsety" value="50%"></div>
+                <div class="controls"><label class="lbl">颜色：</label><input class="txt" type="text" id="color" value="black"><label class="lbl">垂直：</label><input class="txt" type="number" step="1" id="offsety" value="50"><b>%</b></div>
             </div>
             <textarea class="txa" cols="50" row="10" id="letters"></textarea>
             <button class="btn" id="download">下载</button>
@@ -494,7 +501,7 @@
     function drawText(context) {
         var color = $id('color').value;
         var offsety = parseFloat($id('offsety').value.replace(/[^\.\d]/, ''));
-        var isPercent = $id('offsety').value.indexOf('%') > 0;
+        var isPercent = true;
         var text = $id('letters').value.trim();
         var font = selectValue($id('font')) || 'monospace';
         var json = {};
