@@ -129,10 +129,24 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            background: #FFF;
             width: 75vh;
             height: 100vh;
             max-width: 98vw;
+        }
+
+        .picture canvas {
+            background: #FFF;
+            background: -webkit-linear-gradient(45deg, rgba(0, 0, 0, 0.0980392) 25%, rgba(0, 0, 0, 0) 25%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0.0980392) 75%, rgba(0, 0, 0, 0.0980392) 0), -webkit-linear-gradient(45deg, rgba(0, 0, 0, 0.0980392) 25%, rgba(0, 0, 0, 0) 25%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0.0980392) 75%, rgba(0, 0, 0, 0.0980392) 0), rgb(255, 255, 255);
+            background: -moz-linear-gradient(45deg, rgba(0, 0, 0, 0.0980392) 25%, rgba(0, 0, 0, 0) 25%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0.0980392) 75%, rgba(0, 0, 0, 0.0980392) 0), -moz-linear-gradient(45deg, rgba(0, 0, 0, 0.0980392) 25%, rgba(0, 0, 0, 0) 25%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0.0980392) 75%, rgba(0, 0, 0, 0.0980392) 0), rgb(255, 255, 255);
+            background: linear-gradient(45deg, rgba(0, 0, 0, 0.0980392) 25%, rgba(0, 0, 0, 0) 25%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0.0980392) 75%, rgba(0, 0, 0, 0.0980392) 0), linear-gradient(45deg, rgba(0, 0, 0, 0.0980392) 25%, rgba(0, 0, 0, 0) 25%, rgba(0, 0, 0, 0) 75%, rgba(0, 0, 0, 0.0980392) 75%, rgba(0, 0, 0, 0.0980392) 0), rgb(255, 255, 255);
+            background-repeat: repeat, repeat;
+            background-position: 0 0, 40px 40px;
+            -webkit-background-origin: padding-box, padding-box;
+            background-origin: padding-box, padding-box;
+            -webkit-background-clip: border-box, border-box;
+            background-clip: border-box, border-box;
+            -webkit-background-size: 80px 80px, 80px 80px;
+            background-size: 80px 80px, 80px 80px;
         }
 
         .drop-in {
@@ -488,6 +502,7 @@
         var ox = size * parseFloat($id('offsetx').value);
         var x = ox;
         var y = context.canvas.height * context.ratio * (!isNaN(offsety) ? (isPercent ? 0.01 : 1) * offsety : 0.5);
+        size = size * context.ratio;
         try {
             json = eval(text);
             json.forEach(function (j) {
@@ -514,7 +529,7 @@
                 context.textAlign = j.ta || '';
                 context.fillStyle = j.c || color;
                 context.strokeStyle = j.c || color;
-                context[j.st ? "strokeText" : "fillText"](j.t, typeof j.x !== 'undefined' ? x + parseInt(j.x) : x, typeof j.y !== 'undefined' ? y + parseInt(j.y) : y);
+                context[j.st ? "strokeText" : "fillText"](j.t, typeof j.x !== 'undefined' ? x + size * j.x : x, typeof j.y !== 'undefined' ? y + size * j.y : y);
                 if (typeof j.x === 'undefined') {
                     x += Array.from(j.t).length * context.font.match(/\d+/)[0];
                 }
