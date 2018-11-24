@@ -164,278 +164,297 @@
 
         </article>
     </div>
-</body>
-<script type="text/javascript">
-    var options = [{
-            title: '硬件',
-            items: [{
-                    t: '身高',
-                    b: 175,
-                    d: 2,
-                    v: 100,
-                    min: 145,
-                    def: 175,
-                    max: 225,
-                    unit: 'cm',
-                    note: '超过175cm，每过2cm加100<br>低于175cm，每低2cm减100'
-                },
-                {
-                    t: '体重',
-                    b: [120, 140],
-                    d: 10,
-                    v: 100,
-                    min: 80,
-                    def: 132,
-                    max: 220,
-                    unit: '斤',
-                    note: '超过140斤，每超10斤减100<br>不足120斤，每差10斤减100'
-                },
-                {
-                    t: '颜值',
+    <script type="text/javascript">
+        var options = [{
+                title: '硬件',
+                items: [{
+                        t: '身高',
+                        b: 175,
+                        d: 2,
+                        v: 100,
+                        min: 145,
+                        def: 175,
+                        max: 225,
+                        unit: 'cm',
+                        note: '超过175cm，每过2cm加100<br>低于175cm，每低2cm减100'
+                    },
+                    {
+                        t: '体重',
+                        b: [120, 140],
+                        d: 10,
+                        v: 100,
+                        min: 80,
+                        def: 132,
+                        max: 220,
+                        unit: '斤',
+                        note: '超过140斤，每超10斤减100<br>不足120斤，每差10斤减100'
+                    },
+                    {
+                        t: '颜值',
+                        v: 100
+                    }
+                ],
+            },
+            {
+                title: '软件',
+                items: [{
+                    t: '会画画',
                     v: 100
-                }
-            ],
-        },
-        {
-            title: '软件',
-            items: [{
-                t: '会画画',
-                v: 100
-            }, {
-                t: '会跳舞',
-                v: 100
-            }, {
-                t: '会唱歌',
-                v: 100
-            }, {
-                t: '会做饭',
-                v: 300
-            }]
-        },
-        {
-            title: '生活习惯',
-            items: [{
-                    t: '总说你丑、胖的',
-                    v: -200,
-                },
-                {
-                    t: '没日没夜打游戏',
-                    v: -200
-                },
-                {
-                    t: '每天宅在家不出门运动',
-                    v: -100
-                },
-                {
-                    t: '每天喝酒超过半瓶',
-                    v: -100
-                },
-                {
-                    t: '抽烟酗酒',
-                    v: -200
-                },
-                {
-                    t: '不喝酒',
-                    v: 100
-                },
-                {
-                    t: '经常运动',
-                    v: 100
-                },
-                {
-                    t: '喜欢和小孩子玩',
-                    v: 100
-                },
-                {
-                    t: '会称赞你做的饭',
-                    v: 200
-                },
-                {
-                    t: '幽默风趣',
-                    v: 100
-                },
-                {
-                    t: '会帮你系鞋带',
-                    v: 200
-                },
-                {
-                    t: '愿意陪你看肥皂剧',
-                    v: 100
-                },
-                {
-                    t: '会介绍他的朋友给你认识',
-                    v: 100
-                },
-                {
-                    t: '给你适当的私人空间',
-                    v: 100
-                },
-                {
-                    t: '打扮清爽不邋遢',
-                    v: 100
-                },
-                {
-                    t: '不会干家务的',
-                    v: -200
-                }
-            ]
-        },
-        {
-            title: '对你的态度',
-            items: [{
-                    t: '经常吵架',
-                    v: -200
                 }, {
-                    t: '吵架不管谁错，总是他先找你',
+                    t: '会跳舞',
+                    v: 100
+                }, {
+                    t: '会唱歌',
+                    v: 100
+                }, {
+                    t: '会做饭',
                     v: 300
-                }, {
-                    t: '每天哄你睡觉',
-                    v: 100
-                }, {
-                    t: '不藏私房钱',
-                    v: 100
-                }, {
-                    t: '会为你哭',
-                    v: 100
-                }, {
-                    t: '总惹你哭',
-                    v: -100
-                }, {
-                    t: '有什么好事先想到你',
-                    v: 100
-                }, {
-                    t: '会做有情调的事',
-                    v: 100
-                },
-                {
-                    t: '成熟稳重',
-                    v: 100
-                }, {
-                    t: '跟你在一起不爱笑',
-                    v: -100
-                }, {
-                    t: '会送你他亲手做的东西',
-                    v: 100
-                }, {
-                    t: '总说很忙没时间陪你',
-                    v: -200
-                }, {
-                    t: '多忙也抽时间陪你吃饭',
-                    v: 200
-                }
-            ]
+                }]
+            },
+            {
+                title: '生活习惯',
+                items: [{
+                        t: '总说你丑、胖的',
+                        v: -200,
+                    },
+                    {
+                        t: '没日没夜打游戏',
+                        v: -200
+                    },
+                    {
+                        t: '每天宅在家不出门运动',
+                        v: -100
+                    },
+                    {
+                        t: '每天喝酒超过半瓶',
+                        v: -100
+                    },
+                    {
+                        t: '抽烟酗酒',
+                        v: -200
+                    },
+                    {
+                        t: '不喝酒',
+                        v: 100
+                    },
+                    {
+                        t: '经常运动',
+                        v: 100
+                    },
+                    {
+                        t: '喜欢和小孩子玩',
+                        v: 100
+                    },
+                    {
+                        t: '会称赞你做的饭',
+                        v: 200
+                    },
+                    {
+                        t: '幽默风趣',
+                        v: 100
+                    },
+                    {
+                        t: '会帮你系鞋带',
+                        v: 200
+                    },
+                    {
+                        t: '愿意陪你看肥皂剧',
+                        v: 100
+                    },
+                    {
+                        t: '会介绍他的朋友给你认识',
+                        v: 100
+                    },
+                    {
+                        t: '给你适当的私人空间',
+                        v: 100
+                    },
+                    {
+                        t: '打扮清爽不邋遢',
+                        v: 100
+                    },
+                    {
+                        t: '不会干家务的',
+                        v: -200
+                    }
+                ]
+            },
+            {
+                title: '对你的态度',
+                items: [{
+                        t: '经常吵架',
+                        v: -200
+                    }, {
+                        t: '吵架不管谁错，总是他先找你',
+                        v: 300
+                    }, {
+                        t: '每天哄你睡觉',
+                        v: 100
+                    }, {
+                        t: '不藏私房钱',
+                        v: 100
+                    }, {
+                        t: '会为你哭',
+                        v: 100
+                    }, {
+                        t: '总惹你哭',
+                        v: -100
+                    }, {
+                        t: '有什么好事先想到你',
+                        v: 100
+                    }, {
+                        t: '会做有情调的事',
+                        v: 100
+                    },
+                    {
+                        t: '成熟稳重',
+                        v: 100
+                    }, {
+                        t: '跟你在一起不爱笑',
+                        v: -100
+                    }, {
+                        t: '会送你他亲手做的东西',
+                        v: 100
+                    }, {
+                        t: '总说很忙没时间陪你',
+                        v: -200
+                    }, {
+                        t: '多忙也抽时间陪你吃饭',
+                        v: 200
+                    }
+                ]
+            }
+        ];
+        var results = [{
+            t: '&lt;1000，跪键盘反思',
+            v: 1000
+        }, {
+            t: '&lt;1500，回炉重造',
+            v: 1500
+        }, {
+            t: '1500-2500，正常',
+            v: 2500
+        }, {
+            t: '2500-3500，良品',
+            v: 3500
+        }, {
+            t: '&gt;3500，钻石精品（极品好男人）',
+            v: 3501
+        }];
+
+        function $d(s) {
+            return document.getElementById(s);
         }
-    ];
-    var results = [{
-        t: '&lt;1000，跪键盘反思',
-        v: 1000
-    }, {
-        t: '&lt;1500，回炉重造',
-        v: 1500
-    }, {
-        t: '1500-2500，正常',
-        v: 2500
-    }, {
-        t: '2500-3500，良品',
-        v: 3500
-    }, {
-        t: '&gt;3500，钻石精品（极品好男人）',
-        v: 3501
-    }];
 
-    function $d(s) {
-        return document.getElementById(s);
-    }
+        function floor(v) {
+            return v > 0 ? Math.floor(v) : -Math.floor(Math.abs(v));
+        }
 
-    function floor(v) {
-        return v > 0 ? Math.floor(v) : -Math.floor(Math.abs(v));
-    }
-
-    function init() {
-        var h = '';
-        var total = 1000;
-        options.forEach(function (o, i) {
-            var items = o.items.map(function (it, j) {
-                if (it.b) {
-                    return '<div class="ranges"><label>' + it.t + '<var>' + it.def + it.unit + '</var><b></b></label>' +
-                        '<div><i class="l">' + it.min + it.unit + '</i>' +
-                        '<input type="range" min="' + it.min + '" max="' + it.max + '" value="' + it.def + '" i="' + i + '" j="' + j + '">' +
-                        '<i>' + it.max + it.unit + '</i></div><p>' + it.note + '</p></div>';
-                }
-                return '<label><input type="checkbox" name="o_' + i + '_' + j + '" value="' + it.v + '"> <span>' + it.t + '</span>' +
-                    '<b class="v-' + (it.v > 0 ? '1' : '0') + '">(' + (it.v > 0 ? '+' : '') + it.v + ')</b></label>';
-            }).join('');
-
-            h += '<fieldset><legend>' + o.title + '</legend><section>' + items + '</section></fieldset>';
-        });
-        h += '<h2>价目表：</h2><ul>';
-        results.forEach(function (o, i) {
-            h += '<li v="' + o.v + '">' + o.t + '</li>';
-        });
-        h + '</ul>';
-        $d('opts').innerHTML = h;
-        $d('base').innerHTML = total;
-        $d('total').innerHTML = total;
-        document.querySelectorAll('#opts input[type="checkbox"]').forEach(function (c) {
-            c.addEventListener('click', function () {
-                calc(total);
-            });
-        });
-        document.querySelectorAll('#opts input[type="range"]').forEach(function (c) {
-            c.addEventListener('input', function () {
-                var item = options[parseInt(c.getAttribute("i"))].items[parseInt(c.getAttribute("j"))];
-                var value = '';
-                var vi = parseInt(c.value);
-                if (typeof item.b === 'number') {
-                    value = floor((vi - item.b) / item.d) * item.v;
+        function addEvent(obj, events, callback) {
+            events.split(',').forEach(function (evt) {
+                if (obj.addEventListener) {
+                    obj.addEventListener(evt, callback);
+                } else if (obj.attachEvent) {
+                    obj.attachEvent('on' + evt, function (e) {
+                        e = e || event;
+                        callback.call(e.target || e.srcElement, e);
+                    });
                 } else {
-                    value = vi < item.b[0] || vi > item.b[1] ? -Math.floor(Math.abs(vi - item.b[vi < item.b[0] ? 0 : 1]) / item.d) * item.v : 0;
+                    obj['on' + evt] = callback;
                 }
-                c.parentNode.parentNode.querySelector('var').innerHTML = c.value + item.unit;
-                var b = c.parentNode.parentNode.querySelector('b');
-                b.className = value > 0 ? 'v-1' : 'v-0';
-                b.innerHTML = value !== 0 ? '(' + (value > 0 ? '+' + value : value) + ')' : '';
-                calc(total);
             });
-        });
-        window.addEventListener('scroll', function () {
-            if (window.scrollY > 0) {
-                if (!document.body.classList.contains('fixed-hd')) {
-                    document.body.classList.add('fixed-hd');
-                }
-                $d('h1').style.top = window.scrollY + 'px';
-            } else if (document.body.classList.contains('fixed-hd')) {
-                document.body.classList.remove('fixed-hd');
-            }
-        });
-    }
+        }
 
-    function calc(total) {
-        document.querySelectorAll('#opts input[type="checkbox"]:checked').forEach(function (c) {
-            total += parseInt(c.value);
-        });
-        document.querySelectorAll('#opts .ranges b').forEach(function (c) {
-            if (c.innerHTML) {
-                total += parseInt(c.innerHTML.replace(/[^+-\d]+/g, ''));
+        function $q(q) {
+            return Array.prototype.slice.call(document.querySelectorAll(q));
+        }
+
+        function init() {
+            var h = '';
+            var total = 1000;
+            options.forEach(function (o, i) {
+                var items = o.items.map(function (it, j) {
+                    if (it.b) {
+                        return '<div class="ranges"><label>' + it.t + '<var>' + it.def + it.unit + '</var><b></b></label>' +
+                            '<div><i class="l">' + it.min + it.unit + '</i>' +
+                            '<input type="range" min="' + it.min + '" max="' + it.max + '" value="' + it.def + '" i="' + i + '" j="' + j + '">' +
+                            '<i>' + it.max + it.unit + '</i></div><p>' + it.note + '</p></div>';
+                    }
+                    return '<label><input type="checkbox" name="o_' + i + '_' + j + '" value="' + it.v + '"> <span>' + it.t + '</span>' +
+                        '<b class="v-' + (it.v > 0 ? '1' : '0') + '">(' + (it.v > 0 ? '+' : '') + it.v + ')</b></label>';
+                }).join('');
+
+                h += '<fieldset><legend>' + o.title + '</legend><section>' + items + '</section></fieldset>';
+            });
+            h += '<h2>价目表：</h2><ul>';
+            results.forEach(function (o, i) {
+                h += '<li v="' + o.v + '">' + o.t + '</li>';
+            });
+            h + '</ul>';
+            $d('opts').innerHTML = h;
+            $d('base').innerHTML = total;
+            $d('total').innerHTML = total;
+            $q('#opts input[type="checkbox"]').forEach(function (c) {
+                addEvent(c, 'click', function () {
+                    calc(total);
+                });
+            });
+            $q('#opts input[type="range"]').forEach(function (c) {
+                addEvent(c, 'input,propertychange,change', function () {
+                    var item = options[parseInt(c.getAttribute("i"))].items[parseInt(c.getAttribute("j"))];
+                    var value = '';
+                    var vi = parseInt(c.value);
+                    if (typeof item.b === 'number') {
+                        value = floor((vi - item.b) / item.d) * item.v;
+                    } else {
+                        value = vi < item.b[0] || vi > item.b[1] ? -Math.floor(Math.abs(vi - item.b[vi < item.b[0] ? 0 : 1]) / item.d) * item.v : 0;
+                    }
+                    c.parentNode.parentNode.querySelector('var').innerHTML = c.value + item.unit;
+                    var b = c.parentNode.parentNode.querySelector('b');
+                    b.className = value > 0 ? 'v-1' : 'v-0';
+                    b.innerHTML = value !== 0 ? '(' + (value > 0 ? '+' + value : value) + ')' : '';
+                    calc(total);
+                });
+            });
+            addEvent(window, 'scroll', function () {
+                if (window.scrollY > 0) {
+                    if (!document.body.classList.contains('fixed-hd')) {
+                        document.body.classList.add('fixed-hd');
+                    }
+                    $d('h1').style.top = window.scrollY + 'px';
+                } else if (document.body.classList.contains('fixed-hd')) {
+                    document.body.classList.remove('fixed-hd');
+                }
+            });
+        }
+
+        function calc(total) {
+            $q('#opts input[type="checkbox"]:checked').forEach(function (c) {
+                total += parseInt(c.value);
+            });
+            $q('#opts .ranges b').forEach(function (c) {
+                if (c.innerHTML) {
+                    total += parseInt(c.innerHTML.replace(/[^+-\d]+/g, ''));
+                }
+            });
+            $d('total').innerHTML = total;
+            $q('ul li.on').forEach(function (l) {
+                l.className = '';
+            });
+            for (var i in results) {
+                if (total <= results[i].v) {
+                    $q('ul li')[i].className = 'on';
+                    break;
+                }
             }
-        });
-        $d('total').innerHTML = total;
-        document.querySelectorAll('ul li.on').forEach(function (l) {
-            l.className = '';
-        });
-        for (var i in results) {
-            if (total <= results[i].v) {
-                document.querySelectorAll('ul li').item(i).className = 'on';
-                break;
+            if (total > results[results.length - 1].v) {
+                $q('ul li:last-child').className = 'on';
             }
         }
-        if (total > results[results.length - 1].v) {
-            document.querySelector('ul li:last-child').className = 'on';
+        window.onload = function () {
+            init();
         }
-    }
-    window.onload = function () {
-        init();
-    }
-</script>
+    </script>
+</body>
 
 </html>
