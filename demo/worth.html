@@ -8,9 +8,22 @@
     <title>老公价目表</title>
     <style type="text/css">
         html,
+        body,
+        section,
+        article,
+        div,
+        ul,
+        li,
+        h1,
+        h2,
+        p {
+            margin: 0;
+            padding: 0;
+        }
+
+        html,
         body {
             margin: 0 5px;
-            padding: 0;
             font-size: 16px;
             line-height: 1.5em;
             color: #333;
@@ -98,9 +111,7 @@
         }
 
         h1 {
-            padding: 0;
             text-indent: 1em;
-            margin: 0;
             font-size: 20px;
             height: 2em;
             line-height: 2em;
@@ -132,9 +143,16 @@
 
         ul,
         li {
-            padding: 0;
-            margin: 0;
             list-style-type: none;
+        }
+
+        li.on {
+            color: #cc00ea;
+            background: #F4F4F4;
+        }
+
+        li.on::after {
+            content: "⬅"
         }
     </style>
 </head>
@@ -309,10 +327,10 @@
         }
     ];
     var results = [{
-        t: '<1000，跪键盘反思',
+        t: '&lt;1000，跪键盘反思',
         v: 1000
     }, {
-        t: '<1500，回炉重造',
+        t: '&lt;1500，回炉重造',
         v: 1500
     }, {
         t: '1500-2500，正常',
@@ -321,8 +339,8 @@
         t: '2500-3500，良品',
         v: 3500
     }, {
-        t: '>3500，钻石精品（极品好男人）',
-        v: 3500
+        t: '&gt;3500，钻石精品（极品好男人）',
+        v: 3501
     }];
 
     function $d(s) {
@@ -352,7 +370,7 @@
         });
         h += '<h2>价目表：</h2><ul>';
         results.forEach(function (o, i) {
-            h += '<li>' + o.t + o.v + '</li>';
+            h += '<li v="' + o.v + '">' + o.t + '</li>';
         });
         h + '</ul>';
         $d('opts').innerHTML = h;
@@ -402,6 +420,18 @@
             }
         });
         $d('total').innerHTML = total;
+        document.querySelectorAll('ul li.on').forEach(function (l) {
+            l.className = '';
+        });
+        for (var i in results) {
+            if (total <= results[i].v) {
+                document.querySelectorAll('ul li').item(i).className = 'on';
+                break;
+            }
+        }
+        if (total > results[results.length - 1].v) {
+            document.querySelector('ul li:last-child').className = 'on';
+        }
     }
     window.onload = function () {
         init();
