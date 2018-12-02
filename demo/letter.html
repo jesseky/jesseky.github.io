@@ -312,8 +312,8 @@
                         <option>serif</option>
                         <option>monospace</option>
                     </select></div>
-                <div class="controls"><label class="lbl">大小：</label><input class="txt" type="number" id="size" min="10" step="1" value="40"><label class="lbl">水平：</label><input class="txt" type="number" id="offsetx" step="0.1" min="0" value="1"></div>
-                <div class="controls"><label class="lbl">颜色：</label><input class="txt" type="text" id="color" value="black"><label class="lbl">垂直：</label><input class="txt" type="number" step="1" id="offsety" value="50"><b>%</b></div>
+                <div class="controls"><label class="lbl">大小：</label><input class="txt" type="number" id="size" min="10" step="1" value="20"><label class="lbl">水平：</label><input class="txt" type="number" id="offsetx" step="0.1" min="0" value="1"></div>
+                <div class="controls"><label class="lbl">颜色：</label><input class="txt" type="text" id="color" value="black"><label class="lbl">垂直：</label><input class="txt" type="number" step="1" id="offsety" value="5"><b>%</b></div>
             </div>
             <textarea class="txa" cols="50" row="10" id="letters"></textarea>
             <button class="btn" id="download">下载</button>
@@ -451,14 +451,17 @@
     function preview(context) {
         var maxWidth = $id('dropIn').clientWidth;
         var maxHeight = $id('dropIn').clientHeight;
+        var dpr = window.devicePixelRatio || 1;
         context.ratio = 1;
         if (context.image) {
             var width = context.image.naturalWidth;
             var height = context.image.naturalHeight;
             var scale = Math.min(maxWidth / width, maxHeight / height);
-            context.canvas.width = width * scale;
-            context.canvas.height = height * scale;
-            context.scale(scale, scale);
+            context.canvas.width = width;
+            context.canvas.height = height;
+            context.canvas.style.width = width * scale + 'px';
+            context.canvas.style.height = height * scale + 'px';
+            //context.scale(1/dpr, 1/dpr);
             context.ratio = 1 / scale;
             context.clearRect(0, 0, context.canvas.width, context.canvas.height);
             context.drawImage(context.image, 0, 0);
@@ -478,14 +481,11 @@
         "黑体": "SimHei",
         "宋体": "Songti SC",
         "仿宋": "FangSong",
-        "苹方": "PingFang SC",
         "凌慧体": "LingWai SC",
         "翩翩体": "HanziPen SC",
         "手札体": "Hannotate SC",
         "娃娃体": "Wawati SC",
         "兰亭黑": "Lantinghei SC",
-        "思源黑体": "Source Han Sans SC",
-        "微软雅黑": "Microsoft YaHei",
         "华文黑体": "STXihei",
         "华文隶书": "STLiti",
         "华文楷体": "STKaiti",
@@ -495,7 +495,23 @@
         "华文宋体": "STSong",
         "华文中宋": "STZhongsong",
         "华文仿宋": "STFangsong",
-        "冬青黑体": "Hiragino Sans"
+        "方正少儿": "FZSEK--GBK1-0",
+        "方正仿宋": "FZFSK--GBK1-0",
+        "方正准圆": "FZY3K--GBK1-0",
+        "方正喵呜": "FZMWK--GBK1-0",
+        "方正康体": "FZKANGK--GBK1-0",
+        "方正彩云": "FZCYK--GBK1-0",
+        "方正楷体": "FZKTK--GBK1-0",
+        "方正行楷": "FZXKK--GBK1-0",
+        "方正隶书": "FZLSK--GBK1-0",
+        "方正隶变": "FZLBK--GBK1-0",
+        "方正魏碑": "FZWBK--GBK1-0",
+        "方正琥珀": "FZHPK--GBK1-0",
+        "方正黄草": "FZHCK--GBK1-0",
+        "方正黑体": "FZHTK--GBK1-0",
+        "方正舒体": "FZSTK--GBK1-0",
+        "方正瘦金书": "FZSJSK--GBK1-0",
+        "方正徐静蕾": "FZJLJW--GB1-0"
     };
 
     function drawText(context) {
