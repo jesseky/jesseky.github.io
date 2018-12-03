@@ -319,360 +319,385 @@
             <button class="btn" id="download">下载</button>
         </aside>
     </section>
-</body>
-<script type="text/javascript">
-    function $id(id) {
-        return document.getElementById(id);
-    }
 
-    function $q(q) {
-        return toDoms(document.querySelectorAll(q));
-    }
-
-    function toDoms(o) {
-        var ts = Object.prototype.toString.call(o);
-        return ts === "[object Array]" ? o : (ts === "[object NodeList]" ? Array.from(o) : [o]);
-    }
-
-    function addEvent(obj, evt, callback) {
-        if (obj.addEventListener) {
-            obj.addEventListener(evt, callback);
-        } else if (obj.attachEvent) {
-            obj.attachEvent('on' + evt, function (e) {
-                e = e || event;
-                callback.call(e.target || e.srcElement, e);
-            });
-        } else {
-            obj['on' + evt] = callback;
+    <script type="text/javascript">
+        function $id(id) {
+            return document.getElementById(id);
         }
-    }
 
-    function addEvents(els, evt, func) {
-        for (var i = 0; i < els.length; i++) addEvent(els[i], evt, func);
-    }
-
-    function hasClass(obj, style) {
-        return obj.className.split(/\s+/).indexOf(style) > -1;
-    }
-
-    function removeClass(obj, style) {
-        obj.className = obj.className.split(/\s+/).filter(function (s) {
-            return s !== style;
-        }).join(' ');
-    }
-
-    function toggleClass(obj, style, isAdd) {
-        toDoms(obj).forEach(function (el) {
-            if (el.classList) {
-                if (typeof isAdd !== 'undefined') {
-                    el.classList[isAdd ? 'add' : 'remove'](style);
-                } else {
-                    el.classList.toggle(style);
-                }
-            } else {
-                if (typeof isAdd !== 'undefined') {
-                    removeClass(el, style);
-                    if (isAdd) {
-                        el.className += (el.className ? ' ' : '') + style;
-                    }
-                } else {
-                    if (el.className.includes(style)) {
-                        removeClass(el, style);
-                    } else {
-                        el.className += (el.className ? ' ' : '') + style;
-                    }
-                }
-            }
-        });
-    }
-
-    function readFile(files, context) {
-        if (!files.length || ['image/png', 'image/gif', 'image/jpeg', 'image/jpg'].indexOf(files[0].type) < 0) { // [].includes()
-            alert("please select one validate image");
-            return;
+        function $q(q) {
+            return toArray(document.querySelectorAll(q));
         }
-        var reader = new FileReader();
-        reader.onload = function (evt) {
-            var image = new Image();
-            image.src = evt.target.result;
-            image.onload = function () {
-                context.image = image;
-                preview(context);
+
+        function toArray(o) {
+            var ts = Object.prototype.toString.call(o);
+            return ts === "[object Array]" ? o : (ts === "[object NodeList]" ? Array.prototype.slice.call(o) : [o]);
+        }
+
+        function isArray(o) {
+            return Object.prototype.toString.call(o) === "[object Array]";
+        }
+
+        if (!Array.from) {
+            Array.from = function (o) {
+                return Array.prototype.slice.call(o);
             };
-        };
-        reader.readAsDataURL(files[0]);
-    }
-
-    function dropEvent(dropObj, callback) {
-        var drop = {
-            onThereDo: function (evt) {
-                evt.stopPropagation();
-                evt.preventDefault();
-                if (evt.dataTransfer.types && evt.dataTransfer.types.indexOf("Files") > -1) {
-                    toggleClass(dropObj, 'drop-in', true);
-                    evt.dataTransfer.dropEffect = 'copy';
-                }
-            },
-            onLevelDo: function (evt) {
-                evt.stopPropagation();
-                evt.preventDefault();
-                removeClass(dropObj, 'drop-in');
-            },
-            dragenter: function (evt) {
-                drop.onThereDo(evt);
-            },
-            dragover: function (evt) {
-                drop.onThereDo(evt);
-            },
-            dragleave: function (evt) {
-                drop.onLevelDo(evt);
-            },
-            droped: function (evt) {
-                drop.onLevelDo(evt);
-                if (evt.dataTransfer.files && evt.dataTransfer.files.length) {
-                    callback(evt.dataTransfer.files);
-                }
-            }
-        };
-        addEvent(dropObj, 'dragenter', function (e) {
-            drop.dragenter(e);
-        });
-        addEvent(dropObj, 'dragleave', function (e) {
-            drop.dragleave(e);
-        });
-        addEvent(dropObj, 'dragover', function (e) {
-            drop.dragover(e);
-        });
-        addEvent(dropObj, 'drop', function (e) {
-            drop.droped(e);
-        });
-    }
-
-    function preview(context) {
-        var maxWidth = $id('dropIn').clientWidth;
-        var maxHeight = $id('dropIn').clientHeight;
-        var dpr = window.devicePixelRatio || 1;
-        context.ratio = 1;
-        if (context.image) {
-            var width = context.image.naturalWidth;
-            var height = context.image.naturalHeight;
-            var scale = Math.min(maxWidth / width, maxHeight / height);
-            context.canvas.width = width;
-            context.canvas.height = height;
-            context.canvas.style.width = width * scale + 'px';
-            context.canvas.style.height = height * scale + 'px';
-            //context.scale(1/dpr, 1/dpr);
-            context.ratio = 1 / scale;
-            context.clearRect(0, 0, context.canvas.width, context.canvas.height);
-            context.drawImage(context.image, 0, 0);
-        } else {
-            context.canvas.width = maxWidth;
-            context.canvas.height = maxHeight;
         }
-        drawText(context);
-    }
 
-    var fonts = {
-        "楷体": "Kaiti",
-        "行楷": "Xingkai SC",
-        "魏碑": "Weibei SC",
-        "雅痞": "Yuppy SC",
-        "圆体": "Yuanti SC",
-        "黑体": "SimHei",
-        "宋体": "Songti SC",
-        "仿宋": "FangSong",
-        "凌慧体": "LingWai SC",
-        "翩翩体": "HanziPen SC",
-        "手札体": "Hannotate SC",
-        "娃娃体": "Wawati SC",
-        "兰亭黑": "Lantinghei SC",
-        "华文黑体": "STXihei",
-        "华文隶书": "STLiti",
-        "华文楷体": "STKaiti",
-        "华文新魏": "STXinwei",
-        "华文琥珀": "STHupo",
-        "华文行楷": "STXingkai",
-        "华文宋体": "STSong",
-        "华文中宋": "STZhongsong",
-        "华文仿宋": "STFangsong",
-        "方正少儿": "FZSEK--GBK1-0",
-        "方正仿宋": "FZFSK--GBK1-0",
-        "方正准圆": "FZY3K--GBK1-0",
-        "方正喵呜": "FZMWK--GBK1-0",
-        "方正康体": "FZKANGK--GBK1-0",
-        "方正彩云": "FZCYK--GBK1-0",
-        "方正楷体": "FZKTK--GBK1-0",
-        "方正行楷": "FZXKK--GBK1-0",
-        "方正隶书": "FZLSK--GBK1-0",
-        "方正隶变": "FZLBK--GBK1-0",
-        "方正魏碑": "FZWBK--GBK1-0",
-        "方正琥珀": "FZHPK--GBK1-0",
-        "方正黄草": "FZHCK--GBK1-0",
-        "方正黑体": "FZHTK--GBK1-0",
-        "方正舒体": "FZSTK--GBK1-0",
-        "方正瘦金书": "FZSJSK--GBK1-0",
-        "方正徐静蕾": "FZJLJW--GB1-0"
-    };
+        function addEvent(obj, evt, callback) {
+            if (obj.addEventListener) {
+                obj.addEventListener(evt, callback);
+            } else if (obj.attachEvent) {
+                obj.attachEvent('on' + evt, function (e) {
+                    e = e || event;
+                    callback.call(e.target || e.srcElement, e);
+                });
+            } else {
+                obj['on' + evt] = callback;
+            }
+        }
 
-    function drawText(context) {
-        var color = $id('color').value;
-        var offsety = parseFloat($id('offsety').value.replace(/[^\.\d]/, ''));
-        var isPercent = true;
-        var text = $id('letters').value.trim();
-        var font = selectValue($id('font')) || 'monospace';
-        var json = {};
-        var size = parseInt($id('size').value);
-        var ox = size * parseFloat($id('offsetx').value);
-        var x = ox;
-        var y = context.canvas.height * context.ratio * (!isNaN(offsety) ? (isPercent ? 0.01 : 1) * offsety : 0.5);
-        size = size * context.ratio;
-        try {
-            json = eval(text);
-            json.forEach(function (j) {
-                if (typeof j === 'string') {
-                    j = {
-                        t: j
-                    };
-                }
-                if (!j.t) {
-                    return;
-                }
-                if (/^[\s\n]+$/.test(j.t)) {
-                    x = ox + Math.max((j.t.match(/[ ]/g) || []).length, j.sc || 0) * size * (j.s || 1);
-                    y += Math.max((j.t.match(/\n/g) || []).length, j.nc || 0) * size * (j.l || 1);
-                    return;
-                }
-                var ifont = j.f || font;
-                if (fonts[ifont]) {
-                    ifont = fonts[ifont];
-                }
-                ifont = `"${ifont}"`;
-                context.font = j.font ? j.font : (j.fs ? j.fs + ' ' : '') + (j.s ? (typeof j.s === 'number' ? j.s * size + 'px' : j.s) + ' ' + ifont : (size + 'px ' + ifont));
-                context.textBaseline = j.tbl || '';
-                context.textAlign = j.ta || '';
-                context.fillStyle = j.c || color;
-                context.strokeStyle = j.c || color;
-                context[j.st ? "strokeText" : "fillText"](j.t, typeof j.x !== 'undefined' ? x + size * j.x : x, typeof j.y !== 'undefined' ? y + size * j.y : y);
-                if (typeof j.x === 'undefined') {
-                    x += Array.from(j.t).length * context.font.match(/\d+/)[0];
-                }
-                if (typeof j.y !== 'undefined') {
-                    //y += parseInt(j.y);
+        function addEvents(els, evt, func) {
+            for (var i = 0; i < els.length; i++) addEvent(els[i], evt, func);
+        }
+
+        function hasClass(obj, style) {
+            return obj.className.split(/\s+/).indexOf(style) > -1;
+        }
+
+        function removeClass(obj, style) {
+            obj.className = obj.className.split(/\s+/).filter(function (s) {
+                return s !== style;
+            }).join(' ');
+        }
+
+        function toggleClass(obj, style, isAdd) {
+            toArray(obj).forEach(function (el) {
+                if (el.classList) {
+                    if (typeof isAdd !== 'undefined') {
+                        el.classList[isAdd ? 'add' : 'remove'](style);
+                    } else {
+                        el.classList.toggle(style);
+                    }
+                } else {
+                    if (typeof isAdd !== 'undefined') {
+                        removeClass(el, style);
+                        if (isAdd) {
+                            el.className += (el.className ? ' ' : '') + style;
+                        }
+                    } else {
+                        if (el.className.includes(style)) {
+                            removeClass(el, style);
+                        } else {
+                            el.className += (el.className ? ' ' : '') + style;
+                        }
+                    }
                 }
             });
-        } catch (e) {
-            console.log(e);
         }
-    }
 
-    function setCaches() {
-        $q('.txt,.txa,select').forEach(function (e) {
-            localStorage.setItem(e.id, /select/i.test(e.tagName) ? e.selectedIndex : e.value);
-        });
-    }
-
-    function getCaches() {
-        $q('.txt,.txa,select').forEach(function (e) {
-            var isSelect = /select/i.test(e.tagName);
-            var value = localStorage.getItem(e.id) || (e.value || '');
-            e[isSelect ? 'selectedIndex' : 'value'] = isSelect ? parseInt(value) : value;
-        });
-    }
-
-    function selectValue(s) {
-        return s.options[s.selectedIndex].value;
-    }
-
-    function loadJs(file, callback) {
-        var script = document.createElement('script');
-        script.src = file;
-        script.onload = callback;
-        document.head.appendChild(script);
-    }
-    window.onload = function () {
-        var context = $id('canvas').getContext('2d');
-        for (var k in fonts) {
-            var option = document.createElement('option');
-            option.value = k;
-            option.innerHTML = k;
-            $id('font').appendChild(option);
-        }
-        getCaches();
-        preview(context);
-        addEvent($id('file'), 'change', function (event) {
-            readFile(event.target.files, context);
-        });
-        dropEvent($id('dropIn'), function (files) {
-            readFile(files, context);
-        });
-        addEvent($id('letters'), 'input', function (event) {
-            setCaches();
-            preview(context);
-        });
-        addEvents($q('.txt'), 'input', function (event) {
-            setCaches();
-            preview(context);
-        });
-        addEvents($q('select'), 'change', function (event) {
-            setCaches();
-            preview(context);
-        });
-        addEvent($id('download'), 'click', function (event) {
-            event.stopPropagation();
-            event.preventDefault();
-            if (this.innerHTML !== '') {
-                if (!'Blob' in window) {
-                    alert("Your browser doesn't support download");
-                    return;
-                }
-                if (!window.saveAs) {
-                    loadJs('FileSaver.min.js', function () {
-                        $id('canvas').toBlob(function (blob) {
-                            saveAs(blob, 'letter.png');
-                        });
-                    });
-                } else {
-                    $id('canvas').toBlob(function (blob) {
-                        saveAs(blob, 'letter.png');
-                    });
-                }
-            }
-        });
-        addEvent($id('menu'), 'click', function (event) {
-            if ($id('menu').running) {
+        function readFile(files, context) {
+            if (!files.length || ['image/png', 'image/gif', 'image/jpeg', 'image/jpg'].indexOf(files[0].type) < 0) { // [].includes()
+                alert("please select one validate image");
                 return;
             }
-            $id('menu').running = true;
-            $id('menu').classList.toggle('menu-on');
-            var isHide = $id('aside').classList.contains('aside-hide');
-            if (isHide) {
-                $id('aside').classList.remove('aside-hide');
-                setTimeout(function () {
-                    $id('aside').style.right = 0;
-                    setTimeout(function () {
-                        $id('menu').running = false;
-                    }, 500);
-                }, 0);
-            } else {
-                $id('aside').style.right = -($id('aside').clientWidth + 100) + 'px';
-                setTimeout(function () {
-                    $id('aside').classList.add('aside-hide');
-                    $id('menu').running = false;
-                }, 500);
-            }
-        });
-        addEvent($id('notebtn'), 'click', function (event) {
-            $id('note').classList.toggle('note-hide');
-        });
-        if (!localStorage.getItem('visited')) {
-            localStorage.setItem('visited', 'yes');
-            $id('note').classList.remove('note-hide');
-            setTimeout(function () {
-                $id('note').classList.add('note-hide');
-            }, 3000);
+            var reader = new FileReader();
+            reader.onload = function (evt) {
+                var image = new Image();
+                image.src = evt.target.result;
+                image.onload = function () {
+                    context.image = image;
+                    preview(context);
+                };
+            };
+            reader.readAsDataURL(files[0]);
         }
 
-    };
-</script>
+        function dropEvent(dropObj, callback) {
+            var drop = {
+                onThereDo: function (evt) {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    if (evt.dataTransfer.types && toArray(evt.dataTransfer.types).indexOf("Files") > -1) {
+                        toggleClass(dropObj, 'drop-in', true);
+                        evt.dataTransfer.dropEffect = 'copy';
+                    }
+                },
+                onLevelDo: function (evt) {
+                    evt.stopPropagation();
+                    evt.preventDefault();
+                    removeClass(dropObj, 'drop-in');
+                },
+                dragenter: function (evt) {
+                    drop.onThereDo(evt);
+                },
+                dragover: function (evt) {
+                    drop.onThereDo(evt);
+                },
+                dragleave: function (evt) {
+                    drop.onLevelDo(evt);
+                },
+                droped: function (evt) {
+                    drop.onLevelDo(evt);
+                    if (evt.dataTransfer.files && evt.dataTransfer.files.length) {
+                        callback(evt.dataTransfer.files);
+                    }
+                }
+            };
+            addEvent(dropObj, 'dragenter', function (e) {
+                drop.dragenter(e);
+            });
+            addEvent(dropObj, 'dragleave', function (e) {
+                drop.dragleave(e);
+            });
+            addEvent(dropObj, 'dragover', function (e) {
+                drop.dragover(e);
+            });
+            addEvent(dropObj, 'drop', function (e) {
+                drop.droped(e);
+            });
+        }
+
+        function preview(context) {
+            var maxWidth = $id('dropIn').clientWidth;
+            var maxHeight = $id('dropIn').clientHeight;
+            var dpr = window.devicePixelRatio || 1;
+            context.ratio = 1;
+            if (context.image) {
+                var width = context.image.naturalWidth;
+                var height = context.image.naturalHeight;
+                var scale = Math.min(maxWidth / width, maxHeight / height);
+                context.canvas.width = width;
+                context.canvas.height = height;
+                context.canvas.style.width = width * scale + 'px';
+                context.canvas.style.height = height * scale + 'px';
+                //context.scale(1/dpr, 1/dpr);
+                context.ratio = 1 / scale;
+                context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+                context.drawImage(context.image, 0, 0);
+            } else {
+                context.canvas.width = maxWidth;
+                context.canvas.height = maxHeight;
+            }
+            drawText(context);
+        }
+
+        var fonts = {
+            "魏碑": "Weibei SC",
+            "雅痞": "Yuppy SC",
+            "圆体": "Yuanti SC",
+            "凌慧体": "LingWai SC",
+            "翩翩体": "HanziPen SC",
+            "手札体": "Hannotate SC",
+            "娃娃体": "Wawati SC",
+            "兰亭黑": "Lantinghei SC",
+            "华文黑体": "STXihei",
+            "华文隶书": "STLiti",
+            "华文楷体": "STKaiti",
+            "华文新魏": "STXinwei",
+            "华文琥珀": "STHupo",
+            "华文行楷": "STXingkai",
+            "华文宋体": "STSong",
+            "华文中宋": "STZhongsong",
+            "华文仿宋": "STFangsong",
+            "方正少儿": "FZSEK--GBK1-0",
+            "方正仿宋": "FZFSK--GBK1-0",
+            "方正准圆": "FZY3K--GBK1-0",
+            "方正喵呜": "FZMWK--GBK1-0",
+            "方正康体": "FZKANGK--GBK1-0",
+            "方正彩云": "FZCYK--GBK1-0",
+            "方正楷体": "FZKTK--GBK1-0",
+            "方正行楷": "FZXKK--GBK1-0",
+            "方正隶书": "FZLSK--GBK1-0",
+            "方正隶变": "FZLBK--GBK1-0",
+            "方正魏碑": "FZWBK--GBK1-0",
+            "方正琥珀": "FZHPK--GBK1-0",
+            "方正黄草": "FZHCK--GBK1-0",
+            "方正黑体": "FZHTK--GBK1-0",
+            "方正舒体": "FZSTK--GBK1-0",
+            "方正瘦金书": "FZSJSK--GBK1-0",
+            "方正徐静蕾": "FZJLJW--GB1-0"
+        };
+
+        /*
+        function emojiRegexp() {
+            return /\u{1F3F4}(?:\u{E0067}\u{E0062}(?:\u{E0065}\u{E006E}\u{E0067}|\u{E0077}\u{E006C}\u{E0073}|\u{E0073}\u{E0063}\u{E0074})\u{E007F}|\u200D\u2620\uFE0F)|\u{1F469}\u200D\u{1F469}\u200D(?:\u{1F466}\u200D\u{1F466}|\u{1F467}\u200D[\u{1F466}\u{1F467}])|\u{1F468}(?:\u200D(?:\u2764\uFE0F\u200D(?:\u{1F48B}\u200D)?\u{1F468}|[\u{1F468}\u{1F469}]\u200D(?:\u{1F466}\u200D\u{1F466}|\u{1F467}\u200D[\u{1F466}\u{1F467}])|\u{1F466}\u200D\u{1F466}|\u{1F467}\u200D[\u{1F466}\u{1F467}]|[\u{1F33E}\u{1F373}\u{1F393}\u{1F3A4}\u{1F3A8}\u{1F3EB}\u{1F3ED}\u{1F4BB}\u{1F4BC}\u{1F527}\u{1F52C}\u{1F680}\u{1F692}\u{1F9B0}-\u{1F9B3}])|[\u{1F3FB}-\u{1F3FF}]\u200D[\u{1F33E}\u{1F373}\u{1F393}\u{1F3A4}\u{1F3A8}\u{1F3EB}\u{1F3ED}\u{1F4BB}\u{1F4BC}\u{1F527}\u{1F52C}\u{1F680}\u{1F692}\u{1F9B0}-\u{1F9B3}])|\u{1F469}\u200D(?:\u2764\uFE0F\u200D(?:\u{1F48B}\u200D[\u{1F468}\u{1F469}]|[\u{1F468}\u{1F469}])|[\u{1F33E}\u{1F373}\u{1F393}\u{1F3A4}\u{1F3A8}\u{1F3EB}\u{1F3ED}\u{1F4BB}\u{1F4BC}\u{1F527}\u{1F52C}\u{1F680}\u{1F692}\u{1F9B0}-\u{1F9B3}])|\u{1F469}\u200D\u{1F466}\u200D\u{1F466}|(?:\u{1F441}\uFE0F\u200D\u{1F5E8}|\u{1F469}[\u{1F3FB}-\u{1F3FF}]\u200D[\u2695\u2696\u2708]|\u{1F468}(?:[\u{1F3FB}-\u{1F3FF}]\u200D[\u2695\u2696\u2708]|\u200D[\u2695\u2696\u2708])|(?:[\u26F9\u{1F3CB}\u{1F3CC}\u{1F575}]\uFE0F|[\u{1F46F}\u{1F93C}\u{1F9DE}\u{1F9DF}])\u200D[\u2640\u2642]|[\u26F9\u{1F3CB}\u{1F3CC}\u{1F575}][\u{1F3FB}-\u{1F3FF}]\u200D[\u2640\u2642]|[\u{1F3C3}\u{1F3C4}\u{1F3CA}\u{1F46E}\u{1F471}\u{1F473}\u{1F477}\u{1F481}\u{1F482}\u{1F486}\u{1F487}\u{1F645}-\u{1F647}\u{1F64B}\u{1F64D}\u{1F64E}\u{1F6A3}\u{1F6B4}-\u{1F6B6}\u{1F926}\u{1F937}-\u{1F939}\u{1F93D}\u{1F93E}\u{1F9B8}\u{1F9B9}\u{1F9D6}-\u{1F9DD}](?:[\u{1F3FB}-\u{1F3FF}]\u200D[\u2640\u2642]|\u200D[\u2640\u2642])|\u{1F469}\u200D[\u2695\u2696\u2708])\uFE0F|\u{1F469}\u200D\u{1F467}\u200D[\u{1F466}\u{1F467}]|\u{1F469}\u200D\u{1F469}\u200D[\u{1F466}\u{1F467}]|\u{1F468}(?:\u200D(?:[\u{1F468}\u{1F469}]\u200D[\u{1F466}\u{1F467}]|[\u{1F466}\u{1F467}])|[\u{1F3FB}-\u{1F3FF}])|\u{1F3F3}\uFE0F\u200D\u{1F308}|\u{1F469}\u200D\u{1F467}|\u{1F469}[\u{1F3FB}-\u{1F3FF}]\u200D[\u{1F33E}\u{1F373}\u{1F393}\u{1F3A4}\u{1F3A8}\u{1F3EB}\u{1F3ED}\u{1F4BB}\u{1F4BC}\u{1F527}\u{1F52C}\u{1F680}\u{1F692}\u{1F9B0}-\u{1F9B3}]|\u{1F469}\u200D\u{1F466}|\u{1F1F6}\u{1F1E6}|\u{1F1FD}\u{1F1F0}|\u{1F1F4}\u{1F1F2}|\u{1F469}[\u{1F3FB}-\u{1F3FF}]|\u{1F1ED}[\u{1F1F0}\u{1F1F2}\u{1F1F3}\u{1F1F7}\u{1F1F9}\u{1F1FA}]|\u{1F1EC}[\u{1F1E6}\u{1F1E7}\u{1F1E9}-\u{1F1EE}\u{1F1F1}-\u{1F1F3}\u{1F1F5}-\u{1F1FA}\u{1F1FC}\u{1F1FE}]|\u{1F1EA}[\u{1F1E6}\u{1F1E8}\u{1F1EA}\u{1F1EC}\u{1F1ED}\u{1F1F7}-\u{1F1FA}]|\u{1F1E8}[\u{1F1E6}\u{1F1E8}\u{1F1E9}\u{1F1EB}-\u{1F1EE}\u{1F1F0}-\u{1F1F5}\u{1F1F7}\u{1F1FA}-\u{1F1FF}]|\u{1F1F2}[\u{1F1E6}\u{1F1E8}-\u{1F1ED}\u{1F1F0}-\u{1F1FF}]|\u{1F1F3}[\u{1F1E6}\u{1F1E8}\u{1F1EA}-\u{1F1EC}\u{1F1EE}\u{1F1F1}\u{1F1F4}\u{1F1F5}\u{1F1F7}\u{1F1FA}\u{1F1FF}]|\u{1F1FC}[\u{1F1EB}\u{1F1F8}]|\u{1F1FA}[\u{1F1E6}\u{1F1EC}\u{1F1F2}\u{1F1F3}\u{1F1F8}\u{1F1FE}\u{1F1FF}]|\u{1F1F0}[\u{1F1EA}\u{1F1EC}-\u{1F1EE}\u{1F1F2}\u{1F1F3}\u{1F1F5}\u{1F1F7}\u{1F1FC}\u{1F1FE}\u{1F1FF}]|\u{1F1EF}[\u{1F1EA}\u{1F1F2}\u{1F1F4}\u{1F1F5}]|\u{1F1F8}[\u{1F1E6}-\u{1F1EA}\u{1F1EC}-\u{1F1F4}\u{1F1F7}-\u{1F1F9}\u{1F1FB}\u{1F1FD}-\u{1F1FF}]|\u{1F1EE}[\u{1F1E8}-\u{1F1EA}\u{1F1F1}-\u{1F1F4}\u{1F1F6}-\u{1F1F9}]|\u{1F1FF}[\u{1F1E6}\u{1F1F2}\u{1F1FC}]|\u{1F1EB}[\u{1F1EE}-\u{1F1F0}\u{1F1F2}\u{1F1F4}\u{1F1F7}]|\u{1F1F5}[\u{1F1E6}\u{1F1EA}-\u{1F1ED}\u{1F1F0}-\u{1F1F3}\u{1F1F7}-\u{1F1F9}\u{1F1FC}\u{1F1FE}]|\u{1F1E9}[\u{1F1EA}\u{1F1EC}\u{1F1EF}\u{1F1F0}\u{1F1F2}\u{1F1F4}\u{1F1FF}]|\u{1F1F9}[\u{1F1E6}\u{1F1E8}\u{1F1E9}\u{1F1EB}-\u{1F1ED}\u{1F1EF}-\u{1F1F4}\u{1F1F7}\u{1F1F9}\u{1F1FB}\u{1F1FC}\u{1F1FF}]|\u{1F1E7}[\u{1F1E6}\u{1F1E7}\u{1F1E9}-\u{1F1EF}\u{1F1F1}-\u{1F1F4}\u{1F1F6}-\u{1F1F9}\u{1F1FB}\u{1F1FC}\u{1F1FE}\u{1F1FF}]|[#\*0-9]\uFE0F\u20E3|\u{1F1F1}[\u{1F1E6}-\u{1F1E8}\u{1F1EE}\u{1F1F0}\u{1F1F7}-\u{1F1FB}\u{1F1FE}]|\u{1F1E6}[\u{1F1E8}-\u{1F1EC}\u{1F1EE}\u{1F1F1}\u{1F1F2}\u{1F1F4}\u{1F1F6}-\u{1F1FA}\u{1F1FC}\u{1F1FD}\u{1F1FF}]|\u{1F1F7}[\u{1F1EA}\u{1F1F4}\u{1F1F8}\u{1F1FA}\u{1F1FC}]|\u{1F1FB}[\u{1F1E6}\u{1F1E8}\u{1F1EA}\u{1F1EC}\u{1F1EE}\u{1F1F3}\u{1F1FA}]|\u{1F1FE}[\u{1F1EA}\u{1F1F9}]|[\u{1F3C3}\u{1F3C4}\u{1F3CA}\u{1F46E}\u{1F471}\u{1F473}\u{1F477}\u{1F481}\u{1F482}\u{1F486}\u{1F487}\u{1F645}-\u{1F647}\u{1F64B}\u{1F64D}\u{1F64E}\u{1F6A3}\u{1F6B4}-\u{1F6B6}\u{1F926}\u{1F937}-\u{1F939}\u{1F93D}\u{1F93E}\u{1F9B8}\u{1F9B9}\u{1F9D6}-\u{1F9DD}][\u{1F3FB}-\u{1F3FF}]|[\u26F9\u{1F3CB}\u{1F3CC}\u{1F575}][\u{1F3FB}-\u{1F3FF}]|[\u261D\u270A-\u270D\u{1F385}\u{1F3C2}\u{1F3C7}\u{1F442}\u{1F443}\u{1F446}-\u{1F450}\u{1F466}\u{1F467}\u{1F470}\u{1F472}\u{1F474}-\u{1F476}\u{1F478}\u{1F47C}\u{1F483}\u{1F485}\u{1F4AA}\u{1F574}\u{1F57A}\u{1F590}\u{1F595}\u{1F596}\u{1F64C}\u{1F64F}\u{1F6C0}\u{1F6CC}\u{1F918}-\u{1F91C}\u{1F91E}\u{1F91F}\u{1F930}-\u{1F936}\u{1F9B5}\u{1F9B6}\u{1F9D1}-\u{1F9D5}][\u{1F3FB}-\u{1F3FF}]|[\u231A\u231B\u23E9-\u23EC\u23F0\u23F3\u25FD\u25FE\u2614\u2615\u2648-\u2653\u267F\u2693\u26A1\u26AA\u26AB\u26BD\u26BE\u26C4\u26C5\u26CE\u26D4\u26EA\u26F2\u26F3\u26F5\u26FA\u26FD\u2705\u270A\u270B\u2728\u274C\u274E\u2753-\u2755\u2757\u2795-\u2797\u27B0\u27BF\u2B1B\u2B1C\u2B50\u2B55\u{1F004}\u{1F0CF}\u{1F18E}\u{1F191}-\u{1F19A}\u{1F1E6}-\u{1F1FF}\u{1F201}\u{1F21A}\u{1F22F}\u{1F232}-\u{1F236}\u{1F238}-\u{1F23A}\u{1F250}\u{1F251}\u{1F300}-\u{1F320}\u{1F32D}-\u{1F335}\u{1F337}-\u{1F37C}\u{1F37E}-\u{1F393}\u{1F3A0}-\u{1F3CA}\u{1F3CF}-\u{1F3D3}\u{1F3E0}-\u{1F3F0}\u{1F3F4}\u{1F3F8}-\u{1F43E}\u{1F440}\u{1F442}-\u{1F4FC}\u{1F4FF}-\u{1F53D}\u{1F54B}-\u{1F54E}\u{1F550}-\u{1F567}\u{1F57A}\u{1F595}\u{1F596}\u{1F5A4}\u{1F5FB}-\u{1F64F}\u{1F680}-\u{1F6C5}\u{1F6CC}\u{1F6D0}-\u{1F6D2}\u{1F6EB}\u{1F6EC}\u{1F6F4}-\u{1F6F9}\u{1F910}-\u{1F93A}\u{1F93C}-\u{1F93E}\u{1F940}-\u{1F945}\u{1F947}-\u{1F970}\u{1F973}-\u{1F976}\u{1F97A}\u{1F97C}-\u{1F9A2}\u{1F9B0}-\u{1F9B9}\u{1F9C0}-\u{1F9C2}\u{1F9D0}-\u{1F9FF}]|[#\*0-9\xA9\xAE\u203C\u2049\u2122\u2139\u2194-\u2199\u21A9\u21AA\u231A\u231B\u2328\u23CF\u23E9-\u23F3\u23F8-\u23FA\u24C2\u25AA\u25AB\u25B6\u25C0\u25FB-\u25FE\u2600-\u2604\u260E\u2611\u2614\u2615\u2618\u261D\u2620\u2622\u2623\u2626\u262A\u262E\u262F\u2638-\u263A\u2640\u2642\u2648-\u2653\u265F\u2660\u2663\u2665\u2666\u2668\u267B\u267E\u267F\u2692-\u2697\u2699\u269B\u269C\u26A0\u26A1\u26AA\u26AB\u26B0\u26B1\u26BD\u26BE\u26C4\u26C5\u26C8\u26CE\u26CF\u26D1\u26D3\u26D4\u26E9\u26EA\u26F0-\u26F5\u26F7-\u26FA\u26FD\u2702\u2705\u2708-\u270D\u270F\u2712\u2714\u2716\u271D\u2721\u2728\u2733\u2734\u2744\u2747\u274C\u274E\u2753-\u2755\u2757\u2763\u2764\u2795-\u2797\u27A1\u27B0\u27BF\u2934\u2935\u2B05-\u2B07\u2B1B\u2B1C\u2B50\u2B55\u3030\u303D\u3297\u3299\u{1F004}\u{1F0CF}\u{1F170}\u{1F171}\u{1F17E}\u{1F17F}\u{1F18E}\u{1F191}-\u{1F19A}\u{1F1E6}-\u{1F1FF}\u{1F201}\u{1F202}\u{1F21A}\u{1F22F}\u{1F232}-\u{1F23A}\u{1F250}\u{1F251}\u{1F300}-\u{1F321}\u{1F324}-\u{1F393}\u{1F396}\u{1F397}\u{1F399}-\u{1F39B}\u{1F39E}-\u{1F3F0}\u{1F3F3}-\u{1F3F5}\u{1F3F7}-\u{1F4FD}\u{1F4FF}-\u{1F53D}\u{1F549}-\u{1F54E}\u{1F550}-\u{1F567}\u{1F56F}\u{1F570}\u{1F573}-\u{1F57A}\u{1F587}\u{1F58A}-\u{1F58D}\u{1F590}\u{1F595}\u{1F596}\u{1F5A4}\u{1F5A5}\u{1F5A8}\u{1F5B1}\u{1F5B2}\u{1F5BC}\u{1F5C2}-\u{1F5C4}\u{1F5D1}-\u{1F5D3}\u{1F5DC}-\u{1F5DE}\u{1F5E1}\u{1F5E3}\u{1F5E8}\u{1F5EF}\u{1F5F3}\u{1F5FA}-\u{1F64F}\u{1F680}-\u{1F6C5}\u{1F6CB}-\u{1F6D2}\u{1F6E0}-\u{1F6E5}\u{1F6E9}\u{1F6EB}\u{1F6EC}\u{1F6F0}\u{1F6F3}-\u{1F6F9}\u{1F910}-\u{1F93A}\u{1F93C}-\u{1F93E}\u{1F940}-\u{1F945}\u{1F947}-\u{1F970}\u{1F973}-\u{1F976}\u{1F97A}\u{1F97C}-\u{1F9A2}\u{1F9B0}-\u{1F9B9}\u{1F9C0}-\u{1F9C2}\u{1F9D0}-\u{1F9FF}]\uFE0F|[\u261D\u26F9\u270A-\u270D\u{1F385}\u{1F3C2}-\u{1F3C4}\u{1F3C7}\u{1F3CA}-\u{1F3CC}\u{1F442}\u{1F443}\u{1F446}-\u{1F450}\u{1F466}-\u{1F469}\u{1F46E}\u{1F470}-\u{1F478}\u{1F47C}\u{1F481}-\u{1F483}\u{1F485}-\u{1F487}\u{1F4AA}\u{1F574}\u{1F575}\u{1F57A}\u{1F590}\u{1F595}\u{1F596}\u{1F645}-\u{1F647}\u{1F64B}-\u{1F64F}\u{1F6A3}\u{1F6B4}-\u{1F6B6}\u{1F6C0}\u{1F6CC}\u{1F918}-\u{1F91C}\u{1F91E}\u{1F91F}\u{1F926}\u{1F930}-\u{1F939}\u{1F93D}\u{1F93E}\u{1F9B5}\u{1F9B6}\u{1F9B8}\u{1F9B9}\u{1F9D1}-\u{1F9DD}]/gu;
+        }
+
+        function emojiCount(s) {
+            return (s.match(emojiRegexp()) || []).length + s.replace(emojiRegexp(), '').length;
+        } */
+
+        function drawText(context) {
+            var color = $id('color').value;
+            var offsety = parseFloat($id('offsety').value.replace(/[^\.\d]/, ''));
+            var isPercent = true;
+            var text = $id('letters').value.trim();
+            var font = selectValue($id('font')) || 'monospace';
+            var json = {};
+            var size = parseInt($id('size').value);
+            var ox = size * parseFloat($id('offsetx').value);
+            var x = ox;
+            var y = context.canvas.height * context.ratio * (!isNaN(offsety) ? (isPercent ? 0.01 : 1) * offsety : 0.5);
+            size = size * context.ratio;
+            try {
+                json = eval(text);
+                if (!isArray(json)) {
+                    return;
+                }
+                json.forEach(function (j) {
+                    if (typeof j === 'string') {
+                        j = {
+                            t: j
+                        };
+                    }
+                    if (!j.t) {
+                        return;
+                    }
+                    if (/^[\s\n]+$/.test(j.t)) {
+                        x = ox + Math.max((j.t.match(/[ ]/g) || []).length, j.sc || 0) * size * (j.s || 1);
+                        y += Math.max((j.t.match(/\n/g) || []).length, j.nc || 0) * size * (j.l || 1);
+                        return;
+                    }
+                    var ifont = j.f || font;
+                    if (fonts[ifont]) {
+                        ifont = fonts[ifont];
+                    }
+                    ifont = '"' + ifont + '"';
+                    context.font = j.font ? j.font : (j.fs ? j.fs + ' ' : '') + (j.s ? (typeof j.s === 'number' ? j.s * size + 'px' : j.s) + ' ' + ifont : (size + 'px ' + ifont));
+                    context.textBaseline = j.tbl || '';
+                    context.textAlign = j.ta || '';
+                    context.fillStyle = j.c || color;
+                    context.strokeStyle = j.c || color;
+                    context[j.st ? "strokeText" : "fillText"](j.t, typeof j.x !== 'undefined' ? x + size * j.x : x, typeof j.y !== 'undefined' ? y + size * j.y : y);
+                    if (typeof j.x === 'undefined') {
+                        //x += (emojiCount(j.t) + (j.t.match(emojiRegexp()) || []).length * 0.05) * context.font.match(/\d+/)[0]; // set emoji is 5% wide than other char
+                        x += context.measureText(j.t).width; // using measureText to get the text width!
+                    }
+                    if (typeof j.y !== 'undefined') {
+                        //y += parseInt(j.y);
+                    }
+                });
+            } catch (e) {
+                console.log(e);
+            }
+        }
+
+        function setCaches() {
+            $q('.txt,.txa,select').forEach(function (e) {
+                localStorage.setItem(e.id, /select/i.test(e.tagName) ? e.selectedIndex : e.value);
+            });
+        }
+
+        function getCaches() {
+            $q('.txt,.txa,select').forEach(function (e) {
+                var isSelect = /select/i.test(e.tagName);
+                var value = localStorage.getItem(e.id) || (e.value || '');
+                e[isSelect ? 'selectedIndex' : 'value'] = isSelect ? parseInt(value) : value;
+            });
+        }
+
+        function selectValue(s) {
+            return s.options[s.selectedIndex].value;
+        }
+
+        function loadJs(file, callback) {
+            var script = document.createElement('script');
+            script.src = file;
+            script.onload = callback;
+            document.head.appendChild(script);
+        }
+
+        function saveImage() {
+            if (canvas.msToBlob) { //for IE
+                var blob = $id('canvas').msToBlob();
+                return window.navigator.msSaveBlob(blob, 'letter.png');
+            }
+            $id('canvas').toBlob(function (blob) {
+                saveAs(blob, 'letter.png');
+            });
+        }
+        window.onload = function () {
+            var context = $id('canvas').getContext('2d');
+            for (var k in fonts) {
+                var option = document.createElement('option');
+                option.value = k;
+                option.innerHTML = k;
+                $id('font').appendChild(option);
+            }
+            getCaches();
+            preview(context);
+            addEvent($id('file'), 'change', function (event) {
+                readFile(event.target.files, context);
+            });
+            dropEvent($id('dropIn'), function (files) {
+                readFile(files, context);
+            });
+            addEvent($id('letters'), 'input', function (event) {
+                setCaches();
+                preview(context);
+            });
+            addEvents($q('.txt'), 'input', function (event) {
+                setCaches();
+                preview(context);
+            });
+            addEvents($q('select'), 'change', function (event) {
+                setCaches();
+                preview(context);
+            });
+            addEvent($id('download'), 'click', function (event) {
+                event.stopPropagation();
+                event.preventDefault();
+                if (this.innerHTML !== '') {
+                    if (!'Blob' in window) {
+                        alert("Your browser doesn't support download");
+                        return;
+                    }
+                    if (!window.saveAs) {
+                        loadJs('FileSaver.min.js', function () {
+                            saveImage();
+                        });
+                    } else {
+                        saveImage();
+                    }
+                }
+            });
+            addEvent($id('menu'), 'click', function (event) {
+                if ($id('menu').running) {
+                    return;
+                }
+                $id('menu').running = true;
+                $id('menu').classList.toggle('menu-on');
+                var isHide = $id('aside').classList.contains('aside-hide');
+                if (isHide) {
+                    $id('aside').classList.remove('aside-hide');
+                    setTimeout(function () {
+                        $id('aside').style.right = 0;
+                        setTimeout(function () {
+                            $id('menu').running = false;
+                        }, 500);
+                    }, 0);
+                } else {
+                    $id('aside').style.right = -($id('aside').clientWidth + 100) + 'px';
+                    setTimeout(function () {
+                        $id('aside').classList.add('aside-hide');
+                        $id('menu').running = false;
+                    }, 500);
+                }
+            });
+            addEvent($id('notebtn'), 'click', function (event) {
+                $id('note').classList.toggle('note-hide');
+            });
+            if (!localStorage.getItem('visited')) {
+                localStorage.setItem('visited', 'yes');
+                $id('note').classList.remove('note-hide');
+                setTimeout(function () {
+                    $id('note').classList.add('note-hide');
+                }, 3000);
+            }
+
+        };
+    </script>
+</body>
 
 </html>
