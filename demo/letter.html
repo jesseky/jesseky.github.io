@@ -58,6 +58,16 @@
             flex: 1;
         }
 
+        .resolution {
+            border: 1px solid #CCC;
+            position: absolute;
+            left: 1px;
+            top: 1px;
+            color: #AAA;
+            padding: 0 2px;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+        }
+
         .aside {
             width: 320px;
             border-left: 1px solid #CCC;
@@ -76,12 +86,13 @@
             padding: 0 3px;
         }
 
-        .txt {
-            width: 30%;
+        .txt,
+        .sel {
+            width: 40%;
         }
 
-        .txl {
-            width: 80%;
+        .txs {
+            width: 20%;
         }
 
         textarea {
@@ -102,6 +113,7 @@
         .file {
             width: 100%;
             margin: 20px 0 0 0;
+            background: #DCDCDC;
         }
 
         .controls {
@@ -113,7 +125,7 @@
         }
 
         label {
-            width: 20%;
+            width: 15%;
         }
 
         .controls label:not(:first-child) {
@@ -123,7 +135,7 @@
         .controls b {
             position: absolute;
             top: 2px;
-            right: 2em;
+            right: 0.5em;
         }
 
         h1 {
@@ -146,6 +158,7 @@
             width: 75vh;
             height: 100vh;
             max-width: 98vw;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
         }
 
         .picture canvas {
@@ -350,18 +363,26 @@
             <picture class="picture" id="dropIn">
                 <canvas id="canvas"></canvas>
             </picture>
+            <div class="resolution" id="resolution"></div>
         </article>
         <aside class="aside aside-hide" id="aside">
             <div class="block1">
                 <h1>选择文件，输入文字</h1>
                 <input type="file" id="file" class="file" accept="image/*">
-                <div class="controls"><label class="lbl">字体：</label><select id="font" class="txl">
+                <div class="controls"><label class="lbl">字体：</label><select id="font" class="sel">
                         <option>sans-serif</option>
                         <option>serif</option>
                         <option>monospace</option>
-                    </select></div>
-                <div class="controls"><label class="lbl">大小：</label><input class="txt" type="number" id="size" min="10" step="1" value="20"><label class="lbl">水平：</label><input class="txt" type="number" id="offsetx" step="0.1" min="0" value="1"></div>
-                <div class="controls"><label class="lbl colors-lbl" id="colorlbl">颜色：</label><input class="txt" type="text" id="color" value="black"><label class="lbl">垂直：</label><input class="txt" type="number" step="1" id="offsety" value="5"><b>%</b></div>
+                    </select>
+                    <label class="lbl">大小：</label><input class="txt txs" type="number" id="size" min="10" step="1"
+                        value="20">
+                </div>
+                <div class="controls"><label class="lbl colors-lbl" id="colorlblfg">颜色：</label><input class="txt"
+                        type="text" id="colorfg" value="black"><label class="lbl">水平：</label><input class="txt txs"
+                        type="number" id="offsetx" step="0.1" min="0" value="1"></div>
+                <div class="controls"><label class="lbl colors-lbl" id="colorlblbg">背景：</label><input class="txt"
+                        type="text" id="colorbg" value=""><label class="lbl">垂直：</label><input class="txt txs"
+                        type="number" step="1" id="offsety" value="5"><b>%</b></div>
             </div>
             <textarea class="txa" cols="50" row="10" id="letters"></textarea>
             <button class="btn" id="download">下载</button>
@@ -511,6 +532,7 @@
             var maxHeight = $id('dropIn').clientHeight;
             var dpr = window.devicePixelRatio || 1;
             context.ratio = 1;
+            var bg = $id('colorbg').value;
             if (context.image) {
                 var width = context.image.naturalWidth;
                 var height = context.image.naturalHeight;
@@ -522,11 +544,21 @@
                 //context.scale(1/dpr, 1/dpr);
                 context.ratio = 1 / scale;
                 context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+                if (bg) {
+                    context.fillStyle = bg;
+                    context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+                }
                 context.drawImage(context.image, 0, 0);
             } else {
                 context.canvas.width = maxWidth;
                 context.canvas.height = maxHeight;
+                context.clearRect(0, 0, context.canvas.width, context.canvas.height);
+                if (bg) {
+                    context.fillStyle = bg;
+                    context.fillRect(0, 0, context.canvas.width, context.canvas.height);
+                }
             }
+            $id('resolution').innerHTML = context.canvas.width + 'x' + context.canvas.height;
             drawText(context);
         }
 
@@ -650,7 +682,7 @@
         } */
 
         function drawText(context) {
-            var color = $id('color').value;
+            var color = $id('colorfg').value;
             var offsety = parseFloat($id('offsety').value.replace(/[^\.\d]/, ''));
             var isPercent = true;
             var text = $id('letters').value.trim();
@@ -754,9 +786,10 @@
             };
         }
 
-        function initColors() {
+        function initColors(tp, context) {
+            var input = $id('color' + tp);
             var color = document.createElement('div');
-            color.id = "colorspan";
+            color.id = "colorspan" + tp;
             color.className = "colors-pan colors-pan-hide";
             color.innerHTML = ['国风'].concat(colors, ['日系'], colorsJp).map(function (c) {
                 if (c.indexOf('#') < 0) {
@@ -766,23 +799,23 @@
                 var cl = idealTextColor(ca[1]);
                 return '<a href="#" style="background:#' + ca[1] + (cl !== '#fff' ? ';color:' + cl : '') + ';"><i>' + ca[0] + '</i><var>#' + ca[1] + '</var></a>';
             }).join('');
-            $id('colorlbl').appendChild(color);
-            addEvents($q('#colorlbl a'), 'click', function (evt) {
+            $id('colorlbl' + tp).appendChild(color);
+            addEvents($q('#colorlbl' + tp + ' a'), 'click', function (evt) {
                 clearTimeout(colorsTimer);
                 evt.preventDefault();
                 evt.stopPropagation();
-                $id('color').focus();
-                $id('color').value = this.querySelector('var').innerHTML;
+                input.focus();
+                input.value = this.querySelector('var').innerHTML;
                 setCaches();
-                preview($id('canvas').getContext('2d'));
+                preview(context);
                 return false;
             });
-            addEvent($id('color'), 'focus', function () {
-                removeClass($id('colorspan'), 'colors-pan-hide');
+            addEvent(input, 'focus', function () {
+                removeClass(color, 'colors-pan-hide');
             });
-            addEvent($id('color'), 'blur', function () {
+            addEvent(input, 'blur', function () {
                 colorsTimer = setTimeout(function () {
-                    toggleClass($id('colorspan'), 'colors-pan-hide', true);
+                    toggleClass(color, 'colors-pan-hide', true);
                 }, 200);
             });
         }
@@ -858,6 +891,9 @@
             addEvent($id('notebtn'), 'click', function (event) {
                 $id('note').classList.toggle('note-hide');
             });
+            addEvent(window, 'resize', function (event) {
+                preview(context);
+            });
             if (!localStorage.getItem('visited')) {
                 localStorage.setItem('visited', 'yes');
                 $id('note').classList.remove('note-hide');
@@ -865,7 +901,8 @@
                     $id('note').classList.add('note-hide');
                 }, 3000);
             }
-            initColors();
+            initColors('fg', context);
+            initColors('bg', context);
         };
     </script>
 </body>
