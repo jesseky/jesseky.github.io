@@ -3,8 +3,9 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
-    <title>日历天数计算</title>
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+    <title>日历天数、定时计算</title>
     <style type="text/css" media="screen">
         html,
         body,
@@ -39,6 +40,10 @@
             -moz-box-sizing: border-box;
             transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
             font: inherit;
+        }
+
+        .txt {
+            height: 36px;
         }
 
         .txt:focus,
@@ -100,10 +105,10 @@
 
         h1 {
             text-align: center;
-            font-size: 2em;
-            line-height: 2.0;
-            margin-bottom: 0.5em;
-            text-shadow: 0 0 2px rgba(0,0,0,0.1);
+            font-size: 1.5em;
+            line-height: 1.5;
+            margin-bottom: 0.25em;
+            text-shadow: 0 0 2px rgba(0, 0, 0, 0.1);
         }
 
         h2 {
@@ -112,15 +117,25 @@
             color: #999;
         }
 
+        p {
+            min-height: 30px;
+        }
+
+        .lblwraps {
+            height: 28px;
+        }
+
         .container {
             background: #FFF;
             width: 282px;
             padding: 12px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
             border-radius: 2px;
+            margin-bottom: 10px;
         }
+
         .container .txt[type="date"] {
-          min-width: calc(100% - 18px);
+            min-width: calc(100% - 18px);
         }
 
         .container label.lbl {
@@ -151,6 +166,19 @@
             color: #20a0ff;
         }
 
+        .group {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .group .btn {
+            width: 16%;
+        }
+
+        .group .txt {
+            width: 60%;
+        }
+
         strong {
             color: #FF4949;
             font-weight: bold;
@@ -164,27 +192,48 @@
         <div class="container" id="container">
             <h1>日历天数计算</h1>
             <div class="block">
-                <p><button type="button" class="btn" v-on:click="set_start_today()">今天</button><label class="lbl">起始日期：</label></p>
+                <p><button type="button" class="btn" v-on:click="set_start_today()">今天</button><label
+                        class="lbl">起始日期：</label></p>
                 <input type="date" class="txt" v-model="start" v-on:input="start_ch" />
             </div>
-            <p class="radios">
-                <label><input type="radio" name="type" v-model="show_type" v-bind:value="tp_date"> <span>计算间隔天数</span></label>
-                <label><input type="radio" name="type" v-model="show_type" v-bind:value="tp_days"> <span>计算终止日期</span></label>
-            </p>
-            <div class="block">
+            <div class="radios">
+                <label><input type="radio" name="type" v-model="show_type" v-bind:value="tp_date">
+                    <span>计算间隔天数</span></label>
+                <label><input type="radio" name="type" v-model="show_type" v-bind:value="tp_days">
+                    <span>计算终止日期</span></label>
+            </div>
+            <div>
                 <div v-show="show_type==tp_date">
                     <div class="block">
-                        <p><button type="button" class="btn" v-on:click="set_end_today()">今天</button><label class="lbl">终止日期：</label></p>
+                        <div class="lblwraps"><button type="button" class="btn"
+                                v-on:click="set_end_today()">今天</button><label class="lbl">终止日期：</label></div>
                         <input type="date" class="txt" v-model="end" v-on:input="end_ch" />
                     </div>
                     <p>间隔天数：<strong>{{ days }}</strong></p>
                 </div>
                 <div v-show="show_type==tp_days">
-                    <p class="block"><label class="lbl">相隔天数：</label><input type="number" step="1" class="txt" v-model="days" v-on:input="days_ch" /></p>
+                    <div class="block">
+                        <div class="lblwraps"><label class="lbl">相隔天数：</label></div>
+                        <input type="number" step="1" class="txt" v-model="days" v-on:input="days_ch" />
+                    </div>
                     <p>终止日期：<strong>{{ end }}</strong></p>
                 </div>
             </div>
             <h2>备注：计算从某天起的第100天，实际应相隔99天</h2>
+        </div>
+        <div class="container" id="timers">
+            <h1>定时计算</h1>
+            <div class="block">
+                <div class="block">
+                    <label class="lbl">预约时间：</label>
+                    <div class="group"><input type="text" step="1" class="txt" v-model="minutes"
+                            v-on:input="minutes_ch" />
+                        <button class="btn" v-on:click="incr">+</button><button class="btn" v-on:click="decr">-</button>
+                    </div>
+                </div>
+                <p>当前时间：{{nowTime}}</p>
+                <p>结果时间：<strong>{{after}}</strong></p>
+            </div>
         </div>
     </div>
     <script type="text/javascript">
@@ -213,7 +262,14 @@
             var gap = new Date(ds1[0], parseInt(ds1[1]) - 1, ds1[2]).getTime() - new Date(ds2[0], parseInt(ds2[1]) - 1, ds2[2]).getTime();
             return !isNaN(gap) ? gap / 1000 / 86400 : '';
         }
-        var start = str_date(new Date());
+
+        function formatTime(d) {
+            return [d.getHours(), d.getMinutes(), d.getSeconds()].map(v => v < 10 ? '0' + v : v).join(':');
+        }
+
+        var dateNow = new Date();
+
+        var start = str_date(dateNow);
         var app = new Vue({
             el: '#container',
             data: {
@@ -225,29 +281,114 @@
                 end: to_date(start, 99)
             },
             methods: {
-                start_ch: function() {
+                start_ch: function () {
                     if (this.tp_days == this.show_type) {
                         this.end = to_date(this.start, this.days);
                     } else {
                         this.days = to_days(this.end, this.start);
                     }
                 },
-                days_ch: function() {
+                days_ch: function () {
                     this.end = to_date(this.start, this.days);
                 },
-                end_ch: function() {
+                end_ch: function () {
                     this.days = to_days(this.end, this.start);
                 },
-                set_start_today: function() {
+                set_start_today: function () {
                     this.start = str_date(new Date());
                     this.start_ch();
                 },
-                set_end_today: function() {
+                set_end_today: function () {
                     this.end = str_date(new Date());
                     this.end_ch();
                 }
             }
         });
+        function calcDefault(d) {
+            // 设定默认时区， 00:00~12:00 => 中午12:30, 12:00~18:00 => 晚上18:30， 18:00~24:00 => 第二天 8:30
+            var hour = dateNow.getHours();
+            var minutes = dateNow.getMinutes(); // minutes 要四舍五入
+            var minFoolr = minutes - (minutes % 10) + (minutes % 10 >= 5 ? 10 : 0);
+            var result = 0;
+            if (hour < 12) { // 计算出离中午12点的分钟
+                result = (12 - hour) * 60 + 30 - minFoolr;
+            } else if (hour < 18) {
+                result = (18 - hour) * 60 + 30 - minFoolr;
+            } else {
+                result = (24 + 8 - hour) * 60 + 30 - minFoolr;
+            }
+
+            return [parseInt(result / 60), result % 60].join(':');
+        }
+        var app2 = new Vue({
+            el: '#timers',
+            data: {
+                minutes: calcDefault(dateNow),
+                now: dateNow,
+                after: ''
+            },
+            computed: {
+                nowTime() {
+                    return formatTime(this.now);
+                }
+            },
+            created() {
+                this.minutes_ch();
+            },
+            methods: {
+                minutes_ch() {
+                    var d = this.now.getTime();
+                    var ad = 0;
+                    var mn = this.minutes.toString().split(':').map(v => parseInt(v));
+                    if (!isNaN(mn[0])) {
+                        ad += mn[0] * 3600 * 1e3;
+                    }
+                    if (mn.length > 1 && !isNaN(mn[1])) {
+                        ad += mn[1] * 60 * 1e3;
+                    }
+                    if (ad) {
+                        var nd = new Date(d + ad);
+                        var days = nd.getDay() - this.now.getDay();
+                        this.after = formatTime(nd) + (days ? ' 第' + (days + 1) + '天' : '');
+                    } else {
+                        this.after = '';
+                    }
+                },
+                incr() {
+                    var mn = this.minutes.toString().split(':').map(v => parseInt(v));
+                    if (!mn.filter(isNaN).length) {
+                        if (mn.length < 2) mn[1] = 0;
+                        mn[1] += 10;
+                        if (mn[1] >= 60) {
+                            mn[0] += 1;
+                            mn[1] -= 60;
+                        }
+                        this.minutes = mn.map(v => v < 10 ? '0' + v : v).join(':');
+                        this.minutes_ch();
+                    }
+                },
+                decr() {
+                    var mn = this.minutes.toString().split(':').map(v => parseInt(v));
+                    if (!mn.filter(isNaN).length) {
+                        if (mn.length < 2) mn[1] = 0;
+                        if (mn[1] < 10) {
+                            mn[0] -= 1;
+                            mn[1] += 60;
+                        }
+                        mn[1] -= 10;
+                        if (mn[0] < 0) {
+                            mn = mn.map(v => 0);
+                        }
+                        this.minutes = mn.map(v => v < 10 ? '0' + v : v).join(':');
+                        this.minutes_ch();
+                    }
+                }
+            }
+        });
+        setInterval(function () {
+            app2.now = new Date();
+            app2.minutes_ch();
+        }, 1000);
     </script>
 </body>
 

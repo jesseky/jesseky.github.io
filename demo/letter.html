@@ -62,7 +62,7 @@
             border: 1px solid #CCC;
             position: absolute;
             left: 1px;
-            top: 1px;
+            bottom: 1px;
             color: #AAA;
             padding: 0 2px;
             box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
@@ -95,18 +95,18 @@
             width: 20%;
         }
 
-        textarea {
+        .txa-letter {
             min-height: 240px;
             width: 100%;
             margin: 20px 0;
-            height: calc(100vh - 320px);
+            height: calc(100vh - 350px);
         }
 
         .txt:focus,
         .txa:focus {
             color: #20a0ff;
             border-color: #66AFE9;
-            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 5px rgba(102, 175, 233, 0.6);
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 5px rgba(102, 175, 233, 0.6) inset;
             outline: 0px none;
         }
 
@@ -135,7 +135,8 @@
         .controls b {
             position: absolute;
             top: 2px;
-            right: 0.5em;
+            right: 1em;
+            color: #AAA;
         }
 
         h1 {
@@ -288,6 +289,7 @@
             flex-flow: row;
             flex-wrap: wrap;
             font-size: 12px;
+            box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.1);
         }
 
         .colors-pan-hide {
@@ -312,9 +314,116 @@
             text-indent: 5px;
         }
 
+        .colors-pan a.on {
+            position: relative;
+            box-shadow: 0 0 10px inset;
+        }
+
+        .colors-pan a.on::before {
+            display: block;
+            width: 12px;
+            height: 12px;
+            border: 1px solid;
+            border-radius: 100%;
+            content: '';
+            position: absolute;
+            right: 0;
+            top: 0;
+        }
+
+        .result-btns {
+            display: flex;
+            flex-flow: row;
+            justify-content: space-between;
+        }
+
+        .result-btns button {
+            width: 48%;
+        }
+
+        .showmsg {
+            position: fixed;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10;
+            top: -160px;
+            left: 0;
+            left: calc(50% - 200px);
+            width: 400px;
+            height: 120px;
+            background: rgba(0, 0, 0, 0.8);
+            transition: all 0.5s ease-in-out;
+        }
+
+        .showmsg-show {
+            top: 20px;
+        }
+
+        .showmsg-in {
+            width: calc(100% - 10px);
+            height: calc(100% - 10px);
+            color: #FFF;
+            display: flex;
+            flex-flow: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .showmsg-close {
+            position: absolute;
+            right: -15px;
+            top: -15px;
+            width: 30px;
+            height: 30px;
+            display: block;
+            font-size: 15px;
+            border-radius: 100%;
+            background: #000;
+            color: #FFF;
+            outline: none;
+            border: 0 none;
+            text-align: center;
+            line-height: 30px;
+        }
+
+        .txa-in-msg {
+            width: 100%;
+            height: 80%;
+        }
+
+        .showmsg-tip {
+            color: greenyellow;
+            text-align: center;
+        }
+
+        .output {
+            height: 50px;
+            line-height: 20px;
+            color: #CC0000;
+        }
+
         @media screen and (max-width: 1024px) {
+            label {
+                font-size: 12px;
+            }
+
             .menu {
                 display: block;
+            }
+
+            .showmsg {
+                width: 100vw;
+                left: 0;
+            }
+
+            .showmsg-close {
+                right: 0px;
+            }
+
+            .colors-pan {
+                left: -24px;
+                padding: 5px;
             }
 
             .aside {
@@ -331,12 +440,33 @@
             .aside-hide {
                 display: none;
             }
+
+            .txa-letter {
+                margin: 10px 0;
+            }
+        }
+
+        @media print {
+            @page {
+                margin: 0;
+            }
+
+            .menu,
+            .note-btn,
+            .aside-hide,
+            .showmsg,
+            .resolution {
+                display: none;
+            }
         }
     </style>
 </head>
 
 <body>
     <div id="menu" class="menu">☷</div>
+    <div id="showmsg" class="showmsg"><button class="showmsg-close" id="showmsg-close">X</button>
+        <div id="showmsg-in" class="showmsg-in"></div>
+    </div>
     <section id="main" class="main">
         <div class="note-btn"><button id="notebtn">︾</button></div>
         <div id="note" class="note note-hide">
@@ -379,13 +509,15 @@
                 </div>
                 <div class="controls"><label class="lbl colors-lbl" id="colorlblfg">颜色：</label><input class="txt"
                         type="text" id="colorfg" value="black"><label class="lbl">水平：</label><input class="txt txs"
-                        type="number" id="offsetx" step="0.1" min="0" value="1"></div>
+                        type="number" id="offsetx" step="5" min="0" value="10"><b>%</b></div>
                 <div class="controls"><label class="lbl colors-lbl" id="colorlblbg">背景：</label><input class="txt"
                         type="text" id="colorbg" value=""><label class="lbl">垂直：</label><input class="txt txs"
                         type="number" step="1" id="offsety" value="5"><b>%</b></div>
             </div>
-            <textarea class="txa" cols="50" row="10" id="letters"></textarea>
-            <button class="btn" id="download">下载</button>
+            <textarea class="txa txa-letter" cols="50" row="10" id="letters"></textarea>
+            <div class="output" id="output"></div>
+            <div class="result-btns"><button class="btn" id="download">下载</button> <button class="btn"
+                    id="share">分享</button></div>
         </aside>
     </section>
 
@@ -394,8 +526,8 @@
             return document.getElementById(id);
         }
 
-        function $q(q) {
-            return toArray(document.querySelectorAll(q));
+        function $q(q, parent) {
+            return toArray(parent ? parent.querySelectorAll(q) : document.querySelectorAll(q));
         }
 
         function toArray(o) {
@@ -463,6 +595,37 @@
                     }
                 }
             });
+        }
+
+        function b64EncodeUnicode(str) { // 来自 stackoverflow  https://stackoverflow.com/questions/30106476/using-javascripts-atob-to-decode-base64-doesnt-properly-decode-utf-8-strings
+            // first we use encodeURIComponent to get percent-encoded UTF-8,
+            // then we convert the percent encodings into raw bytes which
+            // can be fed into btoa.
+            return btoa(encodeURIComponent(str).replace(/%([0-9A-F]{2})/g,
+                function toSolidBytes(match, p1) {
+                    return String.fromCharCode('0x' + p1);
+                }));
+        }
+        function b64DecodeUnicode(str) {
+            // Going backwards: from bytestream, to percent-encoding, to original string.
+            return decodeURIComponent(atob(str).split('').map(function (c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+        }
+
+        function b64SafeEncode(str) {
+            return b64EncodeUnicode(str).replace(/\+/g, '-').replace(/=/g, '_');
+        }
+
+        function b64SafeDecode(str) {
+            return b64DecodeUnicode(str.replace(/-/g, '+').replace(/_/g, '='));
+        }
+
+        // 弹出信息
+        function showMsg(msg, autohide) {
+            $id('showmsg-in').innerHTML = msg;
+            toggleClass($id('showmsg'), 'showmsg-show', true);
+            if (autohide) setTimeout(function () { removeClass($id('showmsg'), 'showmsg-show') }, typeof autohide === 'number' ? autohide : 5000);
         }
 
         function readFile(files, context) {
@@ -689,10 +852,11 @@
             var font = selectValue($id('font')) || 'monospace';
             var json = {};
             var size = parseInt($id('size').value);
-            var ox = size * parseFloat($id('offsetx').value);
+            var ox = context.canvas.width * parseFloat($id('offsetx').value) / 100; // size * parseFloat($id('offsetx').value);
             var x = ox;
             var y = context.canvas.height * context.ratio * (!isNaN(offsety) ? (isPercent ? 0.01 : 1) * offsety : 0.5);
             size = size * context.ratio;
+            $id('output').innerHTML = '';
             try {
                 json = eval(text);
                 if (!isArray(json)) {
@@ -732,7 +896,7 @@
                     }
                 });
             } catch (e) {
-                console.log(e);
+                $id('output').innerHTML = '语法错误：' + (e.message || e);
             }
         }
 
@@ -797,21 +961,32 @@
                 }
                 var ca = c.split('#');
                 var cl = idealTextColor(ca[1]);
-                return '<a href="#" style="background:#' + ca[1] + (cl !== '#fff' ? ';color:' + cl : '') + ';"><i>' + ca[0] + '</i><var>#' + ca[1] + '</var></a>';
+                return '<a href="#" style="background:#' + ca[1] + (cl !== '#fff' ? ';color:' + cl : '') + ';" col="' + ca[1] + '"><i>' + ca[0] + '</i><var>#' + ca[1] + '</var></a>';
             }).join('');
             $id('colorlbl' + tp).appendChild(color);
             addEvents($q('#colorlbl' + tp + ' a'), 'click', function (evt) {
                 clearTimeout(colorsTimer);
                 evt.preventDefault();
                 evt.stopPropagation();
+                $q('a.on', color).forEach(function (a) { removeClass(a, 'on'); });
+                toggleClass(this, 'on', true);
                 input.focus();
                 input.value = this.querySelector('var').innerHTML;
                 setCaches();
                 preview(context);
                 return false;
             });
-            addEvent(input, 'focus', function () {
+            addEvent(input, 'focus', function (evt) {
+                if (evt.relatedTarget && evt.relatedTarget.nodeName.toLowerCase() === 'a') return;
                 removeClass(color, 'colors-pan-hide');
+                // highlight current color 
+                var val = input.value.replace('#', '');
+                var col = color.querySelector('a[col="' + val + '"]');
+                $q('a.on', color).forEach(function (a) { removeClass(a, 'on'); });
+                if (col) {
+                    toggleClass(col, 'on', true);
+                    if (col.scrollIntoView) col.scrollIntoView(true);
+                }
             });
             addEvent(input, 'blur', function () {
                 colorsTimer = setTimeout(function () {
@@ -821,6 +996,30 @@
         }
 
         window.onload = function () {
+            var urlparam = location.href.split('?').slice(1).join('');
+            if (urlparam) {
+                var pms = urlparam.split('&').reduce(function (succ, a) {
+                    var aa = a.split('=');
+                    if (aa.length === 2) succ[aa[0]] = b64SafeDecode(aa[1]);
+                    return succ;
+                }, {});
+                if ('localStorage' in window && 'JSON' in window && JSON.parse && (pms.l || pms.p)) { // 存在参数，设置缓存，然后跳转。
+                    if (pms.l) {
+                        localStorage.setItem('letters', pms.l);
+                    }
+                    try {
+                        var pj = JSON.parse(pms.p);
+                        if (pj) {
+                            for (let k in pj) {
+                                localStorage.setItem(k, pj[k]);
+                            }
+                        }
+                    } catch (e) {
+                        alert('处理全局参数错误');
+                    }
+                }
+                location.href = location.href.split('?')[0];
+            }
             var context = $id('canvas').getContext('2d');
             for (var k in fonts) {
                 var option = document.createElement('option');
@@ -865,15 +1064,51 @@
                     }
                 }
             });
+            addEvent($id('showmsg-close'), 'click', function (event) {
+                removeClass($id('showmsg'), 'showmsg-show');
+            });
+            addEvent($id('share'), 'click', function (event) {
+                var valLetters = $id('letters').value.replace(/(^[\s\t\n]+)|([\s\t\n]+$)/g, '');
+                if (!valLetters) {
+                    return showMsg('请先输入文字', 3000);
+                } else if (!('JSON' in window) || !JSON.stringify) {
+                    return showMsg('您的浏览器不支持分享功能', 3000);
+                }
+                var params = JSON.stringify($q('.txt,select').reduce(function (succ, e) {
+                    var isSelect = /select/i.test(e.tagName);
+                    succ[e.id] = isSelect ? e.selectedIndex : e.value;
+                    return succ;
+                }, {}));
+                var link = location.href.split('?')[0] + '?l=' + b64SafeEncode(valLetters) + '&p=' + b64SafeEncode(params);
+                if (link.length > 8000) {
+                    return showMsg('分享连接长度超过8000，URL可能会被截断，请缩减内容', 3000);;
+                }
+                showMsg('<textarea class="txa txa-in-msg" id="txa-in-msg">' + link + '</textarea>');
+                if ($id('txa-in-msg').select) {
+                    $id('txa-in-msg').select();
+                    var succeeded = false;
+                    try {
+                        succeeded = document.execCommand("Copy");
+                    } catch (err) {
+                        succeeded = false;
+                    }
+                    if (succeeded) {
+                        var ndiv = document.createElement('div');
+                        ndiv.className = 'showmsg-tip';
+                        ndiv.innerHTML = '已经成功复制到剪切板';
+                        $id('showmsg-in').appendChild(ndiv);
+                    }
+                }
+            });
             addEvent($id('menu'), 'click', function (event) {
                 if ($id('menu').running) {
                     return;
                 }
                 $id('menu').running = true;
-                $id('menu').classList.toggle('menu-on');
-                var isHide = $id('aside').classList.contains('aside-hide');
+                toggleClass($id('menu'), 'menu-on');
+                var isHide = $id('aside').className.match(/aside-hide/);
                 if (isHide) {
-                    $id('aside').classList.remove('aside-hide');
+                    removeClass($id('aside'), 'aside-hide');
                     setTimeout(function () {
                         $id('aside').style.right = 0;
                         setTimeout(function () {
@@ -883,22 +1118,22 @@
                 } else {
                     $id('aside').style.right = -($id('aside').clientWidth + 100) + 'px';
                     setTimeout(function () {
-                        $id('aside').classList.add('aside-hide');
+                        toggleClass($id('aside'), 'aside-hide', true);
                         $id('menu').running = false;
                     }, 500);
                 }
             });
             addEvent($id('notebtn'), 'click', function (event) {
-                $id('note').classList.toggle('note-hide');
+                toggleClass($id('note'), 'note-hide');
             });
             addEvent(window, 'resize', function (event) {
                 preview(context);
             });
             if (!localStorage.getItem('visited')) {
                 localStorage.setItem('visited', 'yes');
-                $id('note').classList.remove('note-hide');
+                removeClass($id('note'), 'note-hide');
                 setTimeout(function () {
-                    $id('note').classList.add('note-hide');
+                    toggleClass($id('note'), 'note-hide', true);
                 }, 3000);
             }
             initColors('fg', context);
