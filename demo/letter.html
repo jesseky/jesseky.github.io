@@ -518,9 +518,9 @@
                         <option>serif</option>
                         <option>monospace</option>
                     </select>
-                    <label class="lbl">大小：</label><input class="txt txs" type="number" id="size" min="10" step="1" value="40">
+                    <label class="lbl">大小：</label><input class="txt txs" type="number" id="size" min="1" max="100" step="1" value="5"><b>%</b>
                 </div>
-                <div class="controls"><label class="lbl colors-lbl" id="colorlblfg">颜色：</label><input class="txt" type="text" id="colorfg" value="#000000"><label class="lbl">水平：</label><input class="txt txs" type="number" id="offsetx" step="5" min="0" value="10"><b>%</b></div>
+                <div class="controls"><label class="lbl colors-lbl" id="colorlblfg">颜色：</label><input class="txt" type="text" id="colorfg" value="#000000"><label class="lbl">水平：</label><input class="txt txs" type="number" id="offsetx" step="1" min="0" value="10"><b>%</b></div>
                 <div class="controls"><label class="lbl colors-lbl" id="colorlblbg">背景：</label><input class="txt" type="text" id="colorbg" value=""><label class="lbl">垂直：</label><input class="txt txs" type="number" step="1" id="offsety" value="20"><b>%</b></div>
             </div>
             <textarea class="txa txa-letter" cols="50" row="10" id="letters"></textarea>
@@ -704,6 +704,7 @@
             var maxWidth = $id('dropIn').clientWidth;
             var maxHeight = $id('dropIn').clientHeight;
             var dpr = Math.round(window.devicePixelRatio || 1);
+            context.dpr = dpr;
             context.ratio = 1 / dpr;
             var bg = $id('colorbg').value;
             if (context.image) {
@@ -863,7 +864,37 @@
             "朱緋#ba2636", "茜色#b7282e", "深海老茶#a73836", "苏芳#9e3d3f", "真红#a22041", "浓红#a22041", "象牙色#f8f4e6", "练色#ede4cd", "灰白色#e9e4d4", "蒸栗色#ede1a9", "女郎花#f2f2b0", "枯草色#e4dc8a", "淡黄#f8e58c", "白茶#ddbb99", "赤白橡#d7a98c", "洗柿#f2c9ac", "鸟の子色#fff1cf",
             "蜂蜜色#fddea5", "肌色#fce2c4", "薄卵色#fde8d0", "雄黄#f9c89b", "洒落柿#f7bd8f", "赤香#f6b894", "砥粉色#f4dda5", "肉色#f1bf99", "人色#f1bf99", "丁子色#efcd9a", "香色#efcd9a", "薄香#f0cfa0", "浅黄#edd3a1", "枯色#e0c38c", "淡香#f3bf88", "杏色#f7b977", "东云色#f19072", "曙色#f19072",
             "珊瑚朱色#ee836f", "深支子#eb9b6f", "纁#e0815e", "浅绯#df7163", "真赭#d57c6b", "洗朱#d0826c", "遠州茶#ca8269", "红桦色#bb5548", "赭#ab6953"
-        ]
+        ];
+        var g_defaults = {
+            size: "5",
+            font: 14,
+            offsetx: "13",
+            offsety: "20",
+            colorbg: "#FFFBF0",
+            colorfg: "#192F60",
+            letters: [
+                { t: ' ', sc: 5.25 },
+                { t: '上李邕', s: 1.5 },
+                { t: 'yōng', x: -1.4, s: 0.75, y: -1.55, c: '#715C1F' },
+                { t: '\n', l: 2, sc: 10 },
+                { t: '唐 • 李白', c: '#008899' }, '\n',
+                { t: '\n', l: 1.5, sc: 0 },
+                '大鹏一日同风起，扶摇直上九万里。',
+                { t: '🦅', x: -15, y: -1.15 },
+                { t: '🌪️', x: -11, y: -1.15 },
+                '\n\n\n',
+                '假令风歇时下来，犹能簸却沧溟水。',
+                { t: 'bǒ', x: -5.85, s: 0.75, y: -1, c: '#715C1F' },
+                { t: '🌊', x: -1.9, s: 0.75, y: -1 },
+                '\n\n\n',
+                '世人见我恒殊调，闻余大言皆冷笑。',
+                { t: '🤣', x: -1.9, s: 0.75, y: -1 },
+                '\n\n\n',
+                '宣父犹能畏后生，丈夫未可轻年少。',
+                { t: '👍', x: -11.85, s: 0.75, y: -1 },
+                { t: '🤔', x: -5.85, s: 0.75, y: -1 }
+            ]
+        };
         var g_colorsTimer = 0;
         /*
         function emojiRegexp() {
@@ -881,11 +912,10 @@
             var text = $id('letters').value.trim();
             var font = selectValue($id('font')) || 'monospace';
             var json = {};
-            var size = parseInt($id('size').value);
+            var size = parseInt($id('size').value) * context.canvas.width / 100;
             var ox = context.canvas.width * parseFloat($id('offsetx').value) / 100; // size * parseFloat($id('offsetx').value);
             var x = ox;
-            var y = context.canvas.height * context.ratio * (!isNaN(offsety) ? (isPercent ? 0.01 : 1) * offsety : 0.5);
-            size = size * context.ratio;
+            var y = size + context.canvas.height * (!isNaN(offsety) ? (isPercent ? 0.01 : 1) * offsety : 0.5);
             $id('output').innerHTML = '';
             removeClass($id('letters'), 'txa-letter-err');
             try {
@@ -1284,11 +1314,22 @@
             if (!localStorage.getItem('visited')) {
                 localStorage.setItem('visited', 'yes');
                 removeClass($id('note'), 'note-hide');
-                setTimeout(function () {
-                    toggleClass($id('note'), 'note-hide', true);
-                }, 3000);
+                setTimeout(function () { toggleClass($id('note'), 'note-hide', true); }, 3000);
             }
             initColors(context);
+            if ('JSON' in window && JSON.stringify && Object.keys(g_defaults).every(k => !localStorage.getItem(k))) {
+                for (var k in g_defaults) {
+                    var node = $id(k).nodeName.toLowerCase();
+                    if ('select' === node) {
+                        $id(k).selectedIndex = g_defaults[k];
+                    } else if ('textarea' === node) {
+                        $id(k).value = JSON.stringify(g_defaults[k]);
+                    } else {
+                        $id(k).value = g_defaults[k];
+                    }
+                }
+                preview(context);
+            }
         };
     </script>
 </body>
