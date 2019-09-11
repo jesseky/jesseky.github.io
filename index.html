@@ -63,10 +63,27 @@
             width: 320px;
             max-width: 800px;
             margin: 0 auto;
+            box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            animation: shadows 4s linear 0s infinite forwards
+        }
+
+        @keyframes shadows {
+            0% {
+                box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            }
+
+            100% {
+                box-shadow: 0 0 10px rgba(255, 255, 255, 0.2);
+            }
         }
 
         .content {
-            padding: 10px 5px;
+            padding: 30px 5px;
             display: flex;
             flex-direction: column;
         }
@@ -87,6 +104,20 @@
             box-shadow: 0 0 10px rgba(26, 207, 231, 0.87);
         }
 
+        .avatar {
+            animation: rotation 3s cubic-bezier(0.68, -0.55, 0.265, 1.55) 1s 1 forwards, rotation 40s linear 4.5s infinite forwards;
+        }
+
+        @keyframes rotation {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
         .title {
             text-align: center;
             font-size: 3rem;
@@ -105,10 +136,6 @@
         .navs li {
             display: inline-block;
             list-style-type: none;
-            border: 1px solid #CCC;
-            padding: 0 0.5em;
-            cursor: pointer;
-            user-select: none;
             -webkit-tap-highlight-color: transparent;
         }
 
@@ -120,7 +147,21 @@
             color: #f7c837;
         }
 
-        .navs li:not(.on):hover {
+
+
+
+        .navs li a {
+            display: block;
+            border: 1px solid #CCC;
+            padding: 0 0.5em;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .navs li.on a,
+        .navs li a:hover,
+        .navs li a:focus {
+            outline: none;
             box-shadow: 0 0 5px rgba(26, 207, 231, 0.87);
             border-color: #1ACFE7;
             color: #1ACFE7;
@@ -137,28 +178,47 @@
             font-size: 0.8rem;
             margin-top: 1em;
             color: #3D86F9;
+            width: 100%;
             display: none;
+        }
+
+        .pages ol {
+            padding-left: 2em;
+            list-style-type: lower-greek;
         }
 
         .pages-on {
             display: block;
         }
 
-        .pages li {
-            list-style-type: none;
-        }
-
         .pages li:not(:last-child) {
             margin-bottom: 0.5em;
         }
 
+        .pages li a {
+            display: block;
+            text-indent: 5px;
+            border: 1px solid transparent;
+        }
+
+        .pages li a:focus,
         .pages li a:hover {
-            text-decoration: underline;
+            border: 1px dashed;
+            outline: none;
         }
 
         @media only screen and (max-device-width: 800px) {
             .main {
-                width: 96%;
+                width: 99%;
+            }
+
+            .content {
+                padding: 10px 5px;
+            }
+
+            .photo img {
+                max-width: 160px;
+                max-height: 160px;
             }
         }
     </style>
@@ -168,46 +228,46 @@
     <div class="main">
         <div class="content">
             <figure class="photo">
-                <img src="img/avatar.jpg" alt="avatar" />
+                <img src="img/avatar.jpg" class="avatar" alt="avatar" />
             </figure>
             <h1 class="title">Jesse</h1>
             <article class="articles">
                 <ul class="navs">
-                    <li class="on">APP</li>
-                    <li>演示</li>
-                    <li>插件</li>
-                    <li>代码</li>
+                    <li class="on"><a href="#">APP</a></li>
+                    <li><a href="#">演示</a></li>
+                    <li><a href="#">插件</a></li>
+                    <li><a href="#">代码</a></li>
                 </ul>
                 <div class="creations">
                     <section class="pages pages-on">
-                        <ul>
+                        <ol>
                             <li><a href="demo/date.html" target="_blank">日历天数、定时计算（APP）</a></li>
                             <li><a href="demo/led.html" target="_blank">JS-LED字符时钟（APP）</a></li>
                             <li><a href="demo/img2htm.html" target="_blank">JS图片转HTML（APP）</a></li>
                             <li><a href="demo/memory.html" target="_blank">记忆训练 - 和大猩猩比赛（APP）</a></li>
                             <li><a href="demo/letter.html" target="_blank">图加文字（APP）</a></li>
                             <li><a href="demo/worth.html" target="_blank">老公价目表（APP）</a></li>
-                        </ul>
+                        </ol>
                     </section>
                     <section class="pages">
-                        <ul>
+                        <ol>
                             <li><a href="demo/path.html" target="_blank">矩阵从左上到右下路径遍历（演示）</a></li>
                             <li><a href="demo/matrix-points.html" target="_blank">矩阵点推进过程（演示）</a></li>
                             <li><a href="demo/snake.html" target="_blank">Snake矩阵排列求值（演示）</a></li>
                             <li><a href="demo/face.html" target="_blank">人脸识别 - tracking.js（演示）</a></li>
-                        </ul>
+                        </ol>
                     </section>
                     <section class="pages">
-                        <ul>
+                        <ol>
                             <li><a href="https://github.com/jesseky/kcabout" target="_blank">KC-About 关键词检索，仅豆瓣（插件）</a></li>
                             <li><a href="https://github.com/jesseky/kczoom" target="_blank">KC-Zoom 知乎、豆瓣头像放大（插件）</a></li>
-                        </ul>
+                        </ol>
                     </section>
                     <section class="pages">
-                        <ul>
+                        <ol>
                             <li><a href="https://github.com/jesseky/sae-one-page" target="_blank">SAE One Page 单页PHP应用，支持SAE</a></li>
                             <li><a href="https://github.com/jesseky/node-fetch-image" target="_blank">node-fetch-image Node.js抓图程式</a></li>
-                        </ul>
+                        </ol>
                     </section>
                 </div>
             </article>
@@ -215,8 +275,12 @@
     </div>
     <script type="text/javascript">
         /* jshint esversion: 6 */
-        function $q(q) {
-            return wrapperDom(document.querySelectorAll(q));
+        function $q(q, p) {
+            return wrapperDom((p || document).querySelectorAll(q));
+        }
+
+        function $d(q) {
+            return document.querySelector(q);
         }
 
         function wrapperDom(o) {
@@ -233,17 +297,56 @@
             }
             return ts === "[object Array]" ? o : [o];
         }
+        function moveNext(n, isPrev, len) {
+            n += isPrev ? -1 : 1;
+            if (n < 0) n = len - 1;
+            if (n > len - 1) n = 0;
+            return n;
+        }
         window.onload = function () {
-            $q('.navs li').forEach(function (e, i) {
-                e.addEventListener('click', function () {
+            var cre = $d('.creations');
+            var len = $q('.navs li a').length;
+            cre.style.minHeight = cre.clientHeight + 'px';
+            $d('.navs li.on a').focus();
+            $q('.navs li a').forEach(function (a, i) {
+                a.addEventListener('keydown', function (evt) {
+                    var code = evt.keyCode || evt.which;
+                    if ([37, 38, 39, 40].indexOf(code) > -1) {  // <- 37 39->   38Up 40Down
+                        if (code == 40) {
+                            $d('.pages-on li a:first-child').focus();
+                        } else if (code == 37 || code == 39) {
+                            $q('.navs li a')[moveNext(i, code == 37, len)].focus();
+                        }
+                    }
+                }, false);
+                a.addEventListener('focus', function (evt) {
                     $q('.navs li:not(:nth-child(' + i + 1 + '))').forEach(function (el) {
                         el.classList.remove('on');
                     });
-                    e.classList.add('on');
+                    a.parentNode.classList.add('on');
                     $q('.pages').forEach(function (p, j) {
                         p.classList[i === j ? 'add' : 'remove']('pages-on');
                     });
                 }, false);
+                a.addEventListener('click', function (evt) {
+                    evt.preventDefault();
+                });
+            });
+            $q('.pages').forEach(function (p) {
+                $q('a', p).forEach(function (a, i) {
+                    var len = $q('a', p).length;
+                    a.addEventListener('keydown', function (evt) {
+                        var code = evt.keyCode || evt.which;
+                        if ([37, 38, 39, 40].indexOf(code) > -1) {  // <- 37 39->   38Up 40Down
+                            if (code == 37 || code == 39) {
+                                var n = $q('.navs li').map(function (el, i) { return /on/.test(el.className); }).indexOf(true);
+                                $q('.navs li a')[moveNext(n, code == 37, $q('.navs li').length)].focus();
+                            } else if (code == 38 || code == 40) {
+                                $q('a', p)[moveNext(i, code == 38, len)].focus();
+                            }
+                        }
+                    }, false);
+                });
             });
         };
     </script>
