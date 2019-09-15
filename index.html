@@ -319,7 +319,7 @@
                         }
                     }
                 }, false);
-                a.addEventListener('focus', function (evt) {
+                function switchTab() {
                     $q('.navs li:not(:nth-child(' + i + 1 + '))').forEach(function (el) {
                         el.classList.remove('on');
                     });
@@ -327,9 +327,13 @@
                     $q('.pages').forEach(function (p, j) {
                         p.classList[i === j ? 'add' : 'remove']('pages-on');
                     });
+                }
+                a.addEventListener('focus', function (evt) {
+                    switchTab();
                 }, false);
                 a.addEventListener('click', function (evt) {
                     evt.preventDefault();
+                    switchTab();
                 });
             });
             $q('.pages').forEach(function (p) {
