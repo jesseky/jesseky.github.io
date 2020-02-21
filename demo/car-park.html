@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no" />
+    <title>Car Park Puzzle</title>
+    <style type="text/css">
+      html,
+      body,
+      h1,
+      h2,
+      h5,
+      p {
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background-color: #6699ff;
+        font-family: "Gill Sans", "Gill Sans MT", Calibri, "Trebuchet MS", sans-serif;
+      }
+      h2 {
+        font-size: 16px;
+        height: 1.5em;
+        line-height: 1.5em;
+      }
+      a {
+        outline: none;
+      }
+      #MainContainer {
+        margin: auto;
+        position: relative;
+        width: 700px;
+        height: 500px;
+        background-color: #6666ff;
+        background-image: url("car-park-img/coblestonesBlack.png");
+        border: 3px solid #000000;
+        border-radius: 5px;
+      }
+      #Wrap {
+        margin: 0 auto;
+        padding-top: 5px;
+        width: 786px;
+      }
+      #Wall {
+        width: 740px;
+        height: 508px;
+        background-color: silver;
+        background-image: url("car-park-img/Grey.jpg");
+        border: 3px solid #000000;
+        border-radius: 15px;
+        padding: 30px 20px 20px 20px;
+        text-align: center;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+
+      #Redcar {
+        position: absolute;
+        width: 300px;
+        height: 100px;
+        background-image: url("car-park-img/CarR.png");
+        background-repeat: no-repeat;
+        background-position: -20px -4px;
+        border: 0px red solid;
+        cursor: move;
+        z-index: 2;
+      }
+      #Redcar p {
+        text-align: center;
+        color: white;
+        font-size: 48px;
+        margin: 15px 20px;
+        text-shadow: 0px 0px 3px 3px silver;
+      }
+      #Exit {
+        position: absolute;
+        width: 75px;
+        height: 175px;
+        background-image: url("car-park-img/Exit2.png");
+        top: 175px;
+        left: 698px;
+        z-index: 1;
+      }
+      .Green {
+        position: absolute;
+        color: white;
+        cursor: move;
+      }
+      .V {
+        width: 100px;
+        height: 200px;
+        background-image: url("car-park-img/CarV.png");
+        background-repeat: no-repeat;
+        background-position: -3px -8px;
+      }
+      .V p {
+        margin-top: 120px;
+        text-align: center;
+      }
+      .H {
+        width: 200px;
+        height: 100px;
+        background-image: url("car-park-img/CarH.png");
+        background-repeat: no-repeat;
+        background-position: 1px -5px;
+      }
+      .H p {
+        margin: 38px 0px 0px 66px;
+      }
+      .LevelTabs {
+        margin-top: -35px;
+        margin-bottom: 1px;
+        text-align: center;
+      }
+      .LevelTabs a {
+        font-family: Arial, Helvetica, sans-serif;
+        font-size: 14px;
+        color: #444;
+        background-color: silver;
+        background: repeating-linear-gradient(0deg, silver 30px, white 60px);
+        border: 2px black solid;
+        padding: 2px 5px 0px 5px;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .LevelTabs a.ThisOne {
+        color: yellow;
+        background-color: #cccccc;
+        margin-top: 10px;
+        font-size: 16px;
+        border-bottom: 0px #fff solid;
+        font-weight: bold;
+        /*box-shadow: inset 0 0 10px #000000;*/
+      }
+
+      .LevelTabsBig {
+        margin-top: -43px;
+        margin-bottom: 15px;
+      }
+      .LevelTabsBig a {
+        font-size: 18px;
+      }
+      .LevelTabsBig a.ThisOne {
+        background-color: #efefef;
+        font-size: 18px;
+        background-image: url("car-park-img/Grey.jpg");
+        border-bottom: 4px #efefef solid;
+      }
+
+      div#Congratulations {
+        position: absolute;
+        top: 45%;
+        left: 0;
+        background-color: #e82e90;
+        border: medium #e4e4e4 solid;
+        border-radius: 20px;
+        display: none;
+        z-index: 100;
+      }
+      div#Congratulations p {
+        text-align: center;
+        font-family: "Comic Sans MS";
+        font-size: 18px;
+        margin: 10px;
+        color: white;
+      }
+      #BelowTheFold {
+        margin: 0 auto 10px auto;
+        border-radius: 10px;
+        background-color: white;
+        border: 2px solid black;
+        padding: 5px;
+      }
+      #Feedback {
+        visibility: hidden;
+        height: 22px;
+        overflow: auto;
+      }
+      .correct {
+        width: 207px;
+        height: 207px;
+        display: block;
+        margin: -207px auto 2px;
+      }
+    </style>
+
+    <script src="car-park-img/jquery-1.11.0.min.js" type="text/javascript"></script>
+    <script src="car-park-img/jquery-ui.min.js" type="text/javascript"></script>
+    <!--<script src="https://jquery-ui-for-ipad-and-iphone.googlecode.com/svn/trunk/jquery.ui.ipad.js" type="text/javascript"></script>
+<script src="/jquery/js/jquery.ui.ipad.js" type="text/javascript"></script>-->
+    <script src="car-park-img/jquery.ui.touch-punch.min.js"></script>
+    <script type="text/javascript">
+      var Level = 1;
+      var NumGreenCars = 0;
+      var CarPosL = new Array(); /*Left position of each car*/
+      var CarPosT = new Array(); /*Top position of each car*/
+      var CarPosO = new Array(); /*Orientation of each car H or V*/
+      var RedCarPosT = 3;
+      var RedCarPosL = 0;
+      var SquareStatus = new Array();
+      for (var i = 0; i <= 8; i++) {
+        SquareStatus[i] = new Array();
+      }
+      var NumberOfMoves;
+      var MinNumofMoves;
+      function initLevel() {
+        var sl = location.hash.slice(1);
+        if (!/^level[1-5]$/.test(sl)) {
+          sl = "level1";
+        }
+        $(".LevelTabs a")
+          .not("#" + sl)
+          .removeClass("ThisOne");
+        $("#" + sl).attr("class", "ThisOne");
+        Initialise(+sl.slice(5));
+      }
+      function reset() {
+        $("#Congratulations").hide();
+        $("#Feedback").css("visibility", "hidden");
+        initLevel();
+      }
+
+      $(window).on("hashchange", function() {
+        reset();
+      });
+      $(document).ready(function() {
+        $("#Congratulations").click(function(e) {
+          reset();
+          e.preventDefault();
+          e.stopPropagation();
+        });
+        document.body.addEventListener(
+          "touchmove",
+          function(e) {
+            e.preventDefault();
+          },
+          { passive: false }
+        );
+        initLevel();
+      });
+
+      /*$(window).on("resize", function() {
+        if (RedCarPosL < 5) {
+          reset();
+        }
+      }); */
+
+      function feedBackStep(t) {
+        $("#Feedback")
+          .css("visibility", "visible")
+          .show()
+          .find("span")
+          .append(
+            (/:$/.test(
+              $("#Feedback span")
+                .text()
+                .trim()
+            )
+              ? ""
+              : ", ") + t
+          );
+        $("#Feedback strong").html(" (" + (NumberOfMoves + 1) + ")");
+        var fb = $("#Feedback").get(0);
+        fb.scrollTop = fb.scrollHeight;
+      }
+      function Initialise(L) {
+        Level = L;
+        NumberOfMoves = 0;
+        $(".Green").remove();
+        $("#Redcar").remove();
+        $("#Feedback span").html("你已移动: ");
+        switch (L) {
+          case 1:
+            NumGreenCars = 12;
+            CarPosL = [-99, 1, 1, 4, 3, 6, 7, 7, 2, 6, 3, 2, 5];
+            CarPosT = [-99, 1, 4, 3, 5, 3, 4, 2, 1, 1, 2, 4, 5];
+            CarPosO = ["NULL", "V", "V", "V", "H", "V", "V", "V", "H", "H", "H", "H", "H"];
+            RedCarPosL = 1;
+            MinNumofMoves = 6;
+            break;
+          case 2:
+            NumGreenCars = 12;
+            CarPosL = [-99, 1, 1, 4, 3, 5, 7, 7, 4, 6, 3, 2, 5];
+            CarPosT = [-99, 1, 4, 3, 5, 3, 4, 2, 1, 1, 2, 4, 5];
+            CarPosO = ["NULL", "V", "V", "V", "H", "V", "V", "V", "H", "H", "H", "H", "H"];
+            RedCarPosL = 1;
+            MinNumofMoves = 9;
+            break;
+          case 3:
+            NumGreenCars = 12;
+            CarPosL = [-99, 1, 3, 4, 3, 5, 7, 7, 6, 4, 6, 1, 5];
+            CarPosT = [-99, 1, 1, 3, 5, 3, 4, 2, 1, 2, 2, 4, 5];
+            CarPosO = ["NULL", "V", "V", "V", "H", "V", "V", "V", "H", "H", "V", "H", "H"];
+            RedCarPosL = 1;
+            MinNumofMoves = 11;
+            break;
+          case 4:
+            NumGreenCars = 12;
+            CarPosL = [-99, 1, 3, 4, 4, 5, 7, 7, 4, 4, 6, 2, 6];
+            CarPosT = [-99, 4, 1, 3, 5, 3, 3, 1, 1, 2, 1, 4, 5];
+            CarPosO = ["NULL", "V", "V", "V", "H", "V", "V", "V", "H", "H", "V", "H", "H"];
+            RedCarPosL = 1;
+            MinNumofMoves = 14;
+            break;
+          case 5:
+            NumGreenCars = 12;
+            CarPosL = [-99, 1, 3, 4, 5, 7, 5, 1, 6, 7, 3, 5, 2];
+            CarPosT = [-99, 1, 1, 1, 1, 1, 2, 3, 3, 3, 4, 4, 5];
+            CarPosO = ["NULL", "H", "V", "V", "H", "V", "V", "V", "V", "V", "H", "V", "H"];
+            RedCarPosL = 2;
+            MinNumofMoves = 20;
+            break;
+        }
+        $("#MainContainer").append('<div id="Redcar"><p>你的车</p></div>');
+        $("#Redcar").css({
+          top: RedCarPosT * 100 - 100 + "px",
+          left: RedCarPosL * 100 - 100 + "px"
+        });
+        for (var i = 1; i <= NumGreenCars; i++) {
+          $("#MainContainer").append('<div class="Green ' + CarPosO[i] + '" id="Green' + i + '"><p>车 ' + i + "</p></div>");
+          $("#Green" + i).css({
+            top: CarPosT[i] * 100 - 100 + "px",
+            left: CarPosL[i] * 100 - 100 + "px"
+          });
+        }
+        RefreshBoard();
+      }
+
+      function SetContainment(e, i) {
+        //Allow a little wiggle in present position
+        var L1 = CarPosL[i] * 100 + 22;
+        var T1 = CarPosT[i] * 100 + 42;
+        if (CarPosO[i] == "V") {
+          var L2 = L1;
+          var T2 = T1 + 10;
+        } else {
+          var L2 = L1 + 10;
+          var T2 = T1;
+        }
+
+        //Account for an empty space in front or behind
+        var LengthOfTest = 1;
+        if (CarPosO[i] == "V") {
+          //console.log('Testing Square ',CarPosL[i],CarPosT[i]-LengthOfTest);
+          while (SquareStatus[CarPosL[i]][CarPosT[i] - LengthOfTest] == 0) {
+            T1 = T1 - 100;
+            LengthOfTest++;
+            //console.log('Testing Square ',CarPosL[i],CarPosT[i]-LengthOfTest);
+          }
+          LengthOfTest = 2;
+          while (SquareStatus[CarPosL[i]][CarPosT[i] + LengthOfTest] == 0) {
+            T2 = T2 + 100;
+            LengthOfTest++;
+            //console.log('Testing Square ',CarPosL[i],CarPosT[i]+LengthOfTest);
+          }
+        } else {
+          while (SquareStatus[CarPosL[i] - LengthOfTest][CarPosT[i]] == 0) {
+            L1 = L1 - 100;
+            LengthOfTest++;
+            //console.log('Testing Square ',CarPosL[i]-LengthOfTest,CarPosT[i]);
+          }
+          LengthOfTest = 2;
+          while (SquareStatus[CarPosL[i] + LengthOfTest][CarPosT[i]] == 0) {
+            L2 = L2 + 100;
+            LengthOfTest++;
+            //console.log('Testing Square ',CarPosL[i]+LengthOfTest,CarPosT[i],'For car '+i);
+          }
+        }
+        //Start draggable
+        L1 = $("#Wall").offset().left + L1 - 80;
+        L2 = $("#Wall").offset().left + L2 - 80;
+        T1 = $("#Wall").offset().top + T1 - 114;
+        T2 = $("#Wall").offset().top + T2 - 114;
+        //console.log('Setting Containment function ',e,i,L1,L2,T1,T2);
+        $("#" + e + i).draggable({
+          containment: [L1, T1, L2, T2],
+          stop: function() {
+            var xPos = Math.floor(($(this).offset().left - $("#Wall").offset().left - 40) / 100 + 1);
+            var yPos = Math.floor(($(this).offset().top - $("#Wall").offset().top - 25) / 100 + 1);
+            CarPosL[i] = xPos;
+            CarPosT[i] = yPos;
+            $(this).animate({ left: xPos * 100 - 100 + "px", top: yPos * 100 - 100 + "px" }, 100);
+            feedBackStep(i);
+            NumberOfMoves++;
+            RefreshBoard();
+          }
+        });
+      }
+
+      function SetRedContainment() {
+        //Allow a little wiggle in present position
+        var L1 = RedCarPosL * 100 + 22;
+        var T1 = RedCarPosT * 100 + 42;
+        var L2 = L1 + 10;
+        var T2 = T1;
+        //Account for an empty space in front or behind
+        var LengthOfTest = 1;
+        while (SquareStatus[RedCarPosL - LengthOfTest][RedCarPosT] == 0) {
+          L1 = L1 - 100;
+          LengthOfTest++;
+        }
+        LengthOfTest = 3;
+        while (SquareStatus[RedCarPosL + LengthOfTest][RedCarPosT] == 0) {
+          L2 = L2 + 100;
+          LengthOfTest++;
+        }
+        //Start draggable
+        L1 = $("#Wall").offset().left + L1 - 80;
+        L2 = $("#Wall").offset().left + L2 - 80;
+        T1 = $("#Wall").offset().top + T1 - 114;
+        T2 = $("#Wall").offset().top + T2 - 114;
+        $("#Redcar").draggable({
+          containment: [L1, T1, L2, T2],
+          stop: function(e) {
+            var xPos = Math.floor(($(this).offset().left - $("#Wall").offset().left - 40) / 100 + 1);
+            var yPos = Math.floor(($(this).offset().top - $("#Wall").offset().top - 25) / 100 + 1);
+            RedCarPosL = xPos;
+            RedCarPosT = yPos;
+            $(this).animate({ left: xPos * 100 - 100 + "px", top: yPos * 100 - 100 + "px" }, 100);
+            feedBackStep("你");
+            NumberOfMoves++;
+            if (RedCarPosL == 5) {
+              Success();
+            }
+            RefreshBoard();
+          }
+        });
+      }
+
+      function RefreshBoard() {
+        /*Set all square statess to zero (empty)*/
+        for (var i = 1; i <= 7; i++) {
+          for (var j = 1; j <= 5; j++) {
+            SquareStatus[i][j] = 0;
+          }
+        }
+        for (var i = 1; i <= NumGreenCars; i++) {
+          SquareStatus[CarPosL[i]][CarPosT[i]] = 1;
+          if (CarPosO[i] == "V") {
+            SquareStatus[CarPosL[i]][CarPosT[i] + 1] = 1;
+          } else {
+            SquareStatus[CarPosL[i] + 1][CarPosT[i]] = 1;
+          }
+        }
+        SquareStatus[RedCarPosL][RedCarPosT] = 1;
+        SquareStatus[RedCarPosL + 1][RedCarPosT] = 1;
+        SquareStatus[RedCarPosL + 2][RedCarPosT] = 1;
+
+        //For debugging only
+        //console.log('The array is now');
+        for (var j = 1; j <= 5; j++) {
+          //console.log(SquareStatus[1][j],SquareStatus[2][j],SquareStatus[3][j],SquareStatus[4][j],SquareStatus[5][j],SquareStatus[6][j],SquareStatus[7][j]);
+        }
+        for (var i = 1; i <= NumGreenCars; i++) {
+          SetContainment("Green", i);
+        }
+        SetRedContainment();
+      }
+
+      function Success() {
+        $("#Redcar").animate({ left: "1000px" }, 1000, function() {
+          $("#Redcar").remove();
+        });
+        $("#Congratulations").show();
+        $("#NoM").html("做得好，总共用了 " + NumberOfMoves + " 步. ");
+
+        if (NumberOfMoves > MinNumofMoves) {
+          $("#NoM").append("可以用更少步解决吗？ ");
+        } else {
+          $("#NoM").append("做得好，这是最少步解法");
+        }
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="Wrap">
+      <div id="BelowTheFold">
+        <h2>
+          只通过前进或后退，将你的车移出停车场
+        </h2>
+        <p id="Feedback"><span></span><strong></strong></p>
+      </div>
+      <div id="Wall">
+        <h5 class="LevelTabs LevelTabsBig Dontshowforprinting">
+          <a href="#level1" id="level1">Level 1</a>
+          <a href="#level2" id="level2">Level 2</a>
+          <a href="#level3" id="level3">Level 3</a>
+          <a href="#level4" id="level4">Level 4</a>
+          <a href="#level5" id="level5">Level 5</a>
+        </h5>
+
+        <div id="MainContainer">
+          <div id="Congratulations">
+            <img alt="Correct" src="car-park-img/Correct.png" class="correct" />
+            <p id="NoM"></p>
+          </div>
+          <div id="Exit"></div>
+        </div>
+      </div>
+      <!--End BelowTheFold-->
+    </div>
+  </body>
+</html>
