@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1, maximum-scale=1, user-scalable=no">
+    <title>九九乘法口诀表</title>
+    <script type="text/javascript" src="./vue-3.js"></script>
+    <style type="text/css">
+        div,
+        var,
+        b,
+        span {
+            margin: 0;
+            padding: 0;
+            font-style: normal;
+        }
+
+        html,
+        body {
+            width: 100%;
+            padding: 0;
+            margin: 0;
+        }
+
+        body {
+            display: flex;
+            flex-flow: column;
+            justify-content: center;
+            align-items: center;
+            background-color: #F5F5F5;
+            color: #797979;
+            font-family: Helvetica, Arial, "Microsoft Yahei", "Hiragino Sans GB", "Heiti SC", "WenQuanYi Micro Hei", sans-serif;
+            font-size: 12px;
+        }
+
+
+        #main {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+
+        .list td {
+            padding: 5px;
+        }
+
+        .list var,
+        .list b,
+        .list span {
+            display: inline-block;
+            min-width: 1.15em;
+        }
+
+        .list td {
+            border: 1px solid #bebebe;
+        }
+
+        .list span {
+            color: #090cc5;
+        }
+
+        .btn {
+            border-radius: 3px;
+            width: 100%;
+            border: 1px solid #D5D5D5;
+            font-size: 1rem;
+            line-height: 1.5em;
+            padding: 3px 0;
+            background-color: #eee;
+            background-image: linear-gradient(#FCFCFC, #EEE);
+            user-select: none;
+            box-shadow: 2px 2px 2px rgba(0, 0, 0, 0.05);
+            -webkit-appearance: none;
+        }
+
+        .btn:hover {
+            border-color: #CCC;
+            background-color: #DDD;
+            background-image: linear-gradient(#EEE, #DDD);
+        }
+
+        .btn:focus,
+        .btn:active {
+            border-color: #51A7E8;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn[disabled],
+        .btn[disabled]:hover,
+        .btn[disabled]:active {
+            color: rgba(102, 102, 102, 0.5);
+            background-image: none;
+            background-color: #EEE;
+            box-shadow: none;
+            border: 1px solid #D5D5D5;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        .txt,
+        .txa {
+            border-radius: 3px;
+            border: 1px solid #CCC;
+            box-shadow: 0px 1px 1px rgba(0, 0, 0, 0.075) inset;
+            font-size: 1rem;
+            padding: 3px 3px;
+            line-height: 1.5em;
+            color: #666;
+            width: 100%;
+            display: border-box;
+            box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            transition: border-color 0.15s ease-in-out 0s, box-shadow 0.15s ease-in-out 0s;
+        }
+
+        .txt:focus,
+        .txa:focus {
+            border-color: #66AFE9;
+            box-shadow: 0 1px 1px rgba(0, 0, 0, 0.075) inset, 0 0 5px rgba(102, 175, 233, 0.6);
+            outline: 0px none;
+        }
+
+        .list {
+            margin-bottom: 20px;
+        }
+
+        .listHide {
+            visibility: hidden;
+            margin-top: -200px;
+        }
+
+        .tests {
+            display: flex;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .tests div {
+            flex: 1;
+            font-size: 18px;
+            line-height: 18px;
+            text-align: center;
+        }
+
+        .tests div var,
+        .tests div b {
+            display: inline-block;
+            min-width: 1.5em;
+        }
+
+        .tests .txt {
+            width: auto;
+        }
+
+        .tests .btn {
+            max-width: 80px;
+            margin-left: 10px;
+        }
+
+        .answers {
+            margin-bottom: 60px;
+            padding: 5px 0 0 5px;
+            display: flex;
+            flex-wrap: wrap;
+            background: #FFF;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.25) inset
+        }
+
+        .answers span {
+            padding: 5px 10px;
+            margin: 0 5px 5px;
+            background: #e8e8e8;
+        }
+
+        .ok {
+            color: #090cc5;
+        }
+
+        .er {
+            color: #d10101;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="main">
+        <table class="list" :class="{listHide: isTest}">
+            <tbody>
+                <tr v-for="r in 9">
+                    <td v-for="c in range(r,9)"><var>{{r}}</var><b>×</b><var>{{c}}</var><b>=</b><span>{{r*c}}</span></td>
+                </tr>
+            </tbody>
+        </table>
+        <div class="tests" v-show="isTest">
+            <div><var>{{a}}</var><b>×</b><var>{{b}}</var><b>=</b></div><input type="number" class="txt" name="c" v-model="c"><button class="btn" type="button" @click="answer">回答</button>
+        </div>
+        <div class="result">
+            <h6 v-show="all.length">答对：<b class="ok">{{res.ok}}</b>，答错：<b class="er">{{res.er}}</b>，正确率：{{rate}}</h6>
+            <div class="answers" v-show="all.length">
+                <span v-for="d in all" :class="d.ok ? 'ok': 'er' ">
+                    {{d.a}}×{{d.b}}={{d.c}}<b v-if="!d.res">({{d.val}})</b> <cite>{{d.time}}s</cite>
+                </span>
+            </div>
+        </div>
+
+        <button class="btn" @click="test">{{isTest? '结束测试': '开始测试'}}</button>
+    </div>
+    <script type="text/javascript">
+        const mainVue = Vue.createApp({
+            data() {
+                return { isTest: false, a: 1, b: 1, c: '', res: { ok: 0, er: 0 }, start: 0, all: [] };
+            },
+            computed: {
+                rate() {
+                    return this.res.ok > 0 ? (100 * this.res.ok / (this.res.ok + this.res.er)).toFixed(1) + '%' : '';
+                }
+            },
+            methods: {
+                range(a, b) {
+                    return Array.from({ length: b - a + 1 }, (v, i) => +i + a);
+                },
+                randNumber(min, max) {
+                    return Math.floor(Math.random() * (max - min + 1) + min); // min and max included
+                },
+                test() {
+                    this.isTest = !this.isTest;
+                    if (this.isTest) {
+                        this.all = [];
+                        this.res = { ok: 0, er: 0 };
+                        this.one();
+                    }
+                },
+                one() {
+                    let n = 0;
+                    this.c = '';
+                    while (n++ < 10) {
+                        this.start = Date.now();
+                        this.a = this.randNumber(1, 9);
+                        this.b = this.randNumber(this.a, 9);
+                        if (this.all.length) {
+                            let last = this.all[this.all.length - 1];
+                            if (this.a != last.a || this.b != last.b) {
+                                break;
+                            }
+                        }
+                    }
+                    document.querySelector('.txt[name=c]').focus();
+                },
+                msg(m) {
+
+                },
+                answer() {
+                    if (!this.c) {
+                        msg('请回答');
+                    } else {
+                        console.log(this.c);
+                        let ok = this.c === this.a * this.b ? true : false;
+                        this.all.push({ a: this.a, b: this.b, c: this.c, val: this.a * this.b, ok: ok, time: +((Date.now() - this.start) / 1e3).toFixed(2) });
+                        if (ok) {
+                            this.res.ok++;
+                            this.msg('回答正确');
+                        } else {
+                            this.res.er++;
+                            this.msg('回答错误');
+                        }
+                        this.one();
+                    }
+                }
+            }
+        }).mount('#main');
+    </script>
+</body>
+
+</html>
