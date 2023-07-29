@@ -131,9 +131,9 @@
         }
 
         .tests {
+            width: 100%;
             display: flex;
             align-items: center;
-            margin-bottom: 20px;
         }
 
         .tests div {
@@ -159,7 +159,6 @@
         }
 
         .answers {
-            margin-bottom: 60px;
             padding: 5px 0 0 5px;
             display: flex;
             flex-wrap: wrap;
@@ -168,9 +167,15 @@
         }
 
         .answers span {
+            display: inline-flex;
+            justify-content: space-between;
             padding: 5px 10px;
             margin: 0 5px 5px;
             background: #e8e8e8;
+        }
+
+        .answers span var {
+            flex: 1;
         }
 
         .ok {
@@ -181,6 +186,45 @@
             color: #d10101;
         }
 
+        h6 {
+            margin: 0;
+            padding: 5px;
+            line-height: 1.5em;
+            font-size: 20px;
+        }
+
+        .btn-lite {
+            width: auto;
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+
+        .msg {
+            position: fixed;
+            top: -80px;
+            left: calc(50% - 160px);
+            transition: top 0.5s ease-in-out;
+            width: 320px;
+            color: #FF0000;
+            z-index: 99;
+        }
+
+        .msg-right {
+            color: #090cc5;
+        }
+
+        .msg-in {
+            border: 1px solid #5B5B5B;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+        }
+
+        .msg-show {
+            top: 20px;
+        }
+
         @media only screen and (max-device-width: 800px) {
             #main {
                 width: 95%;
@@ -189,11 +233,23 @@
             .list td {
                 padding: 1px;
             }
+
+            .answers {
+                max-height: calc(50vh - 100px);
+                overflow-y: auto;
+            }
+
+            .answers span {
+                width: calc(33.3% - 30px);
+            }
         }
     </style>
 </head>
 
 <body>
+    <div class="msg">
+        <div class="msg-in"></div>
+    </div>
     <div id="main">
         <table class="list" :class="{listHide: isTest}">
             <tbody>
@@ -202,19 +258,19 @@
                 </tr>
             </tbody>
         </table>
-        <div class="tests" v-show="isTest">
-            <div><var>{{a}}</var><b>×</b><var>{{b}}</var><b>=</b></div><input type="number" class="txt" name="c" v-model="c"><button class="btn" type="button" @click="answer">回答</button>
-        </div>
+
         <div class="result">
             <h6 v-show="all.length">答对：<b class="ok">{{res.ok}}</b>，答错：<b class="er">{{res.er}}</b>，正确率：{{rate}}</h6>
             <div class="answers" v-show="all.length">
                 <span v-for="d in all" :class="d.ok ? 'ok': 'er' ">
-                    {{d.a}}×{{d.b}}={{d.c}}<b v-if="!d.res">({{d.val}})</b> <cite>{{d.time}}s</cite>
+                    <var>{{d.a}}×{{d.b}}={{d.c}}<b v-if="!d.ok">({{d.val}})</b></var><cite>{{d.time}}s</cite>
                 </span>
             </div>
         </div>
-
-        <button class="btn" @click="test">{{isTest? '结束测试': '开始测试'}}</button>
+        <button class="btn" @click="test" :class="{'btn-lite': isTest}">{{isTest? '结束测试': '开始测试'}}</button>
+        <div class="tests" v-show="isTest">
+            <div><var>{{a}}</var><b>×</b><var>{{b}}</var><b>=</b></div><input type="number" class="txt" name="c" v-model="c"><button class="btn" type="button" @click="answer">回答</button>
+        </div>
     </div>
     <script type="text/javascript">
         const mainVue = Vue.createApp({
@@ -234,6 +290,9 @@
                     return Math.floor(Math.random() * (max - min + 1) + min); // min and max included
                 },
                 test() {
+                    if (this.isTest && !window.confirm('确定要结束本次测试吗？')) {
+                        return;
+                    }
                     this.isTest = !this.isTest;
                     if (this.isTest) {
                         this.all = [];
@@ -257,24 +316,34 @@
                     }
                     document.querySelector('.txt[name=c]').focus();
                 },
-                msg(m) {
-
+                msg(m, ok) {
+                    document.querySelector('.msg-in').innerHTML = m;
+                    if (ok) document.querySelector('.msg').classList.add('msg-right');
+                    document.querySelector('.msg').classList.add('msg-show');
+                    setTimeout(function () {
+                        document.querySelector('.msg-in').innerHTML = '';
+                        document.querySelector('.msg').setAttribute('class', 'msg');
+                    }, 1000);
+                },
+                scroll() {
+                    document.querySelector('.answers').scrollTop = document.querySelector('.answers').scrollHeight;
                 },
                 answer() {
                     if (!this.c) {
-                        msg('请回答');
+                        this.msg('请回答');
                     } else {
                         console.log(this.c);
                         let ok = this.c === this.a * this.b ? true : false;
                         this.all.push({ a: this.a, b: this.b, c: this.c, val: this.a * this.b, ok: ok, time: +((Date.now() - this.start) / 1e3).toFixed(2) });
                         if (ok) {
                             this.res.ok++;
-                            this.msg('回答正确');
+                            this.msg('回答正确', true);
                         } else {
                             this.res.er++;
                             this.msg('回答错误');
                         }
                         this.one();
+                        this.scroll();
                     }
                 }
             }
