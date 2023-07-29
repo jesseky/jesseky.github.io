@@ -36,7 +36,7 @@
 
 
         #main {
-            max-width: 800px;
+            width: 800px;
             margin: 0 auto;
             padding: 10px;
         }
@@ -127,8 +127,7 @@
         }
 
         .listHide {
-            visibility: hidden;
-            margin-top: -200px;
+            display: none;
         }
 
         .tests {
@@ -151,7 +150,7 @@
         }
 
         .tests .txt {
-            width: 100px;
+            width: 120px;
         }
 
         .tests .btn {
@@ -180,6 +179,16 @@
 
         .er {
             color: #d10101;
+        }
+
+        @media only screen and (max-device-width: 800px) {
+            #main {
+                width: 95%;
+            }
+
+            .list td {
+                padding: 1px;
+            }
         }
     </style>
 </head>
