@@ -277,9 +277,14 @@
     </div>
     <div id="main">
         <table class="list" :class="{listHide: isTest}">
-            <tbody>
+            <tbody v-if="isV">
                 <tr v-for="r in 9">
                     <td v-for="c in range(r,9)"><var>{{r}}</var><i>×</i><var>{{c}}</var><b>=</b><span>{{r*c}}</span></td>
+                </tr>
+            </tbody>
+            <tbody v-else>
+                <tr v-for="r in 9">
+                    <td v-for="c in r"><var>{{c}}</var><i>×</i><var>{{r}}</var><b>=</b><span>{{r*c}}</span></td>
                 </tr>
             </tbody>
         </table>
@@ -295,7 +300,7 @@
                 </span>
             </div>
         </div>
-        <button class="btn" @click="test" :class="{'btn-lite': isTest}">{{isTest? '结束测试': '开始测试'}}</button>
+        <button class="btn" @click="setV" v-show="!isTest">{{isV ? '正排':'倒排'}}</button> <button class="btn" @click="test" :class="{'btn-lite': isTest}">{{isTest? '结束测试': '开始测试'}}</button>
         <div class="tests" v-show="isTest">
             <div><var>{{a}}</var><b>×</b><var>{{b}}</var><b>=</b></div><input type="number" class="txt" name="c" v-model="c"><button class="btn" type="button" @click="answer">回答</button>
         </div>
@@ -306,7 +311,7 @@
         }
         const mainVue = Vue.createApp({
             data() {
-                return { isTest: false, questions: [], qlen: 0, a: 1, b: 1, c: '', res: { ok: 0, er: 0 }, start: 0, all: [] };
+                return { isTest: false, isV: true, questions: [], qlen: 0, a: 1, b: 1, c: '', res: { ok: 0, er: 0 }, start: 0, all: [] };
             },
             computed: {
                 rate() {
@@ -325,6 +330,9 @@
                 },
                 randNumber(min, max) {
                     return Math.floor(Math.random() * (max - min + 1) + min); // min and max included
+                },
+                setV() {
+                    this.isV = !this.isV;
                 },
                 test() {
                     if (this.isTest && !window.confirm('确定要结束本次测试吗？')) {
