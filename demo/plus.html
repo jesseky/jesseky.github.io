@@ -188,7 +188,7 @@
 
         h6 {
             margin: 0;
-            padding: 5px;
+            padding: 5px 0;
             line-height: 1.5em;
             font-size: 20px;
         }
@@ -223,6 +223,24 @@
 
         .msg-show {
             top: 20px;
+        }
+
+        .result {
+            margin-bottom: 10px;
+        }
+
+        .summary {
+            position: relative;
+        }
+
+        .summary div {
+            position: absolute;
+            height: 2px;
+            background: #51A7E8;
+        }
+
+        .summary cite {
+            float: right;
         }
 
         @media only screen and (max-device-width: 800px) {
@@ -260,7 +278,10 @@
         </table>
 
         <div class="result">
-            <h6 v-show="all.length">答对：<b class="ok">{{res.ok}}</b>，答错：<b class="er">{{res.er}}</b>，正确率：{{rate}}</h6>
+            <div class="summary" v-show="all.length">
+                <h6><cite>{{curr}}/{{qlen}}</cite>答对：<b class="ok">{{res.ok}}</b>，答错：<b class="er">{{res.er}}</b>，正确率：{{rate}}</h6>
+                <div class="procss" :style="process"></div>
+            </div>
             <div class="answers" v-show="all.length">
                 <span v-for="d in all" :class="d.ok ? 'ok': 'er' ">
                     <var>{{d.a}}×{{d.b}}={{d.c}}<b v-if="!d.ok">({{d.val}})</b></var><cite>{{d.time}}s</cite>
@@ -273,13 +294,22 @@
         </div>
     </div>
     <script type="text/javascript">
+        function $q(s) {
+            return document.querySelector(s);
+        }
         const mainVue = Vue.createApp({
             data() {
-                return { isTest: false, a: 1, b: 1, c: '', res: { ok: 0, er: 0 }, start: 0, all: [] };
+                return { isTest: false, questions: [], qlen: 0, a: 1, b: 1, c: '', res: { ok: 0, er: 0 }, start: 0, all: [] };
             },
             computed: {
                 rate() {
                     return this.res.ok > 0 ? (100 * this.res.ok / (this.res.ok + this.res.er)).toFixed(1) + '%' : '';
+                },
+                process() {
+                    return 'width:' + (this.qlen ? (100 * (this.qlen - this.questions.length) / this.qlen) : '0') + '%;';
+                },
+                curr() {
+                    return this.qlen - this.questions.length - (!this.isTest && this.questions.length ? 1 : 0);
                 }
             },
             methods: {
@@ -297,14 +327,17 @@
                     if (this.isTest) {
                         this.all = [];
                         this.res = { ok: 0, er: 0 };
+                        this.questions = this.range(1, 9).flatMap(a => this.range(a, 9).map(b => [a, b])).sort(() => Math.random() - 0.5);
+                        this.qlen = this.questions.length;
                         this.one();
                     }
                 },
                 one() {
-                    let n = 0;
                     this.c = '';
+                    this.start = Date.now();
+                    /*
+                    let n = 0;
                     while (n++ < 10) {
-                        this.start = Date.now();
                         this.a = this.randNumber(1, 9);
                         this.b = this.randNumber(this.a, 9);
                         if (this.all.length) {
@@ -313,26 +346,31 @@
                                 break;
                             }
                         }
+                    } */
+                    if (!this.questions.length) {
+                        this.isTest = false;
+                        this.msg('题目全部回答完毕', true);
+                        return;
                     }
-                    document.querySelector('.txt[name=c]').focus();
+                    [this.a, this.b] = this.questions.shift();
+                    $q('.txt[name=c]').focus();
                 },
                 msg(m, ok) {
-                    document.querySelector('.msg-in').innerHTML = m;
-                    if (ok) document.querySelector('.msg').classList.add('msg-right');
-                    document.querySelector('.msg').classList.add('msg-show');
+                    $q('.msg-in').innerHTML = m;
+                    if (ok) $q('.msg').classList.add('msg-right');
+                    $q('.msg').classList.add('msg-show');
                     setTimeout(function () {
-                        document.querySelector('.msg-in').innerHTML = '';
-                        document.querySelector('.msg').setAttribute('class', 'msg');
+                        $q('.msg-in').innerHTML = '';
+                        $q('.msg').setAttribute('class', 'msg');
                     }, 1000);
                 },
                 scroll() {
-                    document.querySelector('.answers').scrollTop = document.querySelector('.answers').scrollHeight;
+                    $q('.answers').scrollTop = $q('.answers').scrollHeight;
                 },
                 answer() {
                     if (!this.c) {
                         this.msg('请回答');
                     } else {
-                        console.log(this.c);
                         let ok = this.c === this.a * this.b ? true : false;
                         this.all.push({ a: this.a, b: this.b, c: this.c, val: this.a * this.b, ok: ok, time: +((Date.now() - this.start) / 1e3).toFixed(2) });
                         if (ok) {
