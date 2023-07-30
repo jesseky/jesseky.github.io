@@ -10,6 +10,7 @@
         div,
         var,
         b,
+        i,
         span {
             margin: 0;
             padding: 0;
@@ -45,11 +46,16 @@
             padding: 5px;
         }
 
-        .list var,
         .list b,
+        .list i,
         .list span {
             display: inline-block;
             min-width: 1.15em;
+        }
+
+        .list i,
+        .list b {
+            text-align: center;
         }
 
         .list td {
@@ -58,6 +64,8 @@
 
         .list span {
             color: #090cc5;
+            text-align: right;
+            min-width: 1.25em;
         }
 
         .btn {
@@ -190,7 +198,7 @@
             margin: 0;
             padding: 5px 0;
             line-height: 1.5em;
-            font-size: 20px;
+            font-size: 18px;
         }
 
         .btn-lite {
@@ -272,14 +280,14 @@
         <table class="list" :class="{listHide: isTest}">
             <tbody>
                 <tr v-for="r in 9">
-                    <td v-for="c in range(r,9)"><var>{{r}}</var><b>×</b><var>{{c}}</var><b>=</b><span>{{r*c}}</span></td>
+                    <td v-for="c in range(r,9)"><var>{{r}}</var><i>×</i><var>{{c}}</var><b>=</b><span>{{r*c}}</span></td>
                 </tr>
             </tbody>
         </table>
 
         <div class="result">
             <div class="summary" v-show="all.length">
-                <h6><cite>{{curr}}/{{qlen}}</cite>答对：<b class="ok">{{res.ok}}</b>，答错：<b class="er">{{res.er}}</b>，正确率：{{rate}}</h6>
+                <h6><cite>{{curr}}/{{qlen}}</cite>答对：<b class="ok">{{res.ok}}</b>，答错：<b class="er">{{res.er}}</b>，准确率 {{rate}}</h6>
                 <div class="procss" :style="process"></div>
             </div>
             <div class="answers" v-show="all.length">
