@@ -307,7 +307,7 @@
         </div>
         <button class="btn" @click="setV" v-show="!isTest">{{isV ? '正排':'倒排'}}</button> <button class="btn" @click="test" :class="{'btn-lite': isTest}">{{isTest? '结束测试': '开始测试'}}</button>
         <div class="tests" v-show="isTest">
-            <div><var>{{a}}</var><b>×</b><var>{{b}}</var><b>=</b></div><input type="number" class="txt" name="c" v-model="c"><button class="btn" type="button" @click="answer">回答</button>
+            <div><var>{{a}}</var><b>×</b><var>{{b}}</var><b>=</b></div><input type="number" pattern="[0-9]*" class="txt" name="c" v-model="c" @keyup.enter="enter"><button class="btn" type="button" @click="answer">回答</button>
         </div>
     </div>
     <script type="text/javascript">
@@ -338,6 +338,9 @@
                 },
                 setV() {
                     this.isV = !this.isV;
+                },
+                enter(evt) {
+                    this.answer();
                 },
                 test() {
                     if (this.isTest && !window.confirm('确定要结束本次测试吗？')) {
