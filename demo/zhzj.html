@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+    <title>中华字经</title>
+    <style type="text/css" media="all">
+        html,
+        body,
+        section,
+        div,
+        h1 {
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            background: #E2E2E2;
+        }
+
+        html,
+        body {
+            color: #000;
+            line-height: 1.5;
+            font: 20px/1.5 Arial, "Hiragino Sans GB", "STHeiti", "WenQuanYi Micro Hei", "Microsoft YaHei", "STKaiti", "Kaiti", "Kai", sans-serif;
+        }
+
+        body {
+            margin: 0 auto;
+        }
+
+        .main {
+            background: #FFF;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 0.5in;
+        }
+
+        h1 {
+            line-height: 1.5em;
+            margin-bottom: 0.5em;
+            text-align: center;
+        }
+
+        .blank {
+            width: 4em;
+        }
+
+        .poem {
+            font-size: 0.8rem;
+            margin-bottom: 2.5em;
+            display: flex;
+            text-align: center;
+            justify-content: center;
+            width: 100%;
+            page-break-inside: avoid;
+        }
+
+        .poem.last {
+            margin-bottom: 0;
+        }
+
+        .poem ruby {
+            ruby-align: center;
+            min-width: 2.15em;
+        }
+
+        .poem rt {
+            color: #146fbf;
+        }
+
+        .poem rb {
+            color: #000;
+            display: block;
+            font-weight: normal;
+        }
+
+        @page {
+            size: A4;
+            margin: 0.75in 0.2in;
+        }
+
+        @media print {
+
+            html,
+            body {
+                width: 210mm;
+                height: 297mm;
+            }
+
+            .main {
+                padding-top: 0;
+            }
+        }
+    </style>
+    <script src="vue.js"></script>
+</head>
+
+<body>
+    <div class="main" id="main">
+        <h1>{{title}}</h1>
+        <section class="container">
+            <div class="poem" :class="{'last': i == letters.length-1}" v-for="(l,i) in letters">
+                <ruby v-for="(c,j) in l" :class="{'blank': ' '===c}">
+                    <rb>{{out(c)}}</rb>
+                    <rt>{{out(pinyins[i][j])}}</rt>
+                </ruby>
+            </div>
+        </section>
+    </div>
+    <script type="text/javascript">
+        const letters = ['天文', '乾坤有序 宇宙无疆 星辰密布 斗柄指航', '昼白夜黑 日明月亮 风驰雪舞 电闪雷响', '云腾致雨 露结晨霜 虹霓霞辉 雾沉雹降', '春生夏长 秋收冬藏 时令应候 寒来暑往',
+            '地理', '远古洪荒 海田沧桑 陆地漂移 板块碰撞', '山岳巍峨 湖泊荡漾 植被旷野 岛撒汪洋', '冰川冻土 沙漠沃壤 木丰树森 岩多滩广', '鸟飞兽走 鳞潜羽翔 境态和谐 物种安详',
+            '人伦', '父母爹娘 没齿难忘 兄弟姐妹 危困助帮', '姑姨叔舅 亲戚互访 侄男闺少 哺育茁壮', '夫妻相敬 梦忆糟糠 隔屋邻舍 遇事谦谅', '伯公妪婆 慈孝赡养 尊朋礼友 仁义君郎'].map(l => [...l]);
+        const pinyins = ['tiān wén',
+            'qián kūn yǒu xù  yǔ zhòu wú jiāng  xīng chén mì bù  dǒu bǐng zhǐ háng',
+            'zhòu bái yè hēi  rì míng yuè liàng  fēng chí xuě wǔ  diàn shǎn léi xiǎng',
+            'yún téng zhì yǔ  lù jié chén shuāng  hóng ní xiá huī  wù chén báo jiàng',
+            'chūn shēng xià zhǎng  qiū shōu dōng cáng  shí lìng yīng hòu  hán lái shǔ wǎng',
+            'dì lǐ',
+            'yuǎn gǔ hóng huāng  hǎi tián cāng sāng  lù dì piāo yí  bǎn kuài pèng zhuàng',
+            'shān yuè wēi é  hú pō dàng yàng  zhí bèi kuàng yě  dǎo sā wāng yáng',
+            'bīng chuān dòng tǔ  shā mò wò rǎng  mù fēng shù sēn  yán duō tān guǎng',
+            'niǎo fēi shòu zǒu  lín qián yǔ xiáng  jìng tài hé xié  wù zhǒng ān xiáng',
+            'rén lún',
+            'fù mǔ diē niáng  mò chǐ nán wàng  xiōng dì jiě mèi  wēi kùn zhù bāng',
+            'gū yí shū jiù  qīn qī hù fǎng  zhí nán guī shào  bǔ yù zhuó zhuàng',
+            'fū qī xiàng jìng  mèng yì zāo kāng  gé wū lín shè  yù shì qiān liàng',
+            'bó gōng yù pó  cí xiào shàn yǎng  zūn péng lǐ yǒu  rén yì jūn láng'
+        ].map(ln => ln.split(/\s/));
+        var app = new Vue({
+            el: '#main',
+            data: {
+                letters: letters,
+                pinyins: pinyins,
+                title: '中华字经'
+            },
+            methods: {
+                out(v) {
+                    return v === ' ' ? '' : v;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>

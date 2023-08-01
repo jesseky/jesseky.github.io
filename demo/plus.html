@@ -5,7 +5,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1, maximum-scale=1, user-scalable=no">
     <title>九九乘法口诀表</title>
-    <script type="text/javascript" src="./vue-3.js"></script>
+    <script type="text/javascript" src="./vue-3.min.js"></script>
+    <script type="text/javascript" src="./confetti.min.js"></script>
     <style type="text/css">
         div,
         var,
@@ -180,14 +181,19 @@
 
         .answers span {
             display: inline-flex;
+            min-width: 74px;
             justify-content: space-between;
             padding: 5px 10px;
-            margin: 0 5px 5px;
+            margin: 0 5px 5px 0;
             background: #e8e8e8;
         }
 
         .answers span var {
             flex: 1;
+        }
+
+        .answers span cite {
+            color: #000;
         }
 
         .ok {
@@ -270,7 +276,18 @@
             }
 
             .answers span {
-                width: calc(33.3% - 30px);
+                width: calc(33.3% - 25px);
+            }
+        }
+
+        @media only screen and (min-device-width: 760px) and (max-device-width: 800px) {
+            .answers {
+                max-height: calc(50vh - 100px);
+                overflow-y: auto;
+            }
+
+            .answers span {
+                width: calc(25% - 25px);
             }
         }
     </style>
@@ -301,7 +318,7 @@
             </div>
             <div class="answers" v-show="all.length">
                 <span v-for="d in all" :class="d.ok ? 'ok': 'er' ">
-                    <var>{{d.a}}×{{d.b}}={{d.c}}<b v-if="!d.ok">({{d.val}})</b></var><cite>{{d.time}}s</cite>
+                    <var>{{d.a}}×{{d.b}}={{d.c}}<b v-if="!d.ok">({{d.val}})</b></var><cite>{{times(d.time)}}</cite>
                 </span>
             </div>
         </div>
@@ -316,7 +333,7 @@
         }
         const mainVue = Vue.createApp({
             data() {
-                return { isTest: false, isV: false, questions: [], qlen: 0, a: 1, b: 1, c: '', res: { ok: 0, er: 0 }, start: 0, all: [] };
+                return { isTest: false, isV: false, timer: 0, questions: [], qlen: 0, a: 1, b: 1, c: '', res: { ok: 0, er: 0 }, start: 0, all: [] };
             },
             computed: {
                 rate() {
@@ -372,20 +389,37 @@
                     } */
                     if (!this.questions.length) {
                         this.isTest = false;
-                        this.msg('题目全部回答完毕', true);
+                        if (this.res.ok !== this.qlen) {
+                            this.msg('题目全部回答完毕，答错：' + this.res.er + '题', false, 5000);
+                        } else {
+                            this.msg('🎉🎉🎉恭喜你全部回答正确🎉🎉🎉', true, 5000);
+                            this.confetti();
+                        }
                         return;
                     }
                     [this.a, this.b] = this.questions.shift();
                     $q('.txt[name=c]').focus();
                 },
-                msg(m, ok) {
+                confetti() {
+                    confetti();
+                    setTimeout(() => {
+                        confetti.reset();
+                    }, 5000);
+                },
+                msg(m, ok, time) {
                     $q('.msg-in').innerHTML = m;
                     if (ok) $q('.msg').classList.add('msg-right');
+                    else if ($q('.msg').classList.contains('msg-right')) $q('.msg').classList.remove('msg-right');
                     $q('.msg').classList.add('msg-show');
-                    setTimeout(function () {
-                        $q('.msg-in').innerHTML = '';
+                    if (this.timer) clearTimeout(this.timer);
+                    this.timer = setTimeout(function () {
+                        this.timer = 0;
                         $q('.msg').setAttribute('class', 'msg');
-                    }, 1000);
+                        $q('.msg-in').innerHTML = '';
+                    }, time || 1000);
+                },
+                times(s) {
+                    return s > 60 ? (s / 60).toFixed(1) + 'm' : s + 's';
                 },
                 scroll() {
                     $q('.answers').scrollTop = $q('.answers').scrollHeight;
@@ -395,7 +429,7 @@
                         this.msg('请回答');
                     } else {
                         let ok = this.c === this.a * this.b ? true : false;
-                        this.all.push({ a: this.a, b: this.b, c: this.c, val: this.a * this.b, ok: ok, time: +((Date.now() - this.start) / 1e3).toFixed(2) });
+                        this.all.push({ a: this.a, b: this.b, c: this.c, val: this.a * this.b, ok: ok, time: +((Date.now() - this.start) / 1e3).toFixed(1) });
                         if (ok) {
                             this.res.ok++;
                             this.msg('回答正确', true);
@@ -403,8 +437,8 @@
                             this.res.er++;
                             this.msg('回答错误');
                         }
-                        this.one();
                         this.scroll();
+                        this.one();
                     }
                 }
             }

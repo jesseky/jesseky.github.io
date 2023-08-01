@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1, maximum-scale=1, user-scalable=no">
+    <title>声律启蒙</title>
+    <style type="text/css" media="all">
+        html,
+        body,
+        div,
+        p,
+        h1,
+        h2,
+        h3,
+        svg {
+            margin: 0;
+            padding: 0;
+        }
+
+        html {
+            background: #E2E2E2;
+        }
+
+        html,
+        body {
+            color: #1f2f3d;
+            line-height: 1.5;
+            height: 100%;
+            font: 20px/1.5 Arial, "STKaiti", "Kaiti", "Kai", "Hiragino Sans GB", "STHeiti", "WenQuanYi Micro Hei", "Microsoft YaHei", sans-serif;
+        }
+
+        body {
+            width: 210mm;
+            height: 297mm;
+            margin: 0 auto;
+            background: #FFF;
+        }
+
+        .main {
+            padding: 0.5in;
+        }
+
+        h1 {
+            line-height: 2em;
+            text-align: center;
+        }
+
+        h2 {
+            font-size: 0.75rem;
+            text-align: center;
+            font-weight: normal;
+            line-height: 2em;
+            margin-bottom: 3em;
+        }
+
+        .blank {
+            width: 4em;
+        }
+
+        .poem {
+            margin-bottom: 2.5em;
+            display: flex;
+            text-align: center;
+            justify-content: center;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .poem.last {
+            margin-bottom: 0;
+        }
+
+        .poem ruby {
+            display: block;
+            float: left;
+            min-width: 2.15em;
+        }
+
+        .poem rt {
+            color: #146fbf;
+        }
+
+        .poem b {
+            color: #000;
+            display: block;
+            font-weight: normal;
+        }
+
+        @page {
+            size: A4;
+            margin: 0;
+        }
+
+        @media print {
+
+            html,
+            body {
+                width: 210mm;
+                height: 297mm;
+            }
+        }
+    </style>
+    <script src="vue.js"></script>
+</head>
+
+<body>
+    <div class="main">
+        <h1>声律启蒙</h1>
+        <section class="container" id="container">
+            <div class="poem" :class="{'last': i == pinyins.length-1}" v-for="(l,i) in pinyins">
+                <ruby v-for="(c,j) in l">
+                    <b :class="{'blank': ','===letters[i][j]}">{{out(letters[i][j])}}</b>
+                    <rt :class="{'blank': ','===c}">{{out(c)}}</rt>
+                </ruby>
+            </div>
+        </section>
+    </div>
+    <script type="text/javascript">
+        const letters = ['云对雨 雪对风,晚照对晴空', '三尺剑 六钧弓,岭北对江东',
+            '颜巷陋 阮途穷,白叟对黄童', '沿对革 异对同,冀北对辽东',
+            '两鬓霜 一客行,新绿衬酒红', '七颗星 一袍风,尧舜对苍生',
+            '天浩浩 日融融,弯月对长虹', '我对你 嘴对心,九夏对三冬'].map(l => [...l]);
+        const pinyins = ['yún duì yǔ  xuě duì fēng , wǎn zhào duì qíng kōng', 'sān chǐ jiàn , liù jūn gōng , lǐng běi duì jiāng dōng',
+            'yán xiàng lòu  ruǎn tú qióng , bái sǒu duì huáng tóng', 'yán duì gé  yì duì tóng , jì běi duì liáo dōng',
+            'liǎng bìn shuāng  yī kè xíng , xīn lǜ chèn jiǔ hóng', 'qī kē xīng  yī páo fēng , yáo shùn duì cāng shēng',
+            'tiān hào hào  rì róng róng , wān yuè duì cháng hóng', 'wǒ duì nǐ  zuǐ duì xīn , jiǔ xià duì sān dōng'].map(ln => ln.split(/\s/));
+        var app = new Vue({
+            el: '#container',
+            data: {
+                letters: letters,
+                pinyins: pinyins
+            },
+            methods: {
+                out(v) {
+                    return v === ',' ? '' : v;
+                }
+            }
+        });
+    </script>
+</body>
+
+</html>
