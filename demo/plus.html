@@ -211,6 +211,15 @@
             font-size: 18px;
         }
 
+        h6 span {
+            color: #01a1d1;
+        }
+
+        h6 i {
+            color: #bb8205;
+            margin-left: 5px;
+        }
+
         .btn-lite {
             width: auto;
             padding-left: 5px;
@@ -313,7 +322,7 @@
 
         <div class="result">
             <div class="summary" v-show="all.length">
-                <h6><cite>{{curr}}/{{qlen}}</cite>答对：<b class="ok">{{res.ok}}</b>，答错：<b class="er">{{res.er}}</b>，准确率 {{rate}}</h6>
+                <h6><cite>{{curr}}/{{qlen}}</cite>答错：<b class="er">{{res.er}}</b>，答对：<b class="ok">{{res.ok}}</b>，<span>{{rate}}</span> <i v-if="!isTest">{{totalTime}}</i></h6>
                 <div class="procss" :style="process"></div>
             </div>
             <div class="answers" v-show="all.length">
@@ -333,17 +342,21 @@
         }
         const mainVue = Vue.createApp({
             data() {
-                return { isTest: false, isV: false, timer: 0, questions: [], qlen: 0, a: 1, b: 1, c: '', res: { ok: 0, er: 0 }, start: 0, all: [] };
+                return { isTest: false, isV: false, timer: 0, startTime: 0, endTime: 0, questions: [], qlen: 0, a: 1, b: 1, c: '', res: { ok: 0, er: 0 }, start: 0, all: [] };
             },
             computed: {
                 rate() {
-                    return this.res.ok > 0 ? (100 * this.res.ok / (this.res.ok + this.res.er)).toFixed(1) + '%' : '';
+                    return this.res.ok > 0 ? (100 * this.res.ok / (this.res.ok + this.res.er)).toFixed(0) + '%' : '';
                 },
                 process() {
                     return 'width:' + (this.qlen ? (100 * (this.qlen - this.questions.length) / this.qlen) : '0') + '%;';
                 },
                 curr() {
                     return this.qlen - this.questions.length - (!this.isTest && this.questions.length ? 1 : 0);
+                },
+                totalTime() {
+                    const sec = this.endTime - this.startTime;
+                    return sec > 60 * 1e3 ? Math.floor(sec / 1e3 / 60) + "'" + ((sec - Math.floor(sec / 1e3 / 60) * 1e3 * 60) / 1e3).toFixed(1) + "''" : (sec / 1e3).toFixed(1) + "''";
                 }
             },
             methods: {
@@ -369,7 +382,12 @@
                         this.res = { ok: 0, er: 0 };
                         this.questions = this.range(1, 9).flatMap(a => this.range(a, 9).map(b => [a, b])).sort(() => Math.random() - 0.5);
                         this.qlen = this.questions.length;
+                        this.startTime = Date.now();
+                        this.endTime = Date.now();
                         this.one();
+                    } else {
+                        this.endTime = Date.now();
+                        this.msg('测试已结束，共回答：' + this.all.length + '题', false, 5000);
                     }
                 },
                 one() {
@@ -395,6 +413,7 @@
                             this.msg('🎉🎉🎉恭喜你全部回答正确🎉🎉🎉', true, 5000);
                             this.confetti();
                         }
+                        this.endTime = Date.now();
                         return;
                     }
                     [this.a, this.b] = this.questions.shift();
